@@ -171,7 +171,49 @@ form1.addEventListener("submit", function(event){
   form1.reset();
 });
 
-function showMessage(){
-  alert("Thank you for your response!");
-}
+  function showMessage(message, type) {
+    const msgBox = document.createElement("div");
+    msgBox.textContent = message;
+    msgBox.style.padding = "10px";
+    msgBox.style.marginTop = "10px";
+    msgBox.style.borderRadius = "5px";
+    msgBox.style.color = "#fff";
+    msgBox.style.background = type === "success" ? "green" : "red";
+    document.getElementById("myForm").appendChild(msgBox);
+
+    setTimeout(() => msgBox.remove(), 3000);
+  }
+
+  document.getElementById("myForm").addEventListener("submit", function (e) {
+    e.preventDefault(); // stop form submit
+
+    const name = document.querySelector("input[name='fullname']").value.trim();
+    const email = document.querySelector("input[name='email']").value.trim();
+    const message = document.querySelector("textarea[name='message']").value.trim();
+
+    // Regex for email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (name === "") {
+      showMessage("Please enter your full name", "error");
+      return;
+    }
+
+    if (!emailPattern.test(email)) {
+      showMessage("Enter a valid email address", "error");
+      return;
+    }
+
+    if (message === "") {
+      showMessage("Message cannot be empty", "error");
+      return;
+    }
+
+    showMessage("Message sent successfully!", "success");
+
+    // Optional: Reset form after success
+    this.reset();
+  });
+
+
 
