@@ -1,0 +1,12 @@
+<nav class="navbar">
+  <ul class="navbar-list">
+    <li class="navbar-item" *ngFor="let item of items">
+      <button
+        class="navbar-link"
+        [class.active]="pageState.activePage() === item.id"
+        (click)="select(item.id)">
+        {{ item.label }}
+      </button>
+    </li>
+  </ul>
+</nav>

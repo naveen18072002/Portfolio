@@ -1,0 +1,23 @@
+<article class="portfolio" [class.active]="isActive">
+
+  <header>
+    <h2 class="h2 article-title">Projects</h2>
+  </header>
+
+  <ul class="project-list">
+    <li class="project-item active" *ngFor="let project of projects">
+      <a [href]="project.link" target="_blank" rel="noopener">
+        <figure class="project-img">
+          <div class="project-item-icon-box">
+            <ion-icon name="eye-outline"></ion-icon>
+          </div>
+          <img [src]="project.image" [alt]="project.title" loading="lazy">
+        </figure>
+
+        <h3 class="project-title">{{ project.title }}</h3>
+        <p class="project-category">{{ project.category }}</p>
+      </a>
+    </li>
+  </ul>
+
+</article>

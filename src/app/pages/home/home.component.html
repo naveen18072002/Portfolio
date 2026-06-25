@@ -1,0 +1,19 @@
+<main>
+
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content">
+
+    <app-navbar></app-navbar>
+
+    <app-about [isActive]="pageState.activePage() === 'about'"></app-about>
+
+    <app-resume [isActive]="pageState.activePage() === 'resume'"></app-resume>
+
+    <app-projects [isActive]="pageState.activePage() === 'projects'"></app-projects>
+
+    <app-contact [isActive]="pageState.activePage() === 'contact'"></app-contact>
+
+  </div>
+
+</main>

@@ -1,0 +1,109 @@
+<article class="resume" [class.active]="isActive">
+
+  <header>
+    <h2 class="h2 article-title">Resume</h2>
+  </header>
+
+  <section class="timeline">
+    <div class="title-wrapper">
+      <div class="icon-box">
+        <ion-icon name="book-outline"></ion-icon>
+      </div>
+      <h3 class="h3">Education</h3>
+    </div>
+
+    <ol class="timeline-list">
+
+      <li class="timeline-item">
+        <h4 class="h4 timeline-item-title">Government College of Engineering, Tirunelveli</h4>
+        <span>2021 — 2025</span>
+        <p class="timeline-text">
+          <b>Bachelor of Engineering</b> in Electronics and Communication Engineering
+        </p>
+        <p class="timeline-text"><b>CGPA - 7.41</b></p>
+      </li>
+
+      <li class="timeline-item">
+        <h4 class="h4 timeline-item-title">Vallalar Matriculation Higher Secondary School</h4>
+        <span>2019 — 2021</span>
+        <p class="timeline-text">Percentage - 91.8%</p>
+      </li>
+
+      <li class="timeline-item">
+        <h4 class="h4 timeline-item-title">Kannan Matriculation School</h4>
+        <span>2009 — 2019</span>
+        <p class="timeline-text">Percentage - 90.6%</p>
+      </li>
+
+    </ol>
+  </section>
+
+  <section class="timeline">
+    <div class="title-wrapper">
+      <div class="icon-box">
+        <ion-icon name="book-outline"></ion-icon>
+      </div>
+      <h3 class="h3">Project</h3>
+    </div>
+
+    <ol class="timeline-list">
+      <li class="timeline-item">
+        <h4 class="h4 timeline-item-title">
+          Smart Proximity Alert System To Prevent Falls into open Drainage System
+        </h4>
+        <span>May-2025</span>
+        <p class="timeline-text">
+          Our project is an IoT-based smart monitoring system using Arduino, ultrasonic/IR sensors, and
+          Wi-Fi for real-time data tracking. It displays data on an LCD and alerts authorities via a Wi-Fi
+          module. Servo motors automate pit covers, while alarms and lights handle emergencies. This
+          enhances drainage safety, efficiency, and maintenance.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="timeline">
+    <div class="title-wrapper">
+      <div class="icon-box">
+        <ion-icon name="book-outline"></ion-icon>
+      </div>
+      <h3 class="h3">Internship</h3>
+    </div>
+
+    <ol class="timeline-list">
+      <li class="timeline-item">
+        <h4 class="h4 timeline-item-title">Embedded Systems with Artificial Intelligence</h4>
+        <span>August-2024</span>
+        <p class="timeline-text">
+          Embedded systems are specialized computing devices designed to perform specific tasks within
+          larger systems. Embedded systems consists of both hardware components and software that are
+          tightly integrated to achieve their intended purpose. An embedded system with AI combines the
+          capabilities of embedded system like Machine Learning and Neural Networks.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="skill">
+    <h3 class="h3 skills-title">My skills</h3>
+
+    <ul class="skills-list content-card">
+      <li class="skills-item" *ngFor="let skill of skills">
+        <div class="title-wrapper">
+          <h5 class="h5">{{ skill.name }}</h5>
+          <data [value]="skill.value">{{ skill.value }}%</data>
+        </div>
+        <div class="skill-progress-bg">
+          <div class="skill-progress-fill" [style.width.%]="skill.value"></div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="container">
+    <div class="btn">
+      <a [href]="resumeLink" target="_blank" rel="noopener">Resume</a>
+    </div>
+  </section>
+
+</article>

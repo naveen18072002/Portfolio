@@ -1,0 +1,52 @@
+<article class="contact" [class.active]="isActive">
+
+  <header>
+    <h2 class="h2 article-title">Contact</h2>
+  </header>
+
+  <section class="mapbox">
+    <figure>
+      <iframe
+        [src]="mapEmbedUrl"
+        width="600"
+        height="450"
+        style="border:0;"
+        allowfullscreen
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </figure>
+  </section>
+
+  <section class="contact-form">
+
+    <h3 class="h3 form-title">Contact Form</h3>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <div class="input-wrapper">
+        <input type="text" class="form-input" placeholder="Full name" formControlName="fullname">
+        <input type="email" class="form-input" placeholder="Email address" formControlName="email">
+      </div>
+
+      <textarea class="form-input" placeholder="Your Message" formControlName="message"></textarea>
+
+      <button class="form-btn" type="submit" [disabled]="submitting()">
+        <ion-icon name="paper-plane"></ion-icon>
+        <span>{{ submitting() ? 'Sending…' : 'Send Message' }}</span>
+      </button>
+
+      <div class="form-msg error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+
+    </form>
+
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <span class="footer-text">&copy; {{ currentYear }}</span>
+      <span class="footer-text">Designed by Naveenkumar R. All rights reserved.</span>
+    </div>
+  </footer>
+
+</article>
