@@ -2,37 +2,24 @@
 
   <header>
     <h2 class="h2 article-title">Resume</h2>
+    <!-- <p class="article-subtitle">Here's a quick overview of my background, projects, and skills.</p> -->
   </header>
 
   <section class="timeline">
     <div class="title-wrapper">
       <div class="icon-box">
-        <ion-icon name="book-outline"></ion-icon>
+        <ion-icon name="school-outline"></ion-icon>
       </div>
       <h3 class="h3">Education</h3>
     </div>
 
     <ol class="timeline-list">
 
-      <li class="timeline-item">
-        <h4 class="h4 timeline-item-title">Government College of Engineering, Tirunelveli</h4>
-        <span>2021 — 2025</span>
-        <p class="timeline-text">
-          <b>Bachelor of Engineering</b> in Electronics and Communication Engineering
-        </p>
-        <p class="timeline-text"><b>CGPA - 7.41</b></p>
-      </li>
-
-      <li class="timeline-item">
-        <h4 class="h4 timeline-item-title">Vallalar Matriculation Higher Secondary School</h4>
-        <span>2019 — 2021</span>
-        <p class="timeline-text">Percentage - 91.8%</p>
-      </li>
-
-      <li class="timeline-item">
-        <h4 class="h4 timeline-item-title">Kannan Matriculation School</h4>
-        <span>2009 — 2019</span>
-        <p class="timeline-text">Percentage - 90.6%</p>
+      <li class="timeline-item" *ngFor="let edu of education">
+        <span class="timeline-period">{{ edu.period }}</span>
+        <h4 class="h4 timeline-item-title">{{ edu.degree }}</h4>
+        <p class="timeline-institution">{{ edu.institution }}</p>
+        <p class="timeline-text">{{ edu.detail }}</p>
       </li>
 
     </ol>
@@ -41,69 +28,81 @@
   <section class="timeline">
     <div class="title-wrapper">
       <div class="icon-box">
-        <ion-icon name="book-outline"></ion-icon>
+        <ion-icon name="briefcase-outline"></ion-icon>
       </div>
-      <h3 class="h3">Project</h3>
+      <h3 class="h3">Projects</h3>
     </div>
 
-    <ol class="timeline-list">
-      <li class="timeline-item">
-        <h4 class="h4 timeline-item-title">
-          Smart Proximity Alert System To Prevent Falls into open Drainage System
-        </h4>
-        <span>May-2025</span>
-        <p class="timeline-text">
-          Our project is an IoT-based smart monitoring system using Arduino, ultrasonic/IR sensors, and
-          Wi-Fi for real-time data tracking. It displays data on an LCD and alerts authorities via a Wi-Fi
-          module. Servo motors automate pit covers, while alarms and lights handle emergencies. This
-          enhances drainage safety, efficiency, and maintenance.
-        </p>
+    <ul class="project-card-list">
+
+      <li class="project-card content-card" *ngFor="let project of projects">
+
+        <div class="project-card-main">
+          <div class="project-card-icon">
+            <ion-icon [name]="project.icon"></ion-icon>
+          </div>
+          <div class="project-card-body">
+            <h4 class="h4 project-card-title">
+              {{ project.title }}
+              <span class="project-card-badge">{{ project.badge }}</span>
+            </h4>
+            <p class="project-card-text">{{ project.description }}</p>
+            <ul class="service-tag-list project-card-tags">
+              <li class="service-tag" *ngFor="let tag of project.tags">{{ tag }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <ul class="project-card-features">
+          <li class="project-card-feature" *ngFor="let feature of project.features">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <span>{{ feature }}</span>
+          </li>
+        </ul>
+
       </li>
-    </ol>
+
+    </ul>
   </section>
 
   <section class="timeline">
     <div class="title-wrapper">
       <div class="icon-box">
-        <ion-icon name="book-outline"></ion-icon>
+        <ion-icon name="business-outline"></ion-icon>
       </div>
       <h3 class="h3">Internship</h3>
     </div>
 
     <ol class="timeline-list">
-      <li class="timeline-item">
-        <h4 class="h4 timeline-item-title">Embedded Systems with Artificial Intelligence</h4>
-        <span>August-2024</span>
-        <p class="timeline-text">
-          Embedded systems are specialized computing devices designed to perform specific tasks within
-          larger systems. Embedded systems consists of both hardware components and software that are
-          tightly integrated to achieve their intended purpose. An embedded system with AI combines the
-          capabilities of embedded system like Machine Learning and Neural Networks.
-        </p>
+
+      <li class="timeline-item" *ngFor="let internship of internships">
+        <span class="timeline-period">{{ internship.period }}</span>
+        <h4 class="h4 timeline-item-title">{{ internship.title }}</h4>
+        <p class="timeline-text">{{ internship.text }}</p>
       </li>
+
     </ol>
   </section>
 
   <section class="skill">
-    <h3 class="h3 skills-title">My skills</h3>
+    <div class="title-wrapper">
+      <div class="icon-box">
+        <ion-icon name="bar-chart-outline"></ion-icon>
+      </div>
+      <h3 class="h3">My skills</h3>
+    </div>
 
     <ul class="skills-list content-card">
       <li class="skills-item" *ngFor="let skill of skills">
         <div class="title-wrapper">
+          <ion-icon class="skill-icon" [name]="skill.icon"></ion-icon>
           <h5 class="h5">{{ skill.name }}</h5>
           <data [value]="skill.value">{{ skill.value }}%</data>
         </div>
         <div class="skill-progress-bg">
-          <div class="skill-progress-fill" [style.width.%]="skill.value"></div>
+          <div class="skill-progress-fill" [style.width.%]="skillsLoaded() ? skill.value : 0"></div>
         </div>
       </li>
     </ul>
   </section>
-
-  <section class="container">
-    <div class="btn">
-      <a [href]="resumeLink" target="_blank" rel="noopener">Resume</a>
-    </div>
-  </section>
-
 </article>
