@@ -25,6 +25,7 @@ interface ProjectCard {
 
 interface TimelineItem {
   title: string;
+  role: string;
   period: string;
   text: string;
 }
@@ -90,14 +91,22 @@ export class ResumeComponent {
     }
   ];
 
+  readonly experiences: TimelineItem[] = [
+    {
+      title: 'Vsolve Tech Global Solutions - Chennai',
+      role: 'Full Stack Developer Trainee',
+      period: 'March - July 2026',
+      text:
+        'Resolved bugs and optimized functionality in an ERP management portal, improving system stability and user experience.Designed and developed a full-stack HRMS portal using modern web technologies, focusing on responsive UI and efficient backend integration.'
+    }
+  ];
   readonly internships: TimelineItem[] = [
     {
-      title: 'Embedded Systems with Artificial Intelligence',
-      period: 'August-2024',
+      title: 'NSIC Technical Service Centre - Chennai',
+      role: 'Embedded Trainee',
+      period: 'August 2024',
       text:
-        'Hands-on internship on embedded systems — specialized computing devices that combine tightly ' +
-        'integrated hardware and software — extended with AI capabilities like Machine Learning and ' +
-        'Neural Networks.'
+        'Worked with ESP32 microcontrollers to develop a smart monitoring system for industrial applications, focusing on real-time data acquisition and wireless communication. Gained hands-on experience in embedded systems programming, sensor integration, and IoT protocols, contributing to the development of efficient and reliable solutions for industrial automation.'
     }
   ];
 

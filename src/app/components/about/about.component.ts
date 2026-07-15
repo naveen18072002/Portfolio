@@ -31,23 +31,17 @@ export class AboutComponent {
 
   readonly stats: StatItem[] = [
     { label: 'Experience', value: '6 Months', icon: 'time-outline' },
-    { label: 'Projects', value: '4+ Completed', icon: 'folder-open-outline' },
+    { label: 'Projects', value: '3+ Completed', icon: 'folder-open-outline' },
     { label: 'Availability', value: 'Open to Work', icon: 'checkmark-circle-outline' },
-    { label: 'Location', value: 'Cuddalore, India', icon: 'location-outline' }
+    { label: 'Relocation', value: 'Open to Relocate', icon: 'earth-outline' }
   ];
 
   readonly services: ServiceItem[] = [
     {
-      title: 'Web design',
-      icon: 'color-palette-outline',
-      text: 'I create modern and high-quality design that is responsive and user-friendly.',
-      tags: ['HTML', 'CSS', 'UI/UX']
-    },
-    {
       title: 'Web development',
       icon: 'code-slash-outline',
       text: 'Building fast, scalable and dynamic web applications with clean code.',
-      tags: ['JavaScript', 'React', 'Angular', 'Spring Boot']
+      tags: ['React', 'Angular', 'Spring Boot']
     },
     {
       title: 'Travel',
