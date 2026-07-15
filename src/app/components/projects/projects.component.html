@@ -2,21 +2,65 @@
 
   <header>
     <h2 class="h2 article-title">Projects</h2>
+    <p class="portfolio-subtitle">
+      Here are some of the projects I've worked on. Each project helped me learn, build, and grow.
+    </p>
   </header>
 
+  <ul class="portfolio-filter-list">
+    <li *ngFor="let filter of filters">
+      <button
+        class="portfolio-filter-btn"
+        [class.active]="activeFilter() === filter"
+        (click)="setFilter(filter)">
+        {{ filter }}
+      </button>
+    </li>
+  </ul>
+
   <ul class="project-list">
-    <li class="project-item active" *ngFor="let project of projects">
-      <a [href]="project.link" target="_blank" rel="noopener">
+    <li class="project-item active" *ngFor="let project of filteredProjects()">
+      <div class="project-card-box">
+
         <figure class="project-img">
-          <div class="project-item-icon-box">
-            <ion-icon name="eye-outline"></ion-icon>
-          </div>
           <img [src]="project.image" [alt]="project.title" loading="lazy">
+          <div class="project-type-icon">
+            <ion-icon [name]="project.icon"></ion-icon>
+          </div>
         </figure>
 
-        <h3 class="project-title">{{ project.title }}</h3>
-        <p class="project-category">{{ project.category }}</p>
-      </a>
+        <div class="project-content">
+          <h3 class="project-title">{{ project.title }}</h3>
+          <span class="project-category-badge">{{ project.category }}</span>
+          <p class="project-description">{{ project.description }}</p>
+
+          <div class="project-tech">
+            <p class="project-tech-title">Tech Stack</p>
+            <ul class="project-tech-list">
+              <li class="project-tech-tag" *ngFor="let tag of project.tags">{{ tag }}</li>
+            </ul>
+          </div>
+
+          <a [href]="project.link" target="_blank" rel="noopener" class="project-view-link">
+            <span>View Details</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </a>
+        </div>
+
+      </div>
+    </li>
+  </ul>
+
+  <ul class="portfolio-highlights content-card">
+    <li class="portfolio-highlight-item" *ngFor="let item of highlights">
+      <div class="portfolio-highlight-icon">
+        <ion-icon [name]="item.icon"></ion-icon>
+      </div>
+      <div class="portfolio-highlight-content">
+        <h4 class="portfolio-highlight-title">{{ item.title }}</h4>
+        <p class="portfolio-highlight-subtitle" *ngIf="item.subtitle">{{ item.subtitle }}</p>
+        <p class="portfolio-highlight-text">{{ item.text }}</p>
+      </div>
     </li>
   </ul>
 

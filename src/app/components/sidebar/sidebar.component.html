@@ -8,7 +8,7 @@
 
     <div class="info-content">
       <h1 class="name" title="Naveenkumar R">Naveenkumar R</h1>
-      <p class="title">FullStack Developer</p>
+      <p class="title">Fullstack Developer</p>
     </div>
 
     <button class="info_more-btn" (click)="toggle()">
@@ -41,16 +41,26 @@
     <div class="separator"></div>
 
     <ul class="social-list">
-      <li class="social-item" *ngFor="let social of socials">
-        <a [href]="social.url" class="social-link" [attr.aria-label]="social.name">
-          <ion-icon [name]="social.icon"></ion-icon>
-        </a>
-      </li>
-    </ul>
+  <li class="social-item" *ngFor="let social of socials">
+    <a
+      [href]="social.url"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="social-link"
+      [attr.aria-label]="social.name">
+
+      <ion-icon
+        [name]="social.icon"
+        [ngClass]="social.name.toLowerCase()">
+      </ion-icon>
+
+    </a>
+  </li>
+</ul>
 
     <a [href]="resumeLink" target="_blank" rel="noopener" class="sidebar-resume-btn">
-      <ion-icon name="download-outline"></ion-icon>
-      <span>Download Resume</span>
+      <ion-icon name="eye-outline"></ion-icon>
+      <span>View Resume</span>
     </a>
 
   </div>

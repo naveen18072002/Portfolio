@@ -18,8 +18,6 @@ interface NavItem {
 export class NavbarComponent {
   readonly pageState = inject(PageStateService);
 
-  isMenuOpen = false;
-
   readonly items: NavItem[] = [
     { id: 'about', label: 'About' },
     { id: 'resume', label: 'Resume' },
@@ -27,13 +25,8 @@ export class NavbarComponent {
     { id: 'contact', label: 'Contact' }
   ];
 
-  toggleMenu(): void {
-    this.isMenuOpen = !this.isMenuOpen;
-  }
-
   select(page: PageId): void {
     this.pageState.setPage(page);
-    this.isMenuOpen = false;
     window.scrollTo(0, 0);
   }
 }

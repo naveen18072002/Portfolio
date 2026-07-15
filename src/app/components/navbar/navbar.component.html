@@ -1,14 +1,5 @@
-<nav class="navbar" [class.open]="isMenuOpen">
-  <button
-    class="navbar-toggle"
-    type="button"
-    [attr.aria-expanded]="isMenuOpen"
-    aria-label="Toggle navigation"
-    (click)="toggleMenu()">
-    <ion-icon [name]="isMenuOpen ? 'close-outline' : 'menu-outline'"></ion-icon>
-  </button>
-
-  <ul class="navbar-list" [class.open]="isMenuOpen">
+<nav class="navbar">
+  <ul class="navbar-list">
     <li class="navbar-item" *ngFor="let item of items">
       <button
         class="navbar-link"

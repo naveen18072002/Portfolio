@@ -77,7 +77,7 @@ export class SidebarComponent {
   ];
 
   readonly resumeLink =
-    'https://drive.google.com/file/d/1_vGkRvCD0sdz3CfMTWPlSlc01VctVjNu/view?usp=drive_link';
+    'https://drive.google.com/file/d/1O1Zx_zJOVfq_p60hUzZI5R9Lv_eAhiQc/view?usp=drive_link';
 
   toggle(): void {
     this.isOpen.update((v) => !v);
