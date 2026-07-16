@@ -2,6 +2,9 @@
 
   <header>
     <h2 class="h2 article-title">Contact</h2>
+    <p class="article-subtitle">
+      Feel free to reach out! I'm always open to discussing new projects, creative ideas, or opportunities.
+    </p>
   </header>
 
   <section class="mapbox">
@@ -21,6 +24,18 @@
   <section class="contact-form">
 
     <h3 class="h3 form-title">Contact Form</h3>
+
+    <ul class="portfolio-filter-list">
+      <li *ngFor="let topic of contactTopics">
+        <button
+          type="button"
+          class="portfolio-filter-btn"
+          [class.active]="activeTopic() === topic"
+          (click)="setTopic(topic)">
+          {{ topic }}
+        </button>
+      </li>
+    </ul>
 
     <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
 

@@ -80,7 +80,7 @@ export class ResumeComponent {
   readonly projects: ProjectCard[] = [
     {
       title: 'Smart Proximity Alert System',
-      badge: 'IoT',
+      badge: 'May - 2025',
       icon: 'hardware-chip-outline',
       description:
         'An IoT-based smart monitoring system that prevents falls into open drainage. Arduino with ' +
@@ -104,7 +104,7 @@ export class ResumeComponent {
     {
       title: 'NSIC Technical Service Centre - Chennai',
       role: 'Embedded Trainee',
-      period: 'August 2024',
+      period: 'August - 2024',
       text:
         'Worked with ESP32 microcontrollers to develop a smart monitoring system for industrial applications, focusing on real-time data acquisition and wireless communication. Gained hands-on experience in embedded systems programming, sensor integration, and IoT protocols, contributing to the development of efficient and reliable solutions for industrial automation.'
     }

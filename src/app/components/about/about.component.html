@@ -10,13 +10,16 @@
     </p>
   </section>
 
-  <section class="quick-stats">
-    <ul class="quick-stats-list content-card">
-      <li class="quick-stats-item" *ngFor="let stat of stats">
-        <ion-icon [name]="stat.icon"></ion-icon>
-        <div class="quick-stats-info">
-          <p class="quick-stats-label">{{ stat.label }}</p>
-          <p class="quick-stats-value">{{ stat.value }}</p>
+  <section class="stats" style="margin-bottom: 35px;">
+    <ul class="stats-highlights content-card">
+      <li class="stats-highlight-item" *ngFor="let stat of stats">
+        <div class="stats-highlight-icon">
+          <ion-icon [name]="stat.icon"></ion-icon>
+        </div>
+        <div class="stats-highlight-content">
+          <h4 class="stats-highlight-title">{{ stat.value }}</h4>
+          <p class="stats-highlight-subtitle">{{ stat.label }}</p>
+          <p class="stats-highlight-text">{{ stat.text }}</p>
         </div>
       </li>
     </ul>
