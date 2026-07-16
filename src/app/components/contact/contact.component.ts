@@ -5,6 +5,14 @@ import { Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ContactService } from '../../services/contact.service';
 
+interface ContactDetail {
+  icon: string;
+  title: string;
+  subtitle?: string;
+  text: string;
+  link?: string;
+}
+
 @Component({
   selector: 'app-contact',
   standalone: true,
@@ -15,6 +23,40 @@ import { ContactService } from '../../services/contact.service';
 export class ContactComponent {
   @Input() isActive = false;
 
+  readonly contactTopics = ['General Inquiry', 'Project Collaboration', 'Hire Me'];
+  readonly activeTopic = signal('General Inquiry');
+
+  readonly templates: Record<string, string> = {
+    'General Inquiry': 'Hi Naveen, I wanted to reach out to you regarding...',
+    'Project Collaboration': 'Hi Naveen, I am working on a project and would love to collaborate with you on...',
+    'Hire Me': 'Hi Naveen, we are impressed by your portfolio and would like to discuss a job/freelance opportunity for...'
+  };
+
+  readonly contactDetails: ContactDetail[] = [
+    {
+      icon: 'mail-outline',
+      title: 'Email',
+      text: 'naveenkumarrnk6677@gmail.com',
+      link: 'mailto:naveenkumarrnk6677@gmail.com'
+    },
+    {
+      icon: 'phone-portrait-outline',
+      title: 'Phone',
+      text: '+91 7397114035',
+      link: 'tel:+917397114035'
+    },
+    {
+      icon: 'location-outline',
+      title: 'Location',
+      text: 'Cuddalore, Tamil Nadu, India'
+    },
+    {
+      icon: 'chatbubble-ellipses-outline',
+      title: 'Availability',
+      text: 'Open to Opportunities'
+    }
+  ];
+
   private readonly fb = inject(FormBuilder);
   private readonly contactService = inject(ContactService);
   private readonly router = inject(Router);
@@ -23,7 +65,7 @@ export class ContactComponent {
   readonly currentYear = new Date().getFullYear();
 
   readonly mapEmbedUrl: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-    'https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d22366.553324100943!2d79.66899841740789!3d11.653280386130259!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sin!4v1751119075982!5m2!1sen!2sin'
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31317.067332219086!2d79.74235284852926!3d11.755490457639524!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a533bc42dfcfb69%3A0xc07a98db2579dfd9!2sCuddalore%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1751119075982!5m2!1sen!2sin'
   );
 
   // Signals instead of plain fields: under Angular 22's OnPush-by-default
@@ -35,8 +77,22 @@ export class ContactComponent {
   readonly form = this.fb.group({
     fullname: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
-    message: ['', [Validators.required]]
+    message: [this.templates['General Inquiry'], [Validators.required]]
   });
+
+  setTopic(topic: string): void {
+    const oldTopic = this.activeTopic();
+    this.activeTopic.set(topic);
+
+    const messageControl = this.form.get('message');
+    if (messageControl) {
+      const currentValue = messageControl.value || '';
+      const oldTemplate = this.templates[oldTopic] || '';
+      if (!currentValue.trim() || currentValue === oldTemplate) {
+        messageControl.setValue(this.templates[topic]);
+      }
+    }
+  }
 
   onSubmit(): void {
     this.errorMessage.set('');

@@ -9,9 +9,10 @@ interface ServiceItem {
 }
 
 interface StatItem {
-  label: string;
-  value: string;
   icon: string;
+  value: string;
+  label: string;
+  text: string;
 }
 
 interface TechItem {
@@ -30,10 +31,30 @@ export class AboutComponent {
   @Input() isActive = false;
 
   readonly stats: StatItem[] = [
-    { label: 'Experience', value: '6 Months', icon: 'time-outline' },
-    { label: 'Projects', value: '3+ Completed', icon: 'folder-open-outline' },
-    { label: 'Availability', value: 'Open to Work', icon: 'checkmark-circle-outline' },
-    { label: 'Relocation', value: 'Open to Relocate', icon: 'earth-outline' }
+    {
+      icon: 'code-slash-outline',
+      value: '3+',
+      label: 'Projects Built',
+      text: 'HRMS, Restaurant & Quiz apps'
+    },
+    {
+      icon: 'trophy-outline',
+      value: '50+',
+      label: 'Problems Solved',
+      text: 'On LeetCode & HackerRank'
+    },
+    {
+      icon: 'terminal-outline',
+      value: '5+',
+      label: 'Tech Mastered',
+      text: 'Frontend, Backend & DB'
+    },
+    {
+      icon: 'time-outline',
+      value: '100+',
+      label: 'Coding Hours',
+      text: 'Dedicated to full-stack dev'
+    }
   ];
 
   readonly services: ServiceItem[] = [
@@ -46,7 +67,7 @@ export class AboutComponent {
     {
       title: 'Travel',
       icon: 'bicycle-outline',
-      text: 'I love exploring new places at my own pace. Bike travel connects me more closely with nature and local communities — every journey becomes an adventure.',
+      text: 'I love exploring new places at my own pace. Bike travel connects me more closely with nature and local communities. Every journey becomes an adventure.',
       tags: ['Adventure', 'Explore', 'Culture']
     },
     {
