@@ -33,36 +33,29 @@
       <h3 class="h3">Academic Project</h3>
     </div>
 
-    <ul class="project-card-list">
+    <ol class="timeline-list">
 
-      <li class="project-card content-card" *ngFor="let project of projects">
+      <li class="timeline-item" *ngFor="let project of projects">
+        <span class="timeline-period">{{ project.badge }}</span>
+        <h4 class="h4 timeline-item-title">
+          <ion-icon [name]="project.icon"></ion-icon>
+          {{ project.title }}
+        </h4>
+        <p class="timeline-text">{{ project.description }}</p>
+        
+        <ul class="service-tag-list project-card-tags" style="margin-top: 8px; margin-bottom: 8px; justify-content: flex-start;" *ngIf="project.tags && project.tags.length > 0">
+          <li class="service-tag" *ngFor="let tag of project.tags">{{ tag }}</li>
+        </ul>
 
-        <div class="project-card-main">
-          <div class="project-card-icon">
-            <ion-icon [name]="project.icon"></ion-icon>
-          </div>
-          <div class="project-card-body">
-            <h4 class="h4 project-card-title">
-              {{ project.title }}
-              <span class="project-card-badge">{{ project.badge }}</span>
-            </h4>
-            <p class="project-card-text">{{ project.description }}</p>
-            <ul class="service-tag-list project-card-tags">
-              <li class="service-tag" *ngFor="let tag of project.tags">{{ tag }}</li>
-            </ul>
-          </div>
-        </div>
-
-        <ul class="project-card-features">
+        <ul class="project-card-features" style="border: none; padding-top: 5px; margin-top: 5px;" *ngIf="project.features && project.features.length > 0">
           <li class="project-card-feature" *ngFor="let feature of project.features">
             <ion-icon name="checkmark-circle-outline"></ion-icon>
             <span>{{ feature }}</span>
           </li>
         </ul>
-
       </li>
 
-    </ul>
+    </ol>
   </section>
 
   <section class="timeline">
@@ -73,30 +66,22 @@
       <h3 class="h3">Experience</h3>
     </div>
 
-    <ul class="project-card-list">
+    <ol class="timeline-list">
 
-      <li class="project-card content-card" *ngFor="let experience of experiences">
-
-        <div class="project-card-main">
-          <div class="project-card-icon">
-            <ion-icon name="business-outline"></ion-icon>
-          </div>
-          <div class="project-card-body">
-            <h4 class="h4 project-card-title">
-              {{ experience.title }}
-              <span class="project-card-badge">{{ experience.period }}</span>
-            </h4>
-            <h5 class="h5 project-card-subtitle">
-              <ion-icon name="briefcase-outline"></ion-icon>
-              {{ experience.role }}
-            </h5>
-            <p class="project-card-text">{{ experience.text }}</p>
-          </div>
-        </div>
-
+      <li class="timeline-item" *ngFor="let experience of experiences">
+        <span class="timeline-period">{{ experience.period }}</span>
+        <h4 class="h4 timeline-item-title">
+          <ion-icon name="business-outline"></ion-icon>
+          {{ experience.title }}
+        </h4>
+        <h5 class="h5 timeline-item-role">
+          <ion-icon name="briefcase-outline"></ion-icon>
+          {{ experience.role }}
+        </h5>
+        <p class="timeline-text">{{ experience.text }}</p>
       </li>
 
-    </ul>
+    </ol>
   </section>
 
   <section class="timeline">
@@ -107,30 +92,22 @@
       <h3 class="h3">Internship</h3>
     </div>
 
-    <ul class="project-card-list">
+    <ol class="timeline-list">
 
-      <li class="project-card content-card" *ngFor="let internship of internships">
-
-        <div class="project-card-main">
-          <div class="project-card-icon">
-            <ion-icon name="business-outline"></ion-icon>
-          </div>
-          <div class="project-card-body">
-            <h4 class="h4 project-card-title">
-              {{ internship.title }}
-              <span class="project-card-badge">{{ internship.period }}</span>
-            </h4>
-            <h5 class="h5 project-card-subtitle">
-              <ion-icon name="briefcase-outline"></ion-icon>
-              {{ internship.role }}
-            </h5>
-            <p class="project-card-text">{{ internship.text }}</p>
-          </div>
-        </div>
-
+      <li class="timeline-item" *ngFor="let internship of internships">
+        <span class="timeline-period">{{ internship.period }}</span>
+        <h4 class="h4 timeline-item-title">
+          <ion-icon name="business-outline"></ion-icon>
+          {{ internship.title }}
+        </h4>
+        <h5 class="h5 timeline-item-role">
+          <ion-icon name="briefcase-outline"></ion-icon>
+          {{ internship.role }}
+        </h5>
+        <p class="timeline-text">{{ internship.text }}</p>
       </li>
 
-    </ul>
+    </ol>
   </section>
 
   <section class="skill">

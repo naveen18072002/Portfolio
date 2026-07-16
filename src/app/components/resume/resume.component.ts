@@ -107,6 +107,13 @@ export class ResumeComponent {
       period: 'August - 2024',
       text:
         'Worked with ESP32 microcontrollers to develop a smart monitoring system for industrial applications, focusing on real-time data acquisition and wireless communication. Gained hands-on experience in embedded systems programming, sensor integration, and IoT protocols, contributing to the development of efficient and reliable solutions for industrial automation.'
+    },
+    {
+      title: 'Qspiders, Vadapalani - Chennai',
+      role: 'Fullstack Developer Trainee',
+      period: 'June - November 2025',
+      text:
+        'Learned and applied full-stack development skills, including front-end and back-end technologies, to build web applications. Gained practical experience in software development lifecycle, enhancing problem-solving abilities and technical proficiency in a professional environment.'
     }
   ];
 
