@@ -1,4 +1,4 @@
-import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
+import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Skill {
@@ -37,18 +37,19 @@ interface TimelineItem {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './resume.component.html'
 })
-export class ResumeComponent {
+export class ResumeComponent implements AfterViewInit, OnDestroy {
   private _isActive = false;
+  private observer: IntersectionObserver | null = null;
 
-  /** Skill bars stay at 0 until 60ms after the tab activates, so the fill animates in. */
+  @ViewChild('skillSection') skillSection!: ElementRef;
+
+  /** Skill bars stay at 0 until scrolled into view when the tab is active. */
   readonly skillsLoaded = signal(false);
 
   @Input()
   set isActive(value: boolean) {
     this._isActive = value;
-    if (value) {
-      setTimeout(() => this.skillsLoaded.set(true), 60);
-    } else {
+    if (!value) {
       this.skillsLoaded.set(false);
     }
   }
@@ -56,11 +57,38 @@ export class ResumeComponent {
     return this._isActive;
   }
 
+  ngAfterViewInit(): void {
+    if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+      this.observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && this.isActive) {
+            this.skillsLoaded.set(true);
+          }
+        });
+      }, {
+        threshold: 0.50
+      });
+
+      if (this.skillSection) {
+        this.observer.observe(this.skillSection.nativeElement);
+      }
+    } else {
+      // Fallback
+      this.skillsLoaded.set(true);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+
   readonly education: EducationItem[] = [
     {
-      degree: 'Bachelor of Engineering in Electronics and Communication Engineering',
+      degree: 'Bachelor of Engineering in Electronics and Communication Engineering (ECE)',
       institution: 'Government College of Engineering, Tirunelveli',
-      detail: 'CGPA: 7.41 / 10.0',
+      detail: 'CGPA: 7.37 / 10.0',
       period: '2021 — 2025'
     },
     {

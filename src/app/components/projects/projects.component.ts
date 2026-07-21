@@ -7,8 +7,9 @@ interface Project {
   icon: string;
   description: string;
   tags: string[];
-  link: string;
   image: string;
+  demoLink?: string;
+  githubLink?: string;
 }
 
 interface Highlight {
@@ -39,7 +40,7 @@ export class ProjectsComponent {
       icon: 'desktop-outline',
       description: 'A simple quiz application that allows users to attempt quizzes, see scores, and track progress.',
       tags: ['HTML', 'CSS', 'JavaScript'],
-      link: 'https://naveenkumar-quiz.netlify.app/',
+      demoLink: 'https://naveenkumar-quiz.netlify.app/',
       image: 'assets/images/project-2.png'
     },
     {
@@ -48,7 +49,8 @@ export class ProjectsComponent {
       icon: 'globe-outline',
       description: 'A responsive restaurant website with menu, about, gallery, and contact sections.',
       tags: ['HTML', 'CSS', 'JavaScript'],
-      link: 'https://naveen18072002.github.io/Restaurant/',
+      demoLink: 'https://naveen18072002.github.io/Restaurant/',
+      githubLink: 'https://github.com/naveen18072002/Restaurant',
       image: 'assets/images/project-1.png'
     },
     {
@@ -57,7 +59,7 @@ export class ProjectsComponent {
       icon: 'server-outline',
       description: 'A comprehensive system to manage employees, attendance, payroll, and generate reports.',
       tags: ['Spring Boot', 'MySQL', 'Angular', 'Bootstrap'],
-      link: 'https://github.com/naveen18072002/Hr_Management_and_Payroll_System',
+      githubLink: 'https://github.com/naveen18072002/Hr_Management_and_Payroll_System',
       image: 'assets/images/project-3.png'
     }
   ];
@@ -72,7 +74,6 @@ export class ProjectsComponent {
     {
       icon: 'code-slash-outline',
       title: '3+ Projects Completed',
-      // subtitle: 'Projects Completed',
       text: 'End-to-end projects built and deployed.'
     },
     {
