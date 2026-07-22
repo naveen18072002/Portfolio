@@ -107,7 +107,7 @@ export class ResumeComponent implements AfterViewInit, OnDestroy {
 
   readonly projects: ProjectCard[] = [
     {
-      title: 'Smart Proximity Alert System',
+      title: 'Smart Proximity Alert System To Prevent Falls into Open Drainge Pits',
       badge: 'May - 2025',
       icon: 'hardware-chip-outline',
       description:
