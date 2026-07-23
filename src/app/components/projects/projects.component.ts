@@ -39,28 +39,19 @@ export class ProjectsComponent {
       category: 'Web Development',
       icon: 'desktop-outline',
       description: 'A simple quiz application that allows users to attempt quizzes, see scores, and track progress.',
-      tags: ['HTML', 'CSS', 'JavaScript'],
+      tags: ['React'],
       demoLink: 'https://naveenkumar-quiz.netlify.app/',
-      image: 'assets/images/project-2.png'
+      image: 'assets/images/project-1.png'
     },
     {
       title: 'Restaurant',
       category: 'Web Development',
       icon: 'globe-outline',
-      description: 'A responsive restaurant website with menu, about, gallery, and contact sections.',
-      tags: ['HTML', 'CSS', 'JavaScript'],
-      demoLink: 'https://naveen18072002.github.io/Restaurant/',
+      description: 'A responsive restaurant website with menu, about, gallery, chefs and contact sections.',
+      tags: ['React'],
+      demoLink: 'https://naveen-restaurant.liveserver.workers.dev/',
       githubLink: 'https://github.com/naveen18072002/Restaurant',
-      image: 'assets/images/project-1.png'
-    },
-    {
-      title: 'HR Management & Payroll System',
-      category: 'Full Stack',
-      icon: 'server-outline',
-      description: 'A comprehensive system to manage employees, attendance, payroll, and generate reports.',
-      tags: ['Spring Boot', 'MySQL', 'Angular', 'Bootstrap'],
-      githubLink: 'https://github.com/naveen18072002/Hr_Management_and_Payroll_System',
-      image: 'assets/images/project-3.png'
+      image: 'assets/images/project-2.png'
     }
   ];
 
