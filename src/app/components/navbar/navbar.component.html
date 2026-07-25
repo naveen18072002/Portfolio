@@ -2,6 +2,7 @@
   <ul class="navbar-list">
     <li class="navbar-item" *ngFor="let item of items">
       <button
+        type="button"
         class="navbar-link"
         [class.active]="pageState.activePage() === item.id"
         (click)="select(item.id)">
