@@ -1,0 +1,518 @@
+<div class="dashboard-page">
+  <!-- Top Navigation Header -->
+  <header class="dash-header">
+    <div class="dash-brand">
+      <div class="dash-avatar">
+        <img [src]="profileForm.avatarUrl || 'assets/images/my-avatar.png'" alt="Avatar" />
+      </div>
+      <div>
+        <h1 class="dash-title">Admin Control Panel</h1>
+        <p class="dash-subtitle">Editing Portfolio for: <strong>{{ profileForm.name }}</strong></p>
+      </div>
+    </div>
+
+    <div class="dash-actions">
+      <a routerLink="/" class="btn-secondary" title="View live portfolio">
+        <ion-icon name="eye-outline"></ion-icon>
+        <span>View Live Site</span>
+      </a>
+      <!-- <button class="btn-warning" (click)="showResetConfirm.set(true)" title="Reset portfolio content to factory defaults">
+        <ion-icon name="refresh-outline"></ion-icon>
+        <span>Reset Defaults</span>
+      </button> -->
+      <button class="btn-danger" (click)="logout()" title="Logout of Admin session">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Layout -->
+  <div class="dash-container">
+    <!-- Sidebar Navigation Tabs -->
+    <nav class="dash-tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'profile'"
+        (click)="setTab('profile')"
+      >
+        <ion-icon name="person-circle-outline"></ion-icon>
+        <span>Profile & Contact</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'about'"
+        (click)="setTab('about')"
+      >
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <span>About & Services</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'projects'"
+        (click)="setTab('projects')"
+      >
+        <ion-icon name="briefcase-outline"></ion-icon>
+        <span>Projects ({{ projectsForm.projects.length }})</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'resume'"
+        (click)="setTab('resume')"
+      >
+        <ion-icon name="document-text-outline"></ion-icon>
+        <span>Resume & Skills</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="dash-content">
+      <!-- 1. PROFILE & CONTACT TAB -->
+      <section *ngIf="activeTab() === 'profile'" class="tab-panel">
+        <div class="panel-header">
+          <h2>Profile & Contact Details</h2>
+          <button class="btn-primary" (click)="saveProfile()">
+            <ion-icon name="save-outline"></ion-icon>
+            <span>Save Profile</span>
+          </button>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" class="dash-input" [(ngModel)]="profileForm.name" placeholder="e.g. Naveenkumar R" />
+          </div>
+
+          <div class="form-group">
+            <label>Job Title / Role</label>
+            <input type="text" class="dash-input" [(ngModel)]="profileForm.title" placeholder="e.g. Fullstack Developer" />
+          </div>
+
+          <div class="form-group full-width">
+            <label>Avatar Image Path or URL</label>
+            <input type="text" class="dash-input" [(ngModel)]="profileForm.avatarUrl" placeholder="assets/images/my-avatar.png" />
+          </div>
+
+          <div class="form-group full-width">
+            <label>Resume Google Drive Link</label>
+            <input type="text" class="dash-input" [(ngModel)]="profileForm.resumeLink" placeholder="https://drive.google.com/..." />
+          </div>
+        </div>
+
+        <h3 class="sub-heading">Contact Information</h3>
+        <div class="items-list">
+          <div class="item-card" *ngFor="let contact of profileForm.contacts; let i = index">
+            <div class="item-row">
+              <div class="form-group">
+                <label>Label</label>
+                <input type="text" class="dash-input" [(ngModel)]="contact.title" />
+              </div>
+              <div class="form-group">
+                <label>Icon Name (Ionicons)</label>
+                <input type="text" class="dash-input" [(ngModel)]="contact.icon" />
+              </div>
+              <div class="form-group">
+                <label>Value</label>
+                <input type="text" class="dash-input" [(ngModel)]="contact.value" />
+              </div>
+              <div class="form-group" *ngIf="contact.type === 'link'">
+                <label>Link Target (href)</label>
+                <input type="text" class="dash-input" [(ngModel)]="contact.href" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub-heading">Social Links</h3>
+        <div class="items-list">
+          <div class="item-card" *ngFor="let social of profileForm.socials; let i = index">
+            <div class="item-row">
+              <div class="form-group">
+                <label>Platform Name</label>
+                <input type="text" class="dash-input" [(ngModel)]="social.name" />
+              </div>
+              <div class="form-group">
+                <label>Icon Name</label>
+                <input type="text" class="dash-input" [(ngModel)]="social.icon" />
+              </div>
+              <div class="form-group full-width">
+                <label>URL</label>
+                <input type="text" class="dash-input" [(ngModel)]="social.url" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. ABOUT & SERVICES TAB -->
+      <section *ngIf="activeTab() === 'about'" class="tab-panel">
+        <div class="panel-header">
+          <h2>About Me & Services</h2>
+          <button class="btn-primary" (click)="saveAbout()">
+            <ion-icon name="save-outline"></ion-icon>
+            <span>Save About Section</span>
+          </button>
+        </div>
+
+        <h3 class="sub-heading">Bio Paragraphs</h3>
+        <div class="paragraphs-list">
+          <div class="para-card" *ngFor="let para of aboutForm.bioParagraphs; let i = index; trackBy: trackByIndex">
+            <textarea
+              class="dash-textarea"
+              rows="3"
+              [ngModel]="aboutForm.bioParagraphs[i]"
+              (ngModelChange)="aboutForm.bioParagraphs[i] = $event"
+              placeholder="Enter biography paragraph..."
+            ></textarea>
+            <button class="btn-icon-danger" (click)="removeBioParagraph(i)" title="Delete paragraph">
+              <ion-icon name="trash-outline"></ion-icon>
+            </button>
+          </div>
+          <button class="btn-add" (click)="addBioParagraph()">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Add Paragraph</span>
+          </button>
+        </div>
+
+        <h3 class="sub-heading">Stats Summary Cards</h3>
+        <div class="items-list">
+          <div class="item-card" *ngFor="let stat of aboutForm.stats; let i = index">
+            <div class="item-header">
+              <span>Stat #{{ i + 1 }}</span>
+              <button class="btn-icon-danger" (click)="removeStat(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="item-row">
+              <div class="form-group">
+                <label>Stat Number/Value</label>
+                <input type="text" class="dash-input" [(ngModel)]="stat.value" placeholder="3+" />
+              </div>
+              <div class="form-group">
+                <label>Title Label</label>
+                <input type="text" class="dash-input" [(ngModel)]="stat.label" placeholder="Projects Built" />
+              </div>
+              <div class="form-group">
+                <label>Icon</label>
+                <input type="text" class="dash-input" [(ngModel)]="stat.icon" placeholder="code-slash-outline" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description Text</label>
+                <input type="text" class="dash-input" [(ngModel)]="stat.text" placeholder="Short detail" />
+              </div>
+            </div>
+          </div>
+          <button class="btn-add" (click)="addStat()">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Add Stat Card</span>
+          </button>
+        </div>
+
+        <h3 class="sub-heading">What I'm Doing / Services</h3>
+        <div class="items-list">
+          <div class="item-card" *ngFor="let service of aboutForm.services; let i = index">
+            <div class="item-header">
+              <span>{{ service.title || 'Service Item' }}</span>
+              <button class="btn-icon-danger" (click)="removeService(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="item-row">
+              <div class="form-group">
+                <label>Title</label>
+                <input type="text" class="dash-input" [(ngModel)]="service.title" />
+              </div>
+              <div class="form-group">
+                <label>Icon Name</label>
+                <input type="text" class="dash-input" [(ngModel)]="service.icon" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description</label>
+                <textarea class="dash-textarea" rows="2" [(ngModel)]="service.text"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="add-box">
+            <h4>Add New Service</h4>
+            <div class="item-row">
+              <div class="form-group">
+                <label>Service Title</label>
+                <input type="text" class="dash-input" [(ngModel)]="newService.title" placeholder="Web Development" />
+              </div>
+              <div class="form-group">
+                <label>Icon Name</label>
+                <input type="text" class="dash-input" [(ngModel)]="newService.icon" placeholder="code-slash-outline" />
+              </div>
+              <div class="form-group full-width">
+                <label>Tags (Comma separated)</label>
+                <input type="text" class="dash-input" [(ngModel)]="newServiceTagInput" placeholder="React, Angular, Spring Boot" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description</label>
+                <textarea class="dash-textarea" rows="2" [(ngModel)]="newService.text" placeholder="Detailed service description"></textarea>
+              </div>
+            </div>
+            <button class="btn-add" (click)="addService()">
+              <ion-icon name="add-outline"></ion-icon>
+              <span>Add Service</span>
+            </button>
+          </div>
+        </div>
+
+        <h3 class="sub-heading">Tech Stack Icons</h3>
+        <div class="tech-grid">
+          <div class="tech-card" *ngFor="let tech of aboutForm.techStack; let i = index">
+            <i [class]="tech.iconClass"></i>
+            <input type="text" class="dash-input-sm" [(ngModel)]="tech.name" />
+            <button class="btn-icon-danger" (click)="removeTechStack(i)">
+              <ion-icon name="close-circle-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+        <div class="add-box flex-row">
+          <input type="text" class="dash-input" [(ngModel)]="newTech.name" placeholder="Tech Name (e.g. Node.js)" />
+          <input type="text" class="dash-input" [(ngModel)]="newTech.iconClass" placeholder="Devicon class (devicon-nodejs-plain colored)" />
+          <button class="btn-add" (click)="addTechStack()">Add Tech</button>
+        </div>
+      </section>
+
+      <!-- 3. PROJECTS TAB -->
+      <section *ngIf="activeTab() === 'projects'" class="tab-panel">
+        <div class="panel-header">
+          <h2>Projects Portfolio</h2>
+          <button class="btn-primary" (click)="saveProjects()">
+            <ion-icon name="save-outline"></ion-icon>
+            <span>Save Projects</span>
+          </button>
+        </div>
+
+        <div class="add-box mb-24">
+          <h3>Add New Project</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Project Title</label>
+              <input type="text" class="dash-input" [(ngModel)]="newProject.title" placeholder="e.g. E-Commerce Portal" />
+            </div>
+
+            <div class="form-group">
+              <label>Category</label>
+              <select class="dash-input" [(ngModel)]="newProject.category">
+                <option value="Web Development">Web Development</option>
+                <option value="Full Stack">Full Stack</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Image URL / Asset Path</label>
+              <input type="text" class="dash-input" [(ngModel)]="newProject.image" placeholder="assets/images/project-1.png" />
+            </div>
+
+            <div class="form-group">
+              <label>Demo Link (Optional)</label>
+              <input type="text" class="dash-input" [(ngModel)]="newProject.demoLink" placeholder="https://..." />
+            </div>
+
+            <div class="form-group">
+              <label>GitHub Link (Optional)</label>
+              <input type="text" class="dash-input" [(ngModel)]="newProject.githubLink" placeholder="https://github.com/..." />
+            </div>
+
+            <div class="form-group">
+              <label>Tags (Comma-separated)</label>
+              <input type="text" class="dash-input" [(ngModel)]="newProjectTagsInput" placeholder="React, Spring Boot, MySQL" />
+            </div>
+
+            <div class="form-group full-width">
+              <label>Description</label>
+              <textarea class="dash-textarea" rows="2" [(ngModel)]="newProject.description" placeholder="Project overview..."></textarea>
+            </div>
+          </div>
+          <button class="btn-add mt-12" (click)="addProject()">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Add Project to Portfolio</span>
+          </button>
+        </div>
+
+        <h3 class="sub-heading">Existing Projects</h3>
+        <div class="items-list">
+          <div class="item-card" *ngFor="let project of projectsForm.projects; let i = index">
+            <div class="item-header">
+              <div class="flex-align-gap">
+                <img [src]="project.image" alt="Project image" class="proj-thumb" />
+                <strong>{{ project.title }}</strong>
+                <span class="badge">{{ project.category }}</span>
+              </div>
+              <button class="btn-icon-danger" (click)="removeProject(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Title</label>
+                <input type="text" class="dash-input" [(ngModel)]="project.title" />
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <input type="text" class="dash-input" [(ngModel)]="project.category" />
+              </div>
+              <div class="form-group">
+                <label>Image URL</label>
+                <input type="text" class="dash-input" [(ngModel)]="project.image" />
+              </div>
+              <div class="form-group">
+                <label>Demo Link</label>
+                <input type="text" class="dash-input" [(ngModel)]="project.demoLink" />
+              </div>
+              <div class="form-group">
+                <label>GitHub Link</label>
+                <input type="text" class="dash-input" [(ngModel)]="project.githubLink" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description</label>
+                <textarea class="dash-textarea" rows="2" [(ngModel)]="project.description"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. RESUME TAB -->
+      <section *ngIf="activeTab() === 'resume'" class="tab-panel">
+        <div class="panel-header">
+          <h2>Resume, Education & Skills</h2>
+          <button class="btn-primary" (click)="saveResume()">
+            <ion-icon name="save-outline"></ion-icon>
+            <span>Save Resume Section</span>
+          </button>
+        </div>
+
+        <h3 class="sub-heading">Education History</h3>
+        <div class="items-list">
+          <div class="item-card" *ngFor="let edu of resumeForm.education; let i = index">
+            <div class="item-header">
+              <span>{{ edu.degree }}</span>
+              <button class="btn-icon-danger" (click)="removeEducation(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Degree / Qualification</label>
+                <input type="text" class="dash-input" [(ngModel)]="edu.degree" />
+              </div>
+              <div class="form-group">
+                <label>Institution / School</label>
+                <input type="text" class="dash-input" [(ngModel)]="edu.institution" />
+              </div>
+              <div class="form-group">
+                <label>Period (e.g. 2021 - 2025)</label>
+                <input type="text" class="dash-input" [(ngModel)]="edu.period" />
+              </div>
+              <div class="form-group">
+                <label>Detail / Grade</label>
+                <input type="text" class="dash-input" [(ngModel)]="edu.detail" />
+              </div>
+            </div>
+          </div>
+
+          <div class="add-box">
+            <h4>Add Education Item</h4>
+            <div class="form-grid">
+              <input type="text" class="dash-input" [(ngModel)]="newEdu.degree" placeholder="Degree Name" />
+              <input type="text" class="dash-input" [(ngModel)]="newEdu.institution" placeholder="College / School Name" />
+              <input type="text" class="dash-input" [(ngModel)]="newEdu.period" placeholder="2021 — 2025" />
+              <input type="text" class="dash-input" [(ngModel)]="newEdu.detail" placeholder="CGPA / Score" />
+            </div>
+            <button class="btn-add mt-12" (click)="addEducation()">Add Education</button>
+          </div>
+        </div>
+
+        <h3 class="sub-heading">Experience & Internships</h3>
+        <div class="items-list">
+          <div class="item-card" *ngFor="let exp of resumeForm.experiences; let i = index">
+            <div class="item-header">
+              <span>{{ exp.title }} — {{ exp.role }}</span>
+              <button class="btn-icon-danger" (click)="removeExperience(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Company / Organization</label>
+                <input type="text" class="dash-input" [(ngModel)]="exp.title" />
+              </div>
+              <div class="form-group">
+                <label>Role</label>
+                <input type="text" class="dash-input" [(ngModel)]="exp.role" />
+              </div>
+              <div class="form-group">
+                <label>Period</label>
+                <input type="text" class="dash-input" [(ngModel)]="exp.period" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description & Achievements</label>
+                <textarea class="dash-textarea" rows="3" [(ngModel)]="exp.text"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="add-box">
+            <h4>Add Experience Item</h4>
+            <div class="form-grid">
+              <input type="text" class="dash-input" [(ngModel)]="newExp.title" placeholder="Company Name" />
+              <input type="text" class="dash-input" [(ngModel)]="newExp.role" placeholder="Role Title" />
+              <input type="text" class="dash-input" [(ngModel)]="newExp.period" placeholder="Date range" />
+              <textarea class="dash-textarea full-width" rows="2" [(ngModel)]="newExp.text" placeholder="Description"></textarea>
+            </div>
+            <button class="btn-add mt-12" (click)="addExperience()">Add Experience</button>
+          </div>
+        </div>
+
+        <h3 class="sub-heading">Technical Skills & Proficiency %</h3>
+        <div class="skills-grid">
+          <div class="skill-card" *ngFor="let skill of resumeForm.skills; let i = index">
+            <div class="skill-info">
+              <input type="text" class="dash-input-sm" [(ngModel)]="skill.name" />
+              <span class="skill-val">{{ skill.value }}%</span>
+              <button class="btn-icon-danger" (click)="removeSkill(i)">
+                <ion-icon name="close-circle-outline"></ion-icon>
+              </button>
+            </div>
+            <input type="range" min="10" max="100" class="skill-slider" [(ngModel)]="skill.value" />
+          </div>
+        </div>
+
+        <div class="add-box flex-row mt-16">
+          <input type="text" class="dash-input" [(ngModel)]="newSkill.name" placeholder="Skill Name (e.g. Python)" />
+          <input type="number" min="10" max="100" class="dash-input" [(ngModel)]="newSkill.value" placeholder="80" />
+          <button class="btn-add" (click)="addSkill()">Add Skill</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Reset Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showResetConfirm()">
+    <div class="modal-card">
+      <ion-icon name="warning-outline" class="modal-icon"></ion-icon>
+      <h3>Reset Portfolio Data?</h3>
+      <p>This action will clear custom changes and restore default values for all sections.</p>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showResetConfirm.set(false)">Cancel</button>
+        <button class="btn-danger" (click)="confirmReset()">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-popup" *ngIf="toastMessage()">
+    <ion-icon name="checkmark-circle-outline"></ion-icon>
+    <span>{{ toastMessage() }}</span>
+  </div>
+</div>

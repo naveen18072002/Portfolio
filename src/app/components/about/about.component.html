@@ -5,8 +5,8 @@
   </header>
 
   <section class="about-text">
-    <p>
-      Aspiring Full Stack Developer with hands-on experience in building RESTful API’s using Spring Boot and developing responsive web applications with Angular and React. Strong foundation in Core Java and Oracle SQL with a focus on clean, scalable solutions. Passionate about learning modern technologies and contributing to impactful software projects.
+    <p *ngFor="let para of bioParagraphs">
+      {{ para }}
     </p>
   </section>
 
@@ -40,7 +40,7 @@
           <p class="service-item-text">
             {{ service.text }}
           </p>
-          <ul class="service-tag-list">
+          <ul class="service-tag-list" *ngIf="service.tags && service.tags.length">
             <li class="service-tag" *ngFor="let tag of service.tags">{{ tag }}</li>
           </ul>
         </div>

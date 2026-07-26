@@ -1,0 +1,230 @@
+<div class="login-page">
+  <div class="login-bg-glow"></div>
+  
+  <div class="login-container">
+    <!-- Top Header Badge -->
+    <div class="login-header">
+      <div class="admin-badge">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>Admin Access</span>
+      </div>
+    </div>
+
+    <!-- Login / Forgot Password Card -->
+    <div class="login-card">
+      <!-- Standard Login View -->
+      <ng-container *ngIf="!isForgotPassword()">
+        <div class="card-top">
+          <div class="avatar-ring">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </div>
+          <h1 class="login-title">Admin Login</h1>
+          <p class="login-subtitle">Enter credentials to access the portfolio dashboard</p>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" class="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <div class="input-icon-wrapper">
+              <ion-icon name="person-outline" class="field-icon"></ion-icon>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                class="form-input"
+                placeholder="Enter username"
+                [(ngModel)]="username"
+                required
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="password">Password</label>
+            </div>
+            <div class="input-icon-wrapper">
+              <ion-icon name="key-outline" class="field-icon"></ion-icon>
+              <input
+              id="password"
+              name="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              class="form-input"
+              placeholder="Enter password"
+              [(ngModel)]="password"
+              required
+              autocomplete="current-password"
+              />
+              <button
+              type="button"
+              class="toggle-pwd-btn"
+              (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              >
+              <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+          <button type="button" class="forgot-link" (click)="openForgotPassword()">
+            Forgot password?
+          </button>
+          </div>
+
+          <div class="error-banner" *ngIf="errorMessage()">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>{{ errorMessage() }}</span>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
+            <span *ngIf="!isSubmitting()">
+              Login
+              <ion-icon name="arrow-forward-outline"></ion-icon>
+            </span>
+            <span *ngIf="isSubmitting()">
+              Authenticating...
+            </span>
+          </button>
+        </form>
+      </ng-container>
+
+      <!-- Forgot Password View -->
+      <ng-container *ngIf="isForgotPassword()">
+        <div class="card-top">
+          <div class="avatar-ring warning-ring">
+            <ion-icon name="key-outline"></ion-icon>
+          </div>
+          <h1 class="login-title">Reset Password</h1>
+          <p class="login-subtitle">Recover access to your Admin dashboard</p>
+        </div>
+
+        <!-- Success Banner -->
+        <div class="success-banner" *ngIf="forgotSuccess()">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+          <span>{{ forgotSuccess() }}</span>
+        </div>
+
+        <!-- Error Banner -->
+        <div class="error-banner" *ngIf="forgotError()">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          <span>{{ forgotError() }}</span>
+        </div>
+
+        <!-- Step 1: Email Form -->
+        <form *ngIf="forgotStep() === 'email'" (ngSubmit)="sendOtp()" class="login-form">
+          <div class="form-group">
+            <label for="resetEmail">Admin Email Address</label>
+            <div class="input-icon-wrapper">
+              <ion-icon name="mail-outline" class="field-icon"></ion-icon>
+              <input
+                id="resetEmail"
+                name="resetEmail"
+                type="email"
+                class="form-input"
+                placeholder="e.g. admin@gmail.com"
+                [(ngModel)]="resetEmail"
+                required
+              />
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="isSendingOtp()">
+            <span *ngIf="!isSendingOtp()">
+              Send Verification OTP
+              <ion-icon name="paper-plane-outline"></ion-icon>
+            </span>
+            <span *ngIf="isSendingOtp()">Sending OTP...</span>
+          </button>
+        </form>
+
+        <!-- Step 2: OTP Verification Form -->
+        <form *ngIf="forgotStep() === 'otp'" (ngSubmit)="verifyOtp()" class="login-form">
+          <div class="form-group">
+            <label for="otpInput">Enter 6-Digit OTP</label>
+            <div class="input-icon-wrapper">
+              <ion-icon name="qr-code-outline" class="field-icon"></ion-icon>
+              <input
+                id="otpInput"
+                name="otpInput"
+                type="text"
+                maxlength="6"
+                class="form-input otp-field"
+                placeholder="6-Digit OTP (e.g. 123456)"
+                [(ngModel)]="otpInput"
+                required
+              />
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="isVerifyingOtp()">
+            <span *ngIf="!isVerifyingOtp()">
+              Verify OTP
+              <ion-icon name="checkmark-done-outline"></ion-icon>
+            </span>
+            <span *ngIf="isVerifyingOtp()">Verifying...</span>
+          </button>
+
+          <button type="button" class="btn-text-only" (click)="sendOtp()">
+            Resend OTP Code
+          </button>
+        </form>
+
+        <!-- Step 3: Enter New Password & Confirm Password Form -->
+        <form *ngIf="forgotStep() === 'reset'" (ngSubmit)="resetPassword()" class="login-form">
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <div class="input-icon-wrapper">
+              <ion-icon name="lock-open-outline" class="field-icon"></ion-icon>
+              <input
+                id="newPassword"
+                name="newPassword"
+                type="password"
+                class="form-input"
+                placeholder="Enter new password"
+                [(ngModel)]="newPassword"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <div class="input-icon-wrapper">
+              <ion-icon name="shield-checkmark-outline" class="field-icon"></ion-icon>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                class="form-input"
+                placeholder="Re-enter new password"
+                [(ngModel)]="confirmPassword"
+                required
+              />
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <span>
+              Save Password & Login
+              <ion-icon name="arrow-forward-outline"></ion-icon>
+            </span>
+          </button>
+        </form>
+
+        <div class="back-to-login-wrapper">
+          <button type="button" class="back-login-btn" (click)="backToLogin()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+            <span>Back to Login</span>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Back to Portfolio Link at the BOTTOM of the Login Card -->
+    <div class="bottom-nav">
+      <a routerLink="/" class="back-link-bottom">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Back to Portfolio</span>
+      </a>
+    </div>
+  </div>
+</div>

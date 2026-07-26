@@ -743,8 +743,8 @@ main {
 
 .tech-stack-item:hover {
   transform: translateY(-8px);
-  background: var(--border-gradient-onyx);
-  box-shadow: var(--shadow-2);
+  background: transparent;
+  box-shadow: none;
 }
 
 .tech-stack-item i {
@@ -784,22 +784,35 @@ main {
 
 .site-footer .container {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 4px;
   padding: 8px 0;
 }
 
 .site-footer .footer-text {
-  display: block;
+  display: inline-block;
   color: var(--white-2);
   font-size: 13px;
   line-height: 1.6;
+  text-align: center;
 }
 
 .site-footer .footer-text span {
   display: inline;
   color: var(--white-2);
+}
+
+.admin-copyright-link {
+  color: var(--orange-yellow-crayola, #ffdb70);
+  text-decoration: none;
+  font-weight: var(--fw-500, 500);
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+  cursor: pointer;
+}
+
+.admin-copyright-link:hover {
+  color: var(--white-1, #ffffff);
+  text-decoration: underline;
 }
 
 /*-----------------------------------*\
@@ -1543,7 +1556,6 @@ a { color: black; }
   font-weight: var(--fw-300);
   line-height: 1.6;
 }
-tech-stack-item
 .contact-highlight-text a {
   color: inherit;
   transition: var(--transition-1);

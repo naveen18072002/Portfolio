@@ -1,9 +1,10 @@
-import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
+import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ContactService } from '../../services/contact.service';
+import { PortfolioDataService } from '../../services/portfolio-data.service';
 
 interface ContactDetail {
   icon: string;
@@ -16,12 +17,20 @@ interface ContactDetail {
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './contact.component.html'
 })
 export class ContactComponent {
   @Input() isActive = false;
+
+  private readonly portfolioService = inject(PortfolioDataService);
+  private readonly fb = inject(FormBuilder);
+  private readonly contactService = inject(ContactService);
+  private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
+
+  readonly profile = computed(() => this.portfolioService.profile());
 
   readonly contactTopics = ['General Inquiry', 'Project Collaboration', 'Hire Me'];
   readonly activeTopic = signal('General Inquiry');
@@ -32,45 +41,12 @@ export class ContactComponent {
     'Hire Me': 'Hi Naveen, we are impressed by your portfolio and would like to discuss a job/freelance opportunity for...'
   };
 
-  readonly contactDetails: ContactDetail[] = [
-    {
-      icon: 'mail-outline',
-      title: 'Email',
-      text: 'naveenkumarrnk6677@gmail.com',
-      link: 'mailto:naveenkumarrnk6677@gmail.com'
-    },
-    {
-      icon: 'phone-portrait-outline',
-      title: 'Phone',
-      text: '+91 7397114035',
-      link: 'tel:+917397114035'
-    },
-    {
-      icon: 'location-outline',
-      title: 'Location',
-      text: 'Cuddalore, Tamil Nadu, India'
-    },
-    {
-      icon: 'chatbubble-ellipses-outline',
-      title: 'Availability',
-      text: 'Open to Opportunities'
-    }
-  ];
-
-  private readonly fb = inject(FormBuilder);
-  private readonly contactService = inject(ContactService);
-  private readonly router = inject(Router);
-  private readonly sanitizer = inject(DomSanitizer);
-
   readonly currentYear = new Date().getFullYear();
 
   readonly mapEmbedUrl: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
     'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31317.067332219086!2d79.74235284852926!3d11.755490457639524!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a533bc42dfcfb69%3A0xc07a98db2579dfd9!2sCuddalore%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1751119075982!5m2!1sen!2sin'
   );
 
-  // Signals instead of plain fields: under Angular 22's OnPush-by-default
-  // components, a signal write reliably re-renders the template even when
-  // it happens inside an async HTTP callback, with no markForCheck() needed.
   readonly submitting = signal(false);
   readonly errorMessage = signal('');
 
