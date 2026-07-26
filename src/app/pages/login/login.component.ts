@@ -25,7 +25,6 @@ export class LoginComponent {
   forgotStep = signal<'email' | 'otp' | 'reset'>('email');
   resetEmail = '';
   otpInput = '';
-  generatedOtp = '';
   newPassword = '';
   confirmPassword = '';
   forgotError = signal('');
@@ -71,16 +70,20 @@ export class LoginComponent {
 
     this.isSubmitting.set(true);
 
-    setTimeout(() => {
-      const success = this.authService.login(this.username, this.password);
-      this.isSubmitting.set(false);
-
-      if (success) {
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.errorMessage.set('Invalid credentials. Use admin / admin123');
+    this.authService.loginApi(this.username, this.password).subscribe({
+      next: (res) => {
+        this.isSubmitting.set(false);
+        if (res.success) {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.errorMessage.set(res.message);
+        }
+      },
+      error: () => {
+        this.isSubmitting.set(false);
+        this.errorMessage.set('Could not log in. Please check backend status or credentials.');
       }
-    }, 400);
+    });
   }
 
   sendOtp(): void {
@@ -94,13 +97,21 @@ export class LoginComponent {
 
     this.isSendingOtp.set(true);
 
-    setTimeout(() => {
-      const randomOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      this.generatedOtp = randomOtp;
-      this.isSendingOtp.set(false);
-      this.forgotStep.set('otp');
-      this.forgotSuccess.set(`OTP sent successfully to ${this.resetEmail}! Demo OTP code is: ${randomOtp}`);
-    }, 600);
+    this.authService.sendOtp(this.resetEmail).subscribe({
+      next: (res) => {
+        this.isSendingOtp.set(false);
+        if (res.success) {
+          this.forgotStep.set('otp');
+          this.forgotSuccess.set(res.message);
+        } else {
+          this.forgotError.set(res.message);
+        }
+      },
+      error: () => {
+        this.isSendingOtp.set(false);
+        this.forgotError.set('Failed to send OTP code. Please try again.');
+      }
+    });
   }
 
   verifyOtp(): void {
@@ -112,22 +123,28 @@ export class LoginComponent {
       return;
     }
 
-    if (this.otpInput.trim() !== this.generatedOtp && this.otpInput.trim() !== '123456') {
-      this.forgotError.set('Invalid OTP code. Please check and try again.');
-      return;
-    }
-
     this.isVerifyingOtp.set(true);
 
-    setTimeout(() => {
-      this.isVerifyingOtp.set(false);
-      this.forgotStep.set('reset');
-      this.forgotSuccess.set('OTP verified successfully! Please enter your new password.');
-    }, 500);
+    this.authService.verifyOtp(this.resetEmail, this.otpInput).subscribe({
+      next: (res) => {
+        this.isVerifyingOtp.set(false);
+        if (res.success) {
+          this.forgotStep.set('reset');
+          this.forgotSuccess.set(res.message);
+        } else {
+          this.forgotError.set(res.message);
+        }
+      },
+      error: () => {
+        this.isVerifyingOtp.set(false);
+        this.forgotError.set('OTP verification failed. Please try again.');
+      }
+    });
   }
 
   resetPassword(): void {
     this.forgotError.set('');
+
     if (!this.newPassword.trim() || this.newPassword.length < 4) {
       this.forgotError.set('Password must be at least 4 characters long.');
       return;
@@ -138,8 +155,18 @@ export class LoginComponent {
       return;
     }
 
-    // Directly authenticate and redirect to dashboard
-    this.authService.login('admin', 'admin123');
-    this.router.navigate(['/dashboard']);
+    this.authService.resetPassword(this.resetEmail, this.otpInput, this.newPassword, this.confirmPassword).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.isForgotPassword.set(false);
+          this.errorMessage.set('Password reset successfully! Please log in with your new password.');
+        } else {
+          this.forgotError.set(res.message);
+        }
+      },
+      error: () => {
+        this.forgotError.set('Could not reset password. Please try again.');
+      }
+    });
   }
 }
