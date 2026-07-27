@@ -32,8 +32,6 @@ export type DashboardTab = 'profile' | 'about' | 'projects' | 'resume';
 export class DashboardComponent implements OnInit {
   activeTab = signal<DashboardTab>('profile');
   toastMessage = signal<string>('');
-  showResetConfirm = signal<boolean>(false);
-
   // Form Models initialized from service
   profileForm!: ProfileData;
   aboutForm!: AboutData;
@@ -222,14 +220,6 @@ export class DashboardComponent implements OnInit {
   saveResume(): void {
     this.portfolioService.updateResume(this.resumeForm);
     this.showToast('Resume & Skills saved successfully!');
-  }
-
-  // --- Reset All ---
-  confirmReset(): void {
-    this.portfolioService.resetAllToDefault();
-    this.loadCurrentData();
-    this.showResetConfirm.set(false);
-    this.showToast('Portfolio restored to initial defaults!');
   }
 
   trackByIndex(index: number): number {

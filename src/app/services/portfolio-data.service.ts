@@ -1,4 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface ContactItem {
   title: string;
@@ -119,57 +121,13 @@ const STORAGE_KEYS = {
   RESUME: 'portfolio_resume'
 };
 
-const DEFAULT_PROFILE: ProfileData = {
-  name: 'Naveenkumar R',
-  title: 'Fullstack Developer',
-  avatarUrl: 'assets/images/my-avatar.png',
-  contacts: [
-    {
-      title: 'Email',
-      icon: 'mail-outline',
-      value: 'naveenkumarrnk6677@gmail.com',
-      type: 'link',
-      href: 'mailto:naveenkumarrnk6677@gmail.com'
-    },
-    {
-      title: 'Phone',
-      icon: 'phone-portrait-outline',
-      value: '+91 7397114035',
-      type: 'link',
-      href: 'tel:+917397114035'
-    },
-    {
-      title: 'Birthday',
-      icon: 'calendar-outline',
-      value: 'July 18, 2002',
-      type: 'time',
-      datetime: '2002-07-18'
-    },
-    {
-      title: 'Location',
-      icon: 'location-outline',
-      value: 'Cuddalore',
-      type: 'address'
-    }
-  ],
-  socials: [
-    {
-      name: 'LinkedIn',
-      icon: 'logo-linkedin',
-      url: 'https://www.linkedin.com/in/naveenkumar-r-7072a7277'
-    },
-    {
-      name: 'GitHub',
-      icon: 'logo-github',
-      url: 'https://github.com/naveen18072002'
-    },
-    {
-      name: 'Instagram',
-      icon: 'logo-instagram',
-      url: 'https://www.instagram.com/_naveen_390'
-    }
-  ],
-  resumeLink: 'https://drive.google.com/file/d/1O1Zx_zJOVfq_p60hUzZI5R9Lv_eAhiQc/view?usp=drive_link'
+const EMPTY_PROFILE: ProfileData = {
+  name: '',
+  title: '',
+  avatarUrl: '',
+  contacts: [],
+  socials: [],
+  resumeLink: ''
 };
 
 const DEFAULT_ABOUT: AboutData = {
@@ -354,10 +312,32 @@ const DEFAULT_RESUME: ResumeData = {
   providedIn: 'root'
 })
 export class PortfolioDataService {
-  readonly profile = signal<ProfileData>(this.loadFromStorage(STORAGE_KEYS.PROFILE, DEFAULT_PROFILE));
+  private http = inject(HttpClient);
+  private profileApiUrl = `${environment.apiUrl}/profile`;
+
+  readonly profile = signal<ProfileData>(this.loadFromStorage(STORAGE_KEYS.PROFILE, EMPTY_PROFILE));
   readonly about = signal<AboutData>(this.loadFromStorage(STORAGE_KEYS.ABOUT, DEFAULT_ABOUT));
   readonly projects = signal<ProjectsData>(this.loadFromStorage(STORAGE_KEYS.PROJECTS, DEFAULT_PROJECTS));
   readonly resume = signal<ResumeData>(this.loadFromStorage(STORAGE_KEYS.RESUME, DEFAULT_RESUME));
+
+  constructor() {
+    this.fetchProfileFromServer();
+  }
+
+  fetchProfileFromServer(): void {
+    if (typeof window === 'undefined') return;
+    this.http.get<ProfileData>(this.profileApiUrl).subscribe({
+      next: (data) => {
+        if (data && data.name) {
+          this.profile.set(data);
+          this.saveToStorage(STORAGE_KEYS.PROFILE, data);
+        }
+      },
+      error: (err) => {
+        console.warn('Could not fetch profile from server, using local fallback:', err);
+      }
+    });
+  }
 
   private loadFromStorage<T>(key: string, defaultValue: T): T {
     if (typeof window === 'undefined') return defaultValue;
@@ -383,6 +363,18 @@ export class PortfolioDataService {
   updateProfile(data: ProfileData): void {
     this.profile.set({ ...data });
     this.saveToStorage(STORAGE_KEYS.PROFILE, data);
+
+    this.http.post<ProfileData>(this.profileApiUrl, data).subscribe({
+      next: (res) => {
+        if (res && res.name) {
+          this.profile.set(res);
+          this.saveToStorage(STORAGE_KEYS.PROFILE, res);
+        }
+      },
+      error: (err) => {
+        console.error('Error saving profile to backend server:', err);
+      }
+    });
   }
 
   updateAbout(data: AboutData): void {
@@ -400,10 +392,4 @@ export class PortfolioDataService {
     this.saveToStorage(STORAGE_KEYS.RESUME, data);
   }
 
-  resetAllToDefault(): void {
-    this.updateProfile(DEFAULT_PROFILE);
-    this.updateAbout(DEFAULT_ABOUT);
-    this.updateProjects(DEFAULT_PROJECTS);
-    this.updateResume(DEFAULT_RESUME);
-  }
 }

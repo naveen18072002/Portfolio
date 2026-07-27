@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { AboutComponent } from '../../components/about/about.component';
@@ -20,6 +20,10 @@ import { PageStateService } from '../../services/page-state.service';
   ],
   templateUrl: './home.component.html'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   readonly pageState = inject(PageStateService);
+
+  ngOnInit(): void {
+    this.pageState.syncState();
+  }
 }

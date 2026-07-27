@@ -16,10 +16,6 @@
         <ion-icon name="eye-outline"></ion-icon>
         <span>View Live Site</span>
       </a>
-      <!-- <button class="btn-warning" (click)="showResetConfirm.set(true)" title="Reset portfolio content to factory defaults">
-        <ion-icon name="refresh-outline"></ion-icon>
-        <span>Reset Defaults</span>
-      </button> -->
       <button class="btn-danger" (click)="logout()" title="Logout of Admin session">
         <ion-icon name="log-out-outline"></ion-icon>
         <span>Logout</span>
@@ -495,19 +491,6 @@
         </div>
       </section>
     </main>
-  </div>
-
-  <!-- Reset Confirmation Modal -->
-  <div class="modal-overlay" *ngIf="showResetConfirm()">
-    <div class="modal-card">
-      <ion-icon name="warning-outline" class="modal-icon"></ion-icon>
-      <h3>Reset Portfolio Data?</h3>
-      <p>This action will clear custom changes and restore default values for all sections.</p>
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="showResetConfirm.set(false)">Cancel</button>
-        <button class="btn-danger" (click)="confirmReset()">Reset to Defaults</button>
-      </div>
-    </div>
   </div>
 
   <!-- Toast Notification -->

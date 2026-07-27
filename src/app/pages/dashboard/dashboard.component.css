@@ -557,27 +557,28 @@
 /* Toast */
 .toast-popup {
   position: fixed;
-  bottom: 30px;
+  top: 30px;
   right: 30px;
-  background: var(--bg-gradient-yellow-1, linear-gradient(to right, #ffdb70, #ffae00));
-  color: #121212;
-  font-weight: 700;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-weight: 600;
   padding: 14px 22px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 8px 24px rgba(255, 219, 112, 0.4);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
   z-index: 2000;
-  animation: slideIn 0.3s ease;
+  animation: slideDownIn 0.3s ease;
 }
 
 .toast-popup ion-icon {
   font-size: 22px;
+  color: #ffffff;
 }
 
-@keyframes slideIn {
-  from { transform: translateY(20px); opacity: 0; }
+@keyframes slideDownIn {
+  from { transform: translateY(-20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 

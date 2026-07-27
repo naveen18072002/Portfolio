@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, inject, computed } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PortfolioDataService } from '../../services/portfolio-data.service';
 
@@ -10,12 +10,16 @@ import { PortfolioDataService } from '../../services/portfolio-data.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   private portfolioService = inject(PortfolioDataService);
 
   readonly isOpen = signal(false);
 
   readonly profile = computed(() => this.portfolioService.profile());
+
+  ngOnInit(): void {
+    this.portfolioService.fetchProfileFromServer();
+  }
 
   get contacts() {
     return this.profile().contacts;
