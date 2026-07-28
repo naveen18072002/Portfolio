@@ -17,7 +17,7 @@ public class JwtTokenProvider {
     @Value("${app.jwt.secret:PortfolioSecretKeyForJwtTokenAuthenticationMustBe256BitsLongMinimum1234567890}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration-ms:86400000}")
+    @Value("${app.jwt.expiration-ms:7200000}")
     private long jwtExpirationMs;
 
     private SecretKey getSigningKey() {

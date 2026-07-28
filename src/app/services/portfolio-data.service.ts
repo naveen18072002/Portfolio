@@ -84,6 +84,36 @@ export interface SkillItem {
   icon: string;
 }
 
+export function getSkillIconByName(skillName: string): string {
+  if (!skillName) return 'code-outline';
+  const name = skillName.toLowerCase().trim();
+
+  if (name.includes('html')) return 'logo-html5';
+  if (name.includes('css')) return 'logo-css3';
+  if (name.includes('javascript') || name === 'js' || name.includes('js ')) return 'logo-javascript';
+  if (name.includes('react')) return 'logo-react';
+  if (name.includes('angular')) return 'logo-angular';
+  if (name.includes('node')) return 'logo-nodejs';
+  if (name.includes('python')) return 'logo-python';
+  if (name.includes('java')) return 'cafe-outline';
+  if (name.includes('spring')) return 'leaf-outline';
+  if (name.includes('sql') || name.includes('db') || name.includes('database') || name.includes('oracle') || name.includes('mongo') || name.includes('mysql')) return 'server-outline';
+  if (name.includes('git')) return 'logo-github';
+  if (name.includes('docker')) return 'logo-docker';
+  if (name.includes('figma')) return 'logo-figma';
+  if (name.includes('sass') || name.includes('scss')) return 'logo-sass';
+  if (name.includes('android')) return 'logo-android';
+  if (name.includes('apple') || name.includes('ios') || name.includes('swift')) return 'logo-apple';
+  if (name.includes('linux')) return 'logo-tux';
+  if (name.includes('npm')) return 'logo-npm';
+  if (name.includes('vue')) return 'logo-vue';
+  if (name.includes('typescript') || name === 'ts') return 'code-slash-outline';
+  if (name.includes('c++') || name.includes('c#') || name === 'c') return 'hardware-chip-outline';
+  if (name.includes('cloud') || name.includes('aws') || name.includes('azure')) return 'cloud-outline';
+
+  return 'code-outline';
+}
+
 export interface ProfileData {
   name: string;
   title: string;
@@ -119,15 +149,6 @@ const STORAGE_KEYS = {
   ABOUT: 'portfolio_about',
   PROJECTS: 'portfolio_projects',
   RESUME: 'portfolio_resume'
-};
-
-const EMPTY_PROFILE: ProfileData = {
-  name: '',
-  title: '',
-  avatarUrl: '',
-  contacts: [],
-  socials: [],
-  resumeLink: ''
 };
 
 const DEFAULT_ABOUT: AboutData = {
@@ -197,29 +218,7 @@ const DEFAULT_ABOUT: AboutData = {
 
 const DEFAULT_PROJECTS: ProjectsData = {
   filters: ['All Projects', 'Web Development', 'Full Stack', 'Other'],
-  projects: [
-    {
-      id: '1',
-      title: 'Quiz App',
-      category: 'Web Development',
-      icon: 'desktop-outline',
-      description: 'A simple quiz application that allows users to attempt quizzes, see scores, and track progress.',
-      tags: ['React', 'CSS'],
-      demoLink: 'https://naveenkumar-quiz.netlify.app/',
-      image: 'assets/images/project-1.png'
-    },
-    {
-      id: '2',
-      title: 'Restaurant Website',
-      category: 'Web Development',
-      icon: 'globe-outline',
-      description: 'A responsive restaurant website with menu, about, gallery, chefs and contact sections.',
-      tags: ['React', 'CSS'],
-      demoLink: 'https://naveen-restaurant.liveserver.workers.dev/',
-      githubLink: 'https://github.com/naveen18072002/Restaurant',
-      image: 'assets/images/project-2.png'
-    }
-  ],
+  projects: [],
   highlights: [
     {
       icon: 'code-slash-outline',
@@ -245,67 +244,11 @@ const DEFAULT_PROJECTS: ProjectsData = {
 };
 
 const DEFAULT_RESUME: ResumeData = {
-  education: [
-    {
-      degree: 'Bachelor of Engineering in Electronics and Communication Engineering (ECE)',
-      institution: 'Government College of Engineering, Tirunelveli',
-      detail: 'CGPA: 7.37 / 10.0',
-      period: '2021 — 2025'
-    },
-    {
-      degree: 'Higher Secondary Education (HSC)',
-      institution: 'Vallalar Matriculation Higher Secondary School',
-      detail: 'Percentage: 91.8%',
-      period: '2019 — 2021'
-    },
-    {
-      degree: 'Secondary Education (SSLC)',
-      institution: 'Kannan Matriculation School',
-      detail: 'Percentage: 90.6%',
-      period: '2009 — 2019'
-    }
-  ],
-  experiences: [
-    {
-      title: 'Vsolve Tech Global Solutions - Chennai',
-      role: 'Full Stack Developer Trainee',
-      period: 'March - July 2026',
-      text: 'Resolved bugs and optimized functionality in an ERP management portal, improving system stability and user experience. Designed and developed a full-stack HRMS portal using modern web technologies, focusing on responsive UI and efficient backend integration.'
-    }
-  ],
-  internships: [
-    {
-      title: 'NSIC Technical Service Centre - Chennai',
-      role: 'Embedded Trainee',
-      period: 'August - 2024',
-      text: 'Worked with ESP32 microcontrollers to develop a smart monitoring system for industrial applications, focusing on real-time data acquisition and wireless communication.'
-    },
-    {
-      title: 'Qspiders, Vadapalani - Chennai',
-      role: 'Fullstack Developer Trainee',
-      period: 'June - November 2025',
-      text: 'Learned and applied full-stack development skills, including front-end and back-end technologies, to build web applications.'
-    }
-  ],
-  academicProjects: [
-    {
-      title: 'Smart Proximity Alert System To Prevent Falls into Open Drainage Pits',
-      badge: 'May - 2025',
-      icon: 'hardware-chip-outline',
-      description: 'An IoT-based smart monitoring system that prevents falls into open drainage. Arduino with ultrasonic/IR sensors tracks data in real time, displays it on an LCD and alerts authorities over Wi-Fi, while servo motors automate pit covers.',
-      tags: ['Arduino', 'IoT Sensors', 'Wi-Fi', 'Servo Motors'],
-      features: ['Real-time monitoring', 'Wi-Fi alerts to authorities', 'Automated pit covers']
-    }
-  ],
-  skills: [
-    { name: 'HTML', value: 80, icon: 'logo-html5' },
-    { name: 'CSS', value: 75, icon: 'logo-css3' },
-    { name: 'JavaScript', value: 70, icon: 'logo-javascript' },
-    { name: 'React', value: 70, icon: 'logo-react' },
-    { name: 'Core Java', value: 75, icon: 'cafe-outline' },
-    { name: 'Spring Boot', value: 75, icon: 'leaf-outline' },
-    { name: 'SQL', value: 80, icon: 'server-outline' }
-  ]
+  education: [],
+  experiences: [],
+  internships: [],
+  academicProjects: [],
+  skills: []
 };
 
 @Injectable({
@@ -314,14 +257,35 @@ const DEFAULT_RESUME: ResumeData = {
 export class PortfolioDataService {
   private http = inject(HttpClient);
   private profileApiUrl = `${environment.apiUrl}/profile`;
+  private projectsApiUrl = `${environment.apiUrl}/projects`;
+  private resumeApiUrl = `${environment.apiUrl}/resume`;
 
-  readonly profile = signal<ProfileData>(this.loadFromStorage(STORAGE_KEYS.PROFILE, EMPTY_PROFILE));
-  readonly about = signal<AboutData>(this.loadFromStorage(STORAGE_KEYS.ABOUT, DEFAULT_ABOUT));
-  readonly projects = signal<ProjectsData>(this.loadFromStorage(STORAGE_KEYS.PROJECTS, DEFAULT_PROJECTS));
-  readonly resume = signal<ResumeData>(this.loadFromStorage(STORAGE_KEYS.RESUME, DEFAULT_RESUME));
+  readonly profile = signal<ProfileData>({ name: '', title: '', avatarUrl: '', contacts: [], socials: [], resumeLink: '' });
+  readonly about = signal<AboutData>(DEFAULT_ABOUT);
+  readonly projects = signal<ProjectsData>({
+    filters: ['All Projects', 'Web Development', 'Full Stack', 'Other'],
+    projects: [],
+    highlights: DEFAULT_PROJECTS.highlights
+  });
+  readonly resume = signal<ResumeData>(DEFAULT_RESUME);
 
   constructor() {
+    this.clearLegacyLocalStorage();
     this.fetchProfileFromServer();
+    this.fetchProjectsFromServer();
+    this.fetchResumeFromServer();
+  }
+
+  private clearLegacyLocalStorage(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem('portfolio_profile');
+      localStorage.removeItem('portfolio_about');
+      localStorage.removeItem('portfolio_projects');
+      localStorage.removeItem('portfolio_resume');
+    } catch (e) {
+      console.warn('Could not clear local storage keys', e);
+    }
   }
 
   fetchProfileFromServer(): void {
@@ -330,45 +294,65 @@ export class PortfolioDataService {
       next: (data) => {
         if (data && data.name) {
           this.profile.set(data);
-          this.saveToStorage(STORAGE_KEYS.PROFILE, data);
         }
       },
       error: (err) => {
-        console.warn('Could not fetch profile from server, using local fallback:', err);
+        console.warn('Could not fetch profile from backend server:', err);
       }
     });
   }
 
-  private loadFromStorage<T>(key: string, defaultValue: T): T {
-    if (typeof window === 'undefined') return defaultValue;
-    try {
-      const data = localStorage.getItem(key);
-      if (!data) return defaultValue;
-      return JSON.parse(data) as T;
-    } catch (e) {
-      console.error(`Error reading ${key} from localStorage`, e);
-      return defaultValue;
-    }
+  fetchProjectsFromServer(): void {
+    if (typeof window === 'undefined') return;
+    this.http.get<ProjectItem[]>(this.projectsApiUrl).subscribe({
+      next: (list) => {
+        if (list && Array.isArray(list) && list.length > 0) {
+          const current = this.projects();
+          this.projects.set({
+            ...current,
+            projects: list
+          });
+        }
+      },
+      error: (err) => {
+        console.warn('Could not fetch projects from backend server:', err);
+      }
+    });
   }
 
-  private saveToStorage<T>(key: string, value: T): void {
+  fetchResumeFromServer(): void {
     if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-      console.error(`Error saving ${key} to localStorage`, e);
-    }
+    this.http.get<ResumeData>(this.resumeApiUrl).subscribe({
+      next: (data) => {
+        if (data) {
+          const current = this.resume();
+          const skillsList = (data.skills || []).map((s) => ({
+            ...s,
+            icon: s.icon && s.icon.trim() ? s.icon : getSkillIconByName(s.name)
+          }));
+          const formatted: ResumeData = {
+            education: data.education || [],
+            experiences: data.experiences || [],
+            internships: data.internships || [],
+            academicProjects: data.academicProjects || current.academicProjects || [],
+            skills: skillsList
+          };
+          this.resume.set(formatted);
+        }
+      },
+      error: (err) => {
+        console.warn('Could not fetch resume from backend server:', err);
+      }
+    });
   }
 
   updateProfile(data: ProfileData): void {
     this.profile.set({ ...data });
-    this.saveToStorage(STORAGE_KEYS.PROFILE, data);
 
     this.http.post<ProfileData>(this.profileApiUrl, data).subscribe({
       next: (res) => {
         if (res && res.name) {
           this.profile.set(res);
-          this.saveToStorage(STORAGE_KEYS.PROFILE, res);
         }
       },
       error: (err) => {
@@ -379,17 +363,47 @@ export class PortfolioDataService {
 
   updateAbout(data: AboutData): void {
     this.about.set({ ...data });
-    this.saveToStorage(STORAGE_KEYS.ABOUT, data);
   }
 
   updateProjects(data: ProjectsData): void {
     this.projects.set({ ...data });
-    this.saveToStorage(STORAGE_KEYS.PROJECTS, data);
+
+    this.http.post<ProjectItem[]>(`${this.projectsApiUrl}/batch`, data.projects).subscribe({
+      next: (res) => {
+        if (res && Array.isArray(res)) {
+          this.projects.set({
+            ...data,
+            projects: res
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error saving projects to backend server:', err);
+      }
+    });
   }
 
   updateResume(data: ResumeData): void {
     this.resume.set({ ...data });
-    this.saveToStorage(STORAGE_KEYS.RESUME, data);
+
+    this.http.post<ResumeData>(this.resumeApiUrl, data).subscribe({
+      next: (res) => {
+        if (res) {
+          const current = this.resume();
+          const formatted: ResumeData = {
+            education: res.education || [],
+            experiences: res.experiences || [],
+            internships: res.internships || [],
+            academicProjects: res.academicProjects || current.academicProjects || [],
+            skills: res.skills || []
+          };
+          this.resume.set(formatted);
+        }
+      },
+      error: (err) => {
+        console.error('Error saving resume to backend server:', err);
+      }
+    });
   }
 
 }

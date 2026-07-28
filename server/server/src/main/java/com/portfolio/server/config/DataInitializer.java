@@ -1,17 +1,37 @@
 package com.portfolio.server.config;
 
-import com.portfolio.server.entity.User;
-import com.portfolio.server.repository.UserRepository;
+import com.portfolio.server.entity.*;
+import com.portfolio.server.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ProfileRepository profileRepository;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private EducationRepository educationRepository;
+
+    @Autowired
+    private ExperienceInternshipRepository experienceInternshipRepository;
+
+    @Autowired
+    private AcademicProjectRepository academicProjectRepository;
+
+    @Autowired
+    private TechnicalProficiencyRepository technicalProficiencyRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -26,6 +46,9 @@ public class DataInitializer implements CommandLineRunner {
                     "ROLE_ADMIN"
             );
             userRepository.save(admin);
-        }
+        
+
+                }
     }
-}
+
+        }

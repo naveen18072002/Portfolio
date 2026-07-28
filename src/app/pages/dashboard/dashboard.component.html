@@ -2,8 +2,8 @@
   <!-- Top Navigation Header -->
   <header class="dash-header">
     <div class="dash-brand">
-      <div class="dash-avatar">
-        <img [src]="profileForm.avatarUrl || 'assets/images/my-avatar.png'" alt="Avatar" />
+      <div class="dash-avatar" *ngIf="profileForm?.avatarUrl">
+        <img [src]="profileForm.avatarUrl" alt="Avatar" />
       </div>
       <div>
         <h1 class="dash-title">Admin Control Panel</h1>
@@ -62,6 +62,15 @@
         <ion-icon name="document-text-outline"></ion-icon>
         <span>Resume & Skills</span>
       </button>
+
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'messages'"
+        (click)="setTab('messages')"
+      >
+        <ion-icon name="mail-unread-outline"></ion-icon>
+        <span>Messages Inbox</span>
+      </button>
     </nav>
 
     <!-- Main Content Area -->
@@ -88,8 +97,23 @@
           </div>
 
           <div class="form-group full-width">
-            <label>Avatar Image Path or URL</label>
-            <input type="text" class="dash-input" [(ngModel)]="profileForm.avatarUrl" placeholder="assets/images/my-avatar.png" />
+            <label>Profile Image (Upload File)</label>
+            <div class="avatar-upload-container">
+              <input type="file" #avatarFileInput (change)="onAvatarFileSelected($event)" accept="image/*" style="display: none;" />
+              
+              <button type="button" class="btn-secondary" (click)="avatarFileInput.click()">
+                <ion-icon name="cloud-upload-outline"></ion-icon>
+                <span>Upload Image File</span>
+              </button>
+
+              <div *ngIf="profileForm.avatarUrl" class="avatar-upload-preview">
+                <img [src]="profileForm.avatarUrl" alt="Selected Avatar Preview" />
+                <button type="button" class="btn-danger-sm" (click)="removeAvatar()" title="Remove Image">
+                  <ion-icon name="trash-outline"></ion-icon>
+                  <span>Remove Image</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="form-group full-width">
@@ -98,47 +122,143 @@
           </div>
         </div>
 
-        <h3 class="sub-heading">Contact Information</h3>
+        <div class="sub-heading-row">
+          <h3 class="sub-heading">Contact Information</h3>
+          <button type="button" class="btn-add" (click)="addContact()">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Add Contact Item</span>
+          </button>
+        </div>
         <div class="items-list">
           <div class="item-card" *ngFor="let contact of profileForm.contacts; let i = index">
+            <div class="item-header">
+              <span>{{ contact.title || 'Contact Item #' + (i + 1) }}</span>
+              <button type="button" class="btn-icon-danger" (click)="removeContact(i)" title="Delete Contact Item">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
             <div class="item-row">
               <div class="form-group">
-                <label>Label</label>
-                <input type="text" class="dash-input" [(ngModel)]="contact.title" />
+                <label>Label / Title</label>
+                <input type="text" class="dash-input" [(ngModel)]="contact.title" placeholder="EMAIL, PHONE, etc." />
               </div>
               <div class="form-group">
                 <label>Icon Name (Ionicons)</label>
-                <input type="text" class="dash-input" [(ngModel)]="contact.icon" />
+                <input type="text" class="dash-input" [(ngModel)]="contact.icon" placeholder="mail-outline" />
               </div>
               <div class="form-group">
                 <label>Value</label>
-                <input type="text" class="dash-input" [(ngModel)]="contact.value" />
+                <input type="text" class="dash-input" [(ngModel)]="contact.value" placeholder="email@example.com" />
               </div>
-              <div class="form-group" *ngIf="contact.type === 'link'">
+              <div class="form-group">
+                <label>Type</label>
+                <select class="dash-input" [(ngModel)]="contact.type">
+                  <option value="link">Link</option>
+                  <option value="time">Date / Time</option>
+                  <option value="address">Address</option>
+                </select>
+              </div>
+              <div class="form-group">
                 <label>Link Target (href)</label>
-                <input type="text" class="dash-input" [(ngModel)]="contact.href" />
+                <input type="text" class="dash-input" [(ngModel)]="contact.href" placeholder="mailto:you@example.com" />
+              </div>
+              <div class="form-group">
+                <label>Datetime Attribute</label>
+                <input type="text" class="dash-input" [(ngModel)]="contact.datetime" placeholder="2002-07-18" />
               </div>
             </div>
           </div>
+
+          <div class="add-box">
+            <h4>Add New Contact Item</h4>
+            <div class="item-row">
+              <div class="form-group">
+                <label>Label / Title</label>
+                <input type="text" class="dash-input" [(ngModel)]="newContact.title" placeholder="e.g. EMAIL" />
+              </div>
+              <div class="form-group">
+                <label>Icon Name (Ionicons)</label>
+                <input type="text" class="dash-input" [(ngModel)]="newContact.icon" placeholder="mail-outline" />
+              </div>
+              <div class="form-group">
+                <label>Value</label>
+                <input type="text" class="dash-input" [(ngModel)]="newContact.value" placeholder="you@example.com" />
+              </div>
+              <div class="form-group">
+                <label>Type</label>
+                <select class="dash-input" [(ngModel)]="newContact.type">
+                  <option value="link">Link</option>
+                  <option value="time">Date / Time</option>
+                  <option value="address">Address</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Link Target (href)</label>
+                <input type="text" class="dash-input" [(ngModel)]="newContact.href" placeholder="mailto:you@example.com" />
+              </div>
+              <div class="form-group">
+                <label>Datetime Attribute</label>
+                <input type="text" class="dash-input" [(ngModel)]="newContact.datetime" placeholder="2002-07-18" />
+              </div>
+            </div>
+            <button type="button" class="btn-add mt-12" (click)="addContact()">
+              <ion-icon name="add-circle-outline"></ion-icon>
+              <span>Add Contact Item</span>
+            </button>
+          </div>
         </div>
 
-        <h3 class="sub-heading">Social Links</h3>
+        <div class="sub-heading-row">
+          <h3 class="sub-heading">Social Links</h3>
+          <button type="button" class="btn-add" (click)="addSocial()">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Add Social Link</span>
+          </button>
+        </div>
         <div class="items-list">
           <div class="item-card" *ngFor="let social of profileForm.socials; let i = index">
+            <div class="item-header">
+              <span>{{ social.name || 'Social Link #' + (i + 1) }}</span>
+              <button type="button" class="btn-icon-danger" (click)="removeSocial(i)" title="Delete Social Link">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
             <div class="item-row">
               <div class="form-group">
                 <label>Platform Name</label>
-                <input type="text" class="dash-input" [(ngModel)]="social.name" />
+                <input type="text" class="dash-input" [(ngModel)]="social.name" placeholder="GitHub, LinkedIn, etc." />
               </div>
               <div class="form-group">
-                <label>Icon Name</label>
-                <input type="text" class="dash-input" [(ngModel)]="social.icon" />
+                <label>Icon Name (Ionicons)</label>
+                <input type="text" class="dash-input" [(ngModel)]="social.icon" placeholder="logo-github" />
               </div>
               <div class="form-group full-width">
                 <label>URL</label>
-                <input type="text" class="dash-input" [(ngModel)]="social.url" />
+                <input type="text" class="dash-input" [(ngModel)]="social.url" placeholder="https://github.com/username" />
               </div>
             </div>
+          </div>
+
+          <div class="add-box">
+            <h4>Add New Social Link</h4>
+            <div class="item-row">
+              <div class="form-group">
+                <label>Platform Name</label>
+                <input type="text" class="dash-input" [(ngModel)]="newSocial.name" placeholder="e.g. GitHub" />
+              </div>
+              <div class="form-group">
+                <label>Icon Name (Ionicons)</label>
+                <input type="text" class="dash-input" [(ngModel)]="newSocial.icon" placeholder="logo-github" />
+              </div>
+              <div class="form-group full-width">
+                <label>URL</label>
+                <input type="text" class="dash-input" [(ngModel)]="newSocial.url" placeholder="https://github.com/username" />
+              </div>
+            </div>
+            <button type="button" class="btn-add mt-12" (click)="addSocial()">
+              <ion-icon name="add-circle-outline"></ion-icon>
+              <span>Add Social Link</span>
+            </button>
           </div>
         </div>
       </section>
@@ -303,9 +423,18 @@
               </select>
             </div>
 
-            <div class="form-group">
-              <label>Image URL / Asset Path</label>
-              <input type="text" class="dash-input" [(ngModel)]="newProject.image" placeholder="assets/images/project-1.png" />
+            <div class="form-group full-width">
+              <label>Project Cover Image</label>
+              <div class="image-upload-wrapper">
+                <img [src]="newProject.image || 'assets/images/project-1.png'" alt="Project Preview" class="proj-image-preview" />
+                <div class="upload-btn-group">
+                  <input #newProjFileInput type="file" accept="image/*" (change)="onNewProjectFileSelected($event)" style="display: none;" />
+                  <button type="button" class="btn-secondary" (click)="newProjFileInput.click()">
+                    <ion-icon name="cloud-upload-outline"></ion-icon>
+                    <span>Upload Image File...</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="form-group">
@@ -318,7 +447,7 @@
               <input type="text" class="dash-input" [(ngModel)]="newProject.githubLink" placeholder="https://github.com/..." />
             </div>
 
-            <div class="form-group">
+            <div class="form-group full-width">
               <label>Tags (Comma-separated)</label>
               <input type="text" class="dash-input" [(ngModel)]="newProjectTagsInput" placeholder="React, Spring Boot, MySQL" />
             </div>
@@ -357,9 +486,18 @@
                 <label>Category</label>
                 <input type="text" class="dash-input" [(ngModel)]="project.category" />
               </div>
-              <div class="form-group">
-                <label>Image URL</label>
-                <input type="text" class="dash-input" [(ngModel)]="project.image" />
+              <div class="form-group full-width">
+                <label>Project Cover Image</label>
+                <div class="image-upload-wrapper">
+                  <img [src]="project.image" alt="Project image" class="proj-image-preview" />
+                  <div class="upload-btn-group">
+                    <input #projFileInput type="file" accept="image/*" (change)="onExistingProjectFileSelected($event, i)" style="display: none;" />
+                    <button type="button" class="btn-secondary" (click)="projFileInput.click()">
+                      <ion-icon name="cloud-upload-outline"></ion-icon>
+                      <span>Upload / Change Image File...</span>
+                    </button>
+                  </div>
+                </div>
               </div>
               <div class="form-group">
                 <label>Demo Link</label>
@@ -429,8 +567,8 @@
           </div>
         </div>
 
-        <h3 class="sub-heading">Experience & Internships</h3>
-        <div class="items-list">
+        <h3 class="sub-heading">Work Experience</h3>
+        <div class="items-list mb-24">
           <div class="item-card" *ngFor="let exp of resumeForm.experiences; let i = index">
             <div class="item-header">
               <span>{{ exp.title }} — {{ exp.role }}</span>
@@ -459,7 +597,7 @@
           </div>
 
           <div class="add-box">
-            <h4>Add Experience Item</h4>
+            <h4>Add Work Experience Item</h4>
             <div class="form-grid">
               <input type="text" class="dash-input" [(ngModel)]="newExp.title" placeholder="Company Name" />
               <input type="text" class="dash-input" [(ngModel)]="newExp.role" placeholder="Role Title" />
@@ -470,13 +608,117 @@
           </div>
         </div>
 
+        <h3 class="sub-heading">Internships</h3>
+        <div class="items-list mb-24">
+          <div class="item-card" *ngFor="let intern of resumeForm.internships; let i = index">
+            <div class="item-header">
+              <span>{{ intern.title }} — {{ intern.role }}</span>
+              <button class="btn-icon-danger" (click)="removeInternship(i)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Organization / Center</label>
+                <input type="text" class="dash-input" [(ngModel)]="intern.title" />
+              </div>
+              <div class="form-group">
+                <label>Role / Position</label>
+                <input type="text" class="dash-input" [(ngModel)]="intern.role" />
+              </div>
+              <div class="form-group">
+                <label>Period</label>
+                <input type="text" class="dash-input" [(ngModel)]="intern.period" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description & Key Tasks</label>
+                <textarea class="dash-textarea" rows="3" [(ngModel)]="intern.text"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="add-box">
+            <h4>Add Internship Item</h4>
+            <div class="form-grid">
+              <input type="text" class="dash-input" [(ngModel)]="newInternship.title" placeholder="Organization Name" />
+              <input type="text" class="dash-input" [(ngModel)]="newInternship.role" placeholder="Role Title" />
+              <input type="text" class="dash-input" [(ngModel)]="newInternship.period" placeholder="e.g. August 2024" />
+              <textarea class="dash-textarea full-width" rows="2" [(ngModel)]="newInternship.text" placeholder="Description"></textarea>
+            </div>
+            <button class="btn-add mt-12" (click)="addInternship()">Add Internship</button>
+          </div>
+        </div>
+
+        <h3 class="sub-heading">Academic Projects</h3>
+        <div class="items-list mb-24">
+          <div class="item-card" *ngFor="let proj of resumeForm.academicProjects; let i = index">
+            <div class="item-header">
+              <span>{{ proj.title }}</span>
+              <button class="btn-icon-danger" (click)="removeAcademicProject(i)" title="Delete Academic Project">
+                <ion-icon name="trash-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" class="dash-input" [(ngModel)]="proj.title" />
+              </div>
+              <div class="form-group">
+                <label>Badge / Date</label>
+                <input type="text" class="dash-input" [(ngModel)]="proj.badge" />
+              </div>
+              <div class="form-group">
+                <label>Icon Name (Ionicons)</label>
+                <input type="text" class="dash-input" [(ngModel)]="proj.icon" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description</label>
+                <textarea class="dash-textarea" rows="3" [(ngModel)]="proj.description"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="add-box">
+            <h4>Add Academic Project</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" class="dash-input" [(ngModel)]="newAcademicProject.title" placeholder="Project Title" />
+              </div>
+              <div class="form-group">
+                <label>Badge / Date</label>
+                <input type="text" class="dash-input" [(ngModel)]="newAcademicProject.badge" placeholder="May - 2025" />
+              </div>
+              <div class="form-group">
+                <label>Icon Name</label>
+                <input type="text" class="dash-input" [(ngModel)]="newAcademicProject.icon" placeholder="hardware-chip-outline" />
+              </div>
+              <div class="form-group full-width">
+                <label>Tags (Comma-separated)</label>
+                <input type="text" class="dash-input" [(ngModel)]="newAcademicProjectTagsInput" placeholder="Arduino, IoT Sensors, Wi-Fi, Servo Motors" />
+              </div>
+              <div class="form-group full-width">
+                <label>Key Features (Comma-separated)</label>
+                <input type="text" class="dash-input" [(ngModel)]="newAcademicProjectFeaturesInput" placeholder="Real-time monitoring, Wi-Fi alerts to authorities" />
+              </div>
+              <div class="form-group full-width">
+                <label>Description</label>
+                <textarea class="dash-textarea" rows="3" [(ngModel)]="newAcademicProject.description" placeholder="Project overview and details..."></textarea>
+              </div>
+            </div>
+            <button class="btn-add mt-12" (click)="addAcademicProject()">Add Academic Project</button>
+          </div>
+        </div>
+
         <h3 class="sub-heading">Technical Skills & Proficiency %</h3>
         <div class="skills-grid">
           <div class="skill-card" *ngFor="let skill of resumeForm.skills; let i = index">
             <div class="skill-info">
-              <input type="text" class="dash-input-sm" [(ngModel)]="skill.name" />
+              <ion-icon [name]="skill.icon || 'code-outline'" class="skill-icon-preview"></ion-icon>
+              <input type="text" class="dash-input-sm flex-grow" [(ngModel)]="skill.name" (ngModelChange)="onSkillNameChange(skill)" placeholder="Skill Name" title="Skill Name" />
+              <input type="text" class="dash-input-sm icon-input" [(ngModel)]="skill.icon" placeholder="Icon (logo-react)" title="Ionicons Name (e.g. logo-html5, logo-css3, logo-javascript, logo-react, cafe-outline, leaf-outline, server-outline)" />
               <span class="skill-val">{{ skill.value }}%</span>
-              <button class="btn-icon-danger" (click)="removeSkill(i)">
+              <button class="btn-icon-danger" (click)="removeSkill(i)" title="Delete Skill">
                 <ion-icon name="close-circle-outline"></ion-icon>
               </button>
             </div>
@@ -485,9 +727,40 @@
         </div>
 
         <div class="add-box flex-row mt-16">
-          <input type="text" class="dash-input" [(ngModel)]="newSkill.name" placeholder="Skill Name (e.g. Python)" />
-          <input type="number" min="10" max="100" class="dash-input" [(ngModel)]="newSkill.value" placeholder="80" />
+          <input type="text" class="dash-input" [(ngModel)]="newSkill.name" (ngModelChange)="onNewSkillNameChange()" placeholder="Skill Name (e.g. Python, React, MySQL)" />
+          <input type="text" class="dash-input" [(ngModel)]="newSkill.icon" placeholder="Icon (Auto-detected)" />
+          <input type="number" min="10" max="100" class="dash-input" [(ngModel)]="newSkill.value" placeholder="Proficiency % (e.g. 80)" />
           <button class="btn-add" (click)="addSkill()">Add Skill</button>
+        </div>
+      </section>
+
+      <!-- 5. MESSAGES INBOX TAB -->
+      <section *ngIf="activeTab() === 'messages'" class="tab-panel">
+        <div class="panel-header">
+          <h2>Contact Form Messages Inbox</h2>
+          <button class="btn-secondary" (click)="fetchContactMessages()">
+            <ion-icon name="refresh-outline"></ion-icon>
+            <span>Refresh Messages</span>
+          </button>
+        </div>
+
+        <div *ngIf="contactMessages().length === 0" class="empty-state">
+          <ion-icon name="mail-open-outline"></ion-icon>
+          <p>No user contact messages received yet.</p>
+        </div>
+
+        <div class="items-list" *ngIf="contactMessages().length > 0">
+          <div class="item-card message-card" *ngFor="let msg of contactMessages()">
+            <div class="item-header">
+              <div class="flex-align-gap">
+                <ion-icon name="person-circle-outline" style="font-size: 1.5rem; color: var(--orange-yellow-crayola, #ffdb70);"></ion-icon>
+                <strong>{{ msg.fullname }}</strong>
+                <a [href]="'mailto:' + msg.email" class="user-email-link">&lt;{{ msg.email }}&gt;</a>
+              </div>
+              <span class="msg-date" *ngIf="msg.createdAt">{{ msg.createdAt | date:'medium' }}</span>
+            </div>
+            <p class="message-content">{{ msg.message }}</p>
+          </div>
         </div>
       </section>
     </main>

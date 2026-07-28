@@ -1,6 +1,6 @@
 import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, signal, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PortfolioDataService } from '../../services/portfolio-data.service';
+import { PortfolioDataService, getSkillIconByName, SkillItem } from '../../services/portfolio-data.service';
 
 @Component({
   selector: 'app-resume',
@@ -39,6 +39,10 @@ export class ResumeComponent implements AfterViewInit, OnDestroy {
 
   get skills() {
     return this.resumeData().skills;
+  }
+
+  getSkillIcon(skill: SkillItem): string {
+    return skill.icon && skill.icon.trim() ? skill.icon : getSkillIconByName(skill.name);
   }
 
   @Input()

@@ -21,6 +21,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.http.HttpMethod;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -49,7 +51,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/profile/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/contact/submit").permitAll()
+                .requestMatchers(HttpMethod.GET, "/profile/**", "/projects/**", "/resume/**", "/skills/**").permitAll()
+                .requestMatchers("/profile/**", "/projects/**", "/resume/**", "/skills/**", "/contact/**").authenticated()
                 .anyRequest().authenticated()
             );
 

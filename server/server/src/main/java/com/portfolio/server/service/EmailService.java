@@ -33,4 +33,29 @@ public class EmailService {
             }
         }
     }
+
+    public void sendContactNotificationEmail(String adminEmail, String senderName, String senderEmail, String contactMessage) {
+        System.out.println("==========================================");
+        System.out.println("[NEW CONTACT MESSAGE RECEIVED]");
+        System.out.println("From: " + senderName + " <" + senderEmail + ">");
+        System.out.println("Message: " + contactMessage);
+        System.out.println("==========================================");
+
+        if (mailSender != null) {
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(adminEmail);
+                message.setSubject("New Portfolio Contact Message from " + senderName);
+                message.setText("Hello Admin,\n\nYou have received a new contact message on your portfolio:\n\n"
+                        + "Name: " + senderName + "\n"
+                        + "Email: " + senderEmail + "\n"
+                        + "Message:\n" + contactMessage + "\n\n"
+                        + "This message has also been saved to your database.");
+                mailSender.send(message);
+                System.out.println("Contact notification email sent successfully to admin: " + adminEmail);
+            } catch (Exception e) {
+                System.err.println("Could not send contact notification email via SMTP: " + e.getMessage());
+            }
+        }
+    }
 }

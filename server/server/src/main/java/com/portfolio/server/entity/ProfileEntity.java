@@ -1,6 +1,8 @@
 package com.portfolio.server.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "PORTFOLIO_PROFILE")
@@ -16,29 +18,26 @@ public class ProfileEntity {
     @Column(name = "TITLE")
     private String title;
 
+    @Lob
     @Column(name = "AVATAR_URL")
     private String avatarUrl;
 
     @Column(name = "RESUME_LINK", length = 1000)
     private String resumeLink;
 
-    @Lob
-    @Column(name = "CONTACTS")
-    private String contactsJson;
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContactEntity> contacts = new ArrayList<>();
 
-    @Lob
-    @Column(name = "SOCIALS")
-    private String socialsJson;
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SocialEntity> socials = new ArrayList<>();
 
     public ProfileEntity() {}
 
-    public ProfileEntity(String name, String title, String avatarUrl, String resumeLink, String contactsJson, String socialsJson) {
+    public ProfileEntity(String name, String title, String avatarUrl, String resumeLink) {
         this.name = name;
         this.title = title;
         this.avatarUrl = avatarUrl;
         this.resumeLink = resumeLink;
-        this.contactsJson = contactsJson;
-        this.socialsJson = socialsJson;
     }
 
     public Long getId() {
@@ -81,19 +80,39 @@ public class ProfileEntity {
         this.resumeLink = resumeLink;
     }
 
-    public String getContactsJson() {
-        return contactsJson;
+    public List<ContactEntity> getContacts() {
+        return contacts;
     }
 
-    public void setContactsJson(String contactsJson) {
-        this.contactsJson = contactsJson;
+    public void setContacts(List<ContactEntity> contacts) {
+        this.contacts = contacts;
     }
 
-    public String getSocialsJson() {
-        return socialsJson;
+    public List<SocialEntity> getSocials() {
+        return socials;
     }
 
-    public void setSocialsJson(String socialsJson) {
-        this.socialsJson = socialsJson;
+    public void setSocials(List<SocialEntity> socials) {
+        this.socials = socials;
+    }
+
+    public void addContact(ContactEntity contact) {
+        contacts.add(contact);
+        contact.setProfile(this);
+    }
+
+    public void removeContact(ContactEntity contact) {
+        contacts.remove(contact);
+        contact.setProfile(null);
+    }
+
+    public void addSocial(SocialEntity social) {
+        socials.add(social);
+        social.setProfile(this);
+    }
+
+    public void removeSocial(SocialEntity social) {
+        socials.remove(social);
+        social.setProfile(null);
     }
 }

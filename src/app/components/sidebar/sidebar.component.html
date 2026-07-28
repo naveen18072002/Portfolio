@@ -2,8 +2,8 @@
 
   <div class="sidebar-info">
 
-    <figure class="avatar-box">
-      <img [src]="profile().avatarUrl || 'assets/images/my-avatar.png'" [alt]="profile().name" width="100">
+    <figure class="avatar-box" *ngIf="profile().avatarUrl">
+      <img [src]="profile().avatarUrl" [alt]="profile().name" width="100">
     </figure>
 
     <div class="info-content">

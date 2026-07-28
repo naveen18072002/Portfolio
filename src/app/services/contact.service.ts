@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ContactPayload {
   fullname: string;
@@ -8,28 +9,29 @@ export interface ContactPayload {
   message: string;
 }
 
+export interface ContactMessageItem {
+  id?: number;
+  fullname: string;
+  email: string;
+  message: string;
+  createdAt?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ContactService {
-  private readonly endpoint = 'https://api.web3forms.com/submit';
+  private http = inject(HttpClient);
+  private readonly endpoint = `${environment.apiUrl}/contact/submit`;
+  private readonly messagesEndpoint = `${environment.apiUrl}/contact/messages`;
 
-  // Same access key used by the original static form.
-  private readonly accessKey = '6aaf3111-f405-4e66-8517-555b6ce8f09e';
-
-  constructor(private http: HttpClient) {}
-
-  submit(payload: ContactPayload): Observable<unknown> {
-    const body = {
-      access_key: this.accessKey,
+  submit(payload: ContactPayload): Observable<any> {
+    return this.http.post(this.endpoint, {
       fullname: payload.fullname,
       email: payload.email,
-      message: payload.message,
-      replyto: payload.email,
-      subject: `Portfolio Contact from ${payload.fullname}`,
-      _captcha: 'false'
-    };
-
-    return this.http.post(this.endpoint, body, {
-      headers: { Accept: 'application/json' }
+      message: payload.message
     });
+  }
+
+  getMessages(): Observable<ContactMessageItem[]> {
+    return this.http.get<ContactMessageItem[]>(this.messagesEndpoint);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, signal, computed, inject } from '@angular/core';
+import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PortfolioDataService } from '../../services/portfolio-data.service';
 
@@ -9,10 +9,14 @@ import { PortfolioDataService } from '../../services/portfolio-data.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './projects.component.html'
 })
-export class ProjectsComponent {
+export class ProjectsComponent implements OnInit {
   @Input() isActive = false;
 
   private portfolioService = inject(PortfolioDataService);
+
+  ngOnInit(): void {
+    this.portfolioService.fetchProjectsFromServer();
+  }
 
   readonly projectsData = computed(() => this.portfolioService.projects());
 

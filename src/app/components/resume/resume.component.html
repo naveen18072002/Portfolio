@@ -121,7 +121,7 @@
     <ul class="skills-list content-card">
       <li class="skills-item" *ngFor="let skill of skills">
         <div class="title-wrapper">
-          <ion-icon class="skill-icon" [name]="skill.icon"></ion-icon>
+          <ion-icon class="skill-icon" [name]="getSkillIcon(skill)"></ion-icon>
           <h5 class="h5">{{ skill.name }}</h5>
           <data [value]="skill.value">{{ skill.value }}%</data>
         </div>

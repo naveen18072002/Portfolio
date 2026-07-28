@@ -1,0 +1,33 @@
+package com.portfolio.server.controller;
+
+import com.portfolio.server.dto.ApiResponse;
+import com.portfolio.server.dto.ContactMessageDto;
+import com.portfolio.server.service.ContactMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/contact")
+@CrossOrigin(origins = "*", maxAge = 3600)
+public class ContactController {
+
+    @Autowired
+    private ContactMessageService contactMessageService;
+
+    @PostMapping("/submit")
+    public ResponseEntity<ApiResponse> submitContactMessage(@RequestBody ContactMessageDto dto) {
+        if (dto.getFullname() == null || dto.getEmail() == null || dto.getMessage() == null) {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "Name, email and message are required."));
+        }
+        contactMessageService.saveAndNotify(dto);
+        return ResponseEntity.ok(new ApiResponse(true, "Thank you! Your message has been sent and stored successfully."));
+    }
+
+    @GetMapping("/messages")
+    public ResponseEntity<List<ContactMessageDto>> getAllMessages() {
+        return ResponseEntity.ok(contactMessageService.getAllMessages());
+    }
+}
