@@ -4,13 +4,13 @@
     <h2 class="h2 article-title">About me</h2>
   </header>
 
-  <section class="about-text">
+  <section class="about-text" *ngIf="bioParagraphs && bioParagraphs.length">
     <p *ngFor="let para of bioParagraphs">
       {{ para }}
     </p>
   </section>
 
-  <section class="stats" style="margin-bottom: 35px;">
+  <section class="stats" style="margin-bottom: 35px;" *ngIf="stats && stats.length">
     <ul class="stats-highlights content-card">
       <li class="stats-highlight-item" *ngFor="let stat of stats">
         <div class="stats-highlight-icon">
@@ -25,7 +25,7 @@
     </ul>
   </section>
 
-  <section class="service">
+  <section class="service" *ngIf="services && services.length">
 
     <h3 class="h3 service-title">What I'm doing</h3>
 
@@ -50,7 +50,7 @@
 
   </section>
 
-  <section class="tech-stack">
+  <section class="tech-stack" *ngIf="techStack && techStack.length">
 
     <h3 class="h3 service-title">Tech stack</h3>
 

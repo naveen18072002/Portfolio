@@ -5,7 +5,7 @@
     <p class="article-subtitle">Here's a quick overview of my background, projects, and skills.</p>
   </header>
 
-  <section class="timeline">
+  <section class="timeline" *ngIf="education && education.length">
     <div class="title-wrapper">
       <div class="icon-box">
         <ion-icon name="school-outline"></ion-icon>
@@ -25,7 +25,7 @@
     </ol>
   </section>
 
-  <section class="timeline">
+  <section class="timeline" *ngIf="projects && projects.length">
     <div class="title-wrapper">
       <div class="icon-box">
         <ion-icon name="briefcase-outline"></ion-icon>
@@ -58,7 +58,7 @@
     </ol>
   </section>
 
-  <section class="timeline">
+  <section class="timeline" *ngIf="experiences && experiences.length">
     <div class="title-wrapper">
       <div class="icon-box">
         <ion-icon name="briefcase-outline"></ion-icon>
@@ -84,7 +84,7 @@
     </ol>
   </section>
 
-  <section class="timeline">
+  <section class="timeline" *ngIf="internships && internships.length">
     <div class="title-wrapper">
       <div class="icon-box">
         <ion-icon name="briefcase-outline"></ion-icon>
@@ -110,7 +110,7 @@
     </ol>
   </section>
 
-  <section class="skill" #skillSection>
+  <section class="skill" #skillSection *ngIf="skills && skills.length">
     <div class="title-wrapper">
       <div class="icon-box">
         <ion-icon name="bar-chart-outline"></ion-icon>
@@ -126,7 +126,7 @@
           <data [value]="skill.value">{{ skill.value }}%</data>
         </div>
         <div class="skill-progress-bg">
-          <div class="skill-progress-fill" [style.width.%]="skillsLoaded() ? skill.value : 0"></div>
+          <div class="skill-progress-fill" [style.width.%]="skill.value"></div>
         </div>
       </li>
     </ul>

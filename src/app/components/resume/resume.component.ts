@@ -17,7 +17,7 @@ export class ResumeComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('skillSection') skillSection!: ElementRef;
 
-  readonly skillsLoaded = signal(false);
+  readonly skillsLoaded = signal(true);
 
   readonly resumeData = computed(() => this.portfolioService.resume());
 

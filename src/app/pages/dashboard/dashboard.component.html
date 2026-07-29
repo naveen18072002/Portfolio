@@ -349,6 +349,16 @@
                 <label>Description</label>
                 <textarea class="dash-textarea" rows="2" [(ngModel)]="service.text"></textarea>
               </div>
+              <div class="form-group full-width">
+                <label>Tags (Comma separated)</label>
+                <input
+                  type="text"
+                  class="dash-input"
+                  [ngModel]="getServiceTagsString(service)"
+                  (ngModelChange)="setServiceTagsString(service, $event)"
+                  placeholder="React, Angular, Spring Boot"
+                />
+              </div>
             </div>
           </div>
 
@@ -426,7 +436,7 @@
             <div class="form-group full-width">
               <label>Project Cover Image</label>
               <div class="image-upload-wrapper">
-                <img [src]="newProject.image || 'assets/images/project-1.png'" alt="Project Preview" class="proj-image-preview" />
+                <img [src]="newProject.image" alt="Project Preview" class="proj-image-preview" />
                 <div class="upload-btn-group">
                   <input #newProjFileInput type="file" accept="image/*" (change)="onNewProjectFileSelected($event)" style="display: none;" />
                   <button type="button" class="btn-secondary" (click)="newProjFileInput.click()">

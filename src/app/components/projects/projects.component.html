@@ -59,17 +59,4 @@
     </li>
   </ul>
 
-  <ul class="portfolio-highlights content-card">
-    <li class="portfolio-highlight-item" *ngFor="let item of highlights">
-      <div class="portfolio-highlight-icon">
-        <ion-icon [name]="item.icon"></ion-icon>
-      </div>
-      <div class="portfolio-highlight-content">
-        <h4 class="portfolio-highlight-title">{{ item.title }}</h4>
-        <p class="portfolio-highlight-subtitle" *ngIf="item.subtitle">{{ item.subtitle }}</p>
-        <p class="portfolio-highlight-text">{{ item.text }}</p>
-      </div>
-    </li>
-  </ul>
-
 </article>

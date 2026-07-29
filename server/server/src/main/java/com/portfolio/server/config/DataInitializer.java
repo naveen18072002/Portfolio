@@ -41,7 +41,7 @@ public class DataInitializer implements CommandLineRunner {
         if (!userRepository.existsByUsername("admin")) {
             User admin = new User(
                     "admin",
-                    "naveenofficial6677@gmail.com",
+                    "naveenkumarrnk6677@gmail.com",
                     passwordEncoder.encode("Admin@123"),
                     "ROLE_ADMIN"
             );

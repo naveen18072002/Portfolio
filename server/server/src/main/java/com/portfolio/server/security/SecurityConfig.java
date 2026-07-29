@@ -30,7 +30,7 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
-    @Value("${app.cors.allowed-origins:http://localhost:4200}")
+    @Value("${app.cors.allowed-origins:http://localhost:4200,http://localhost:8080,https://naveen-portfolio.liveserver.workers.dev}")
     private String allowedOrigins;
 
     @Bean
@@ -52,8 +52,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/contact/submit").permitAll()
-                .requestMatchers(HttpMethod.GET, "/profile/**", "/projects/**", "/resume/**", "/skills/**").permitAll()
-                .requestMatchers("/profile/**", "/projects/**", "/resume/**", "/skills/**", "/contact/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/profile/**", "/projects/**", "/resume/**", "/skills/**", "/about/**").permitAll()
+                .requestMatchers("/profile/**", "/projects/**", "/resume/**", "/skills/**", "/contact/**", "/about/**").authenticated()
                 .anyRequest().authenticated()
             );
 
@@ -65,7 +65,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

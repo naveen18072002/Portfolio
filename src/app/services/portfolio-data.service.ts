@@ -151,99 +151,20 @@ const STORAGE_KEYS = {
   RESUME: 'portfolio_resume'
 };
 
-const DEFAULT_ABOUT: AboutData = {
-  bioParagraphs: [
-    "I'm a Full Stack Developer Trainee passionate about building efficient web applications and solving real-world problems through clean, modern code. With experience in both front-end and back-end development, I enjoy creating intuitive user interfaces and scalable server solutions.",
-    "My goal is to continuously learn and innovate, delivering impactful digital solutions while expanding my technical skills in modern web technologies."
-  ],
-  stats: [
-    {
-      icon: 'code-slash-outline',
-      value: '3+',
-      label: 'Projects Built',
-      text: 'HRMS, Restaurant & Quiz apps'
-    },
-    {
-      icon: 'trophy-outline',
-      value: '50+',
-      label: 'Problems Solved',
-      text: 'On LeetCode & HackerRank'
-    },
-    {
-      icon: 'terminal-outline',
-      value: '5+',
-      label: 'Tech Mastered',
-      text: 'Frontend, Backend & DB'
-    },
-    {
-      icon: 'time-outline',
-      value: '100+',
-      label: 'Coding Hours',
-      text: 'Dedicated to full-stack dev'
-    }
-  ],
-  services: [
-    {
-      title: 'Web development',
-      icon: 'code-slash-outline',
-      text: 'Building fast, scalable and dynamic web applications with clean code.',
-      tags: ['React', 'Angular', 'Spring Boot']
-    },
-    {
-      title: 'Travel',
-      icon: 'bicycle-outline',
-      text: 'I love exploring new places at my own pace. Bike travel connects me more closely with nature and local communities.',
-      tags: ['Adventure', 'Explore', 'Culture']
-    },
-    {
-      title: 'Photography',
-      icon: 'camera-outline',
-      text: 'Capturing moments and turning them into memories through my lens.',
-      tags: ['Nature', 'Portrait', 'Street']
-    }
-  ],
-  techStack: [
-    { name: 'HTML5', iconClass: 'devicon-html5-plain colored' },
-    { name: 'CSS3', iconClass: 'devicon-css3-plain colored' },
-    { name: 'JavaScript', iconClass: 'devicon-javascript-plain colored' },
-    { name: 'React', iconClass: 'devicon-react-original colored' },
-    { name: 'Angular', iconClass: 'devicon-angularjs-plain colored' },
-    { name: 'Spring Boot', iconClass: 'devicon-spring-plain colored' },
-    { name: 'Java', iconClass: 'devicon-java-plain colored' },
-    { name: 'MySQL', iconClass: 'devicon-mysql-plain colored' },
-    { name: 'Git', iconClass: 'devicon-git-plain colored' },
-    { name: 'GitHub', iconClass: 'devicon-github-original' }
-  ]
+const EMPTY_ABOUT: AboutData = {
+  bioParagraphs: [],
+  stats: [],
+  services: [],
+  techStack: []
 };
 
-const DEFAULT_PROJECTS: ProjectsData = {
+const EMPTY_PROJECTS: ProjectsData = {
   filters: ['All Projects', 'Web Development', 'Full Stack', 'Other'],
   projects: [],
-  highlights: [
-    {
-      icon: 'code-slash-outline',
-      title: '3+ Projects Completed',
-      text: 'End-to-end projects built and deployed.'
-    },
-    {
-      icon: 'bulb-outline',
-      title: 'Problem Solver',
-      text: 'I enjoy solving real-world problems with clean and efficient code.'
-    },
-    {
-      icon: 'rocket-outline',
-      title: 'Always Learning',
-      text: 'Exploring new technologies and improving my skills every day.'
-    },
-    {
-      icon: 'locate-outline',
-      title: 'Quality Focused',
-      text: 'I write clean, maintainable code and follow best practices.'
-    }
-  ]
+  highlights: []
 };
 
-const DEFAULT_RESUME: ResumeData = {
+const EMPTY_RESUME: ResumeData = {
   education: [],
   experiences: [],
   internships: [],
@@ -257,21 +178,19 @@ const DEFAULT_RESUME: ResumeData = {
 export class PortfolioDataService {
   private http = inject(HttpClient);
   private profileApiUrl = `${environment.apiUrl}/profile`;
+  private aboutApiUrl = `${environment.apiUrl}/about`;
   private projectsApiUrl = `${environment.apiUrl}/projects`;
   private resumeApiUrl = `${environment.apiUrl}/resume`;
 
   readonly profile = signal<ProfileData>({ name: '', title: '', avatarUrl: '', contacts: [], socials: [], resumeLink: '' });
-  readonly about = signal<AboutData>(DEFAULT_ABOUT);
-  readonly projects = signal<ProjectsData>({
-    filters: ['All Projects', 'Web Development', 'Full Stack', 'Other'],
-    projects: [],
-    highlights: DEFAULT_PROJECTS.highlights
-  });
-  readonly resume = signal<ResumeData>(DEFAULT_RESUME);
+  readonly about = signal<AboutData>(EMPTY_ABOUT);
+  readonly projects = signal<ProjectsData>(EMPTY_PROJECTS);
+  readonly resume = signal<ResumeData>(EMPTY_RESUME);
 
   constructor() {
     this.clearLegacyLocalStorage();
     this.fetchProfileFromServer();
+    this.fetchAboutFromServer();
     this.fetchProjectsFromServer();
     this.fetchResumeFromServer();
   }
@@ -302,6 +221,25 @@ export class PortfolioDataService {
     });
   }
 
+  fetchAboutFromServer(): void {
+    if (typeof window === 'undefined') return;
+    this.http.get<AboutData>(this.aboutApiUrl).subscribe({
+      next: (data) => {
+        if (data) {
+          this.about.set({
+            bioParagraphs: data.bioParagraphs || [],
+            stats: data.stats || [],
+            services: data.services || [],
+            techStack: data.techStack || []
+          });
+        }
+      },
+      error: (err) => {
+        console.warn('Could not fetch about data from backend server:', err);
+      }
+    });
+  }
+
   fetchProjectsFromServer(): void {
     if (typeof window === 'undefined') return;
     this.http.get<ProjectItem[]>(this.projectsApiUrl).subscribe({
@@ -328,6 +266,7 @@ export class PortfolioDataService {
           const current = this.resume();
           const skillsList = (data.skills || []).map((s) => ({
             ...s,
+            value: s.value != null ? Number(s.value) : 75,
             icon: s.icon && s.icon.trim() ? s.icon : getSkillIconByName(s.name)
           }));
           const formatted: ResumeData = {
@@ -363,6 +302,22 @@ export class PortfolioDataService {
 
   updateAbout(data: AboutData): void {
     this.about.set({ ...data });
+
+    this.http.post<AboutData>(this.aboutApiUrl, data).subscribe({
+      next: (res) => {
+        if (res) {
+          this.about.set({
+            bioParagraphs: res.bioParagraphs || [],
+            stats: res.stats || [],
+            services: res.services || [],
+            techStack: res.techStack || []
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error saving about data to backend server:', err);
+      }
+    });
   }
 
   updateProjects(data: ProjectsData): void {

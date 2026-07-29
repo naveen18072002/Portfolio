@@ -257,6 +257,14 @@ export class DashboardComponent implements OnInit {
     this.aboutForm.services.splice(index, 1);
   }
 
+  getServiceTagsString(service: ServiceItem): string {
+    return service.tags ? service.tags.join(', ') : '';
+  }
+
+  setServiceTagsString(service: ServiceItem, value: string): void {
+    service.tags = value ? value.split(',').map((t) => t.trim()).filter(Boolean) : [];
+  }
+
   addTechStack(): void {
     if (!this.newTech.name.trim()) return;
     this.aboutForm.techStack.push({ ...this.newTech });
