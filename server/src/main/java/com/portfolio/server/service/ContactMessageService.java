@@ -63,4 +63,13 @@ public class ContactMessageService {
         }
         return dtoList;
     }
+
+    @Transactional
+    public boolean deleteMessage(Long id) {
+        if (contactMessageRepository.existsById(id)) {
+            contactMessageRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
 }

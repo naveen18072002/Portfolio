@@ -20,11 +20,15 @@
 
   <ul class="project-list">
     <li class="project-item active" *ngFor="let project of filteredProjects(); let i = index" [style.animation-delay.ms]="i * 75">
-      <div class="project-card-box">
+      <div class="project-card-box" (click)="openLightbox(project, $event)" title="Click to view details">
 
         <figure class="project-img">
           <div class="project-img-wrapper">
             <img [src]="project.image" [alt]="project.title" loading="lazy">
+            <div class="project-hover-overlay">
+              <ion-icon name="expand-outline"></ion-icon>
+              <span>View Project Details</span>
+            </div>
           </div>
           <div class="project-type-icon">
             <ion-icon [name]="project.icon"></ion-icon>
@@ -44,11 +48,11 @@
           </div>
 
           <div class="project-links">
-            <a *ngIf="project.githubLink" [href]="project.githubLink" target="_blank" rel="noopener" class="project-link-btn github">
+            <a *ngIf="project.githubLink" [href]="project.githubLink" target="_blank" rel="noopener" class="project-link-btn github" (click)="$event.stopPropagation()">
               <ion-icon name="logo-github"></ion-icon>
               <span>GitHub</span>
             </a>
-            <a *ngIf="project.demoLink" [href]="project.demoLink" target="_blank" rel="noopener" class="project-link-btn demo">
+            <a *ngIf="project.demoLink" [href]="project.demoLink" target="_blank" rel="noopener" class="project-link-btn demo" (click)="$event.stopPropagation()">
               <ion-icon name="globe-outline"></ion-icon>
               <span>Live</span>
             </a>
@@ -58,5 +62,99 @@
       </div>
     </li>
   </ul>
+
+  <!-- Project Lightbox Modal -->
+  <div
+    class="project-lightbox-container"
+    [class.active]="selectedProject()"
+    (click)="closeLightbox()"
+  >
+    <div class="lightbox-overlay"></div>
+
+    <div
+      class="lightbox-modal"
+      *ngIf="selectedProject() as project"
+      (click)="$event.stopPropagation()"
+    >
+      <button class="lightbox-close-btn" (click)="closeLightbox()" title="Close (Esc)">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+
+      <!-- Navigation Arrows -->
+      <button
+        class="lightbox-nav-btn prev"
+        (click)="prevProject($event)"
+        title="Previous Project (Left Arrow)"
+        *ngIf="filteredProjects().length > 1"
+      >
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+
+      <button
+        class="lightbox-nav-btn next"
+        (click)="nextProject($event)"
+        title="Next Project (Right Arrow)"
+        *ngIf="filteredProjects().length > 1"
+      >
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+
+      <div class="lightbox-content">
+        <!-- Media Column -->
+        <div class="lightbox-media-col">
+          <div class="lightbox-image-box">
+            <img [src]="project.image" [alt]="project.title" class="lightbox-img" />
+            <div class="lightbox-type-badge">
+              <ion-icon [name]="project.icon"></ion-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details Column -->
+        <div class="lightbox-info-col">
+          <div class="lightbox-header">
+            <span class="lightbox-category">{{ project.category }}</span>
+            <h3 class="lightbox-title">{{ project.title }}</h3>
+          </div>
+
+          <p class="lightbox-description">{{ project.description }}</p>
+
+          <div class="lightbox-tech-section" *ngIf="project.tags && project.tags.length > 0">
+            <h4 class="lightbox-section-heading">Technologies Used</h4>
+            <div class="lightbox-tech-grid">
+              <span class="lightbox-tech-pill" *ngFor="let tag of project.tags">
+                <ion-icon name="code-slash-outline"></ion-icon>
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+
+          <div class="lightbox-actions">
+            <a
+              *ngIf="project.demoLink"
+              [href]="project.demoLink"
+              target="_blank"
+              rel="noopener"
+              class="lightbox-btn demo-btn"
+            >
+              <ion-icon name="globe-outline"></ion-icon>
+              <span>Live Demo</span>
+            </a>
+
+            <a
+              *ngIf="project.githubLink"
+              [href]="project.githubLink"
+              target="_blank"
+              rel="noopener"
+              class="lightbox-btn github-btn"
+            >
+              <ion-icon name="logo-github"></ion-icon>
+              <span>View Source</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </article>

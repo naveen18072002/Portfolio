@@ -2,7 +2,7 @@
   <!-- Top Navigation Header -->
   <header class="dash-header">
     <div class="dash-brand">
-      <div class="dash-avatar" *ngIf="profileForm?.avatarUrl">
+      <div class="dash-avatar" *ngIf="profileForm.avatarUrl">
         <img [src]="profileForm.avatarUrl" alt="Avatar" />
       </div>
       <div>
@@ -12,6 +12,15 @@
     </div>
 
     <div class="dash-actions">
+      <button class="btn-secondary" (click)="backupFullPortfolioJSON()" title="Export complete portfolio data JSON backup">
+        <ion-icon name="cloud-download-outline"></ion-icon>
+        <span>Backup Data</span>
+      </button>
+      <button class="btn-secondary" (click)="triggerRestoreJSON(jsonFileInput)" title="Import & restore portfolio from JSON backup">
+        <ion-icon name="cloud-upload-outline"></ion-icon>
+        <span>Restore Data</span>
+      </button>
+      <input type="file" #jsonFileInput (change)="restorePortfolioJSON($event)" accept=".json" style="display: none" />
       <a routerLink="/" class="btn-secondary" title="View live portfolio">
         <ion-icon name="eye-outline"></ion-icon>
         <span>View Live Site</span>
@@ -69,7 +78,8 @@
         (click)="setTab('messages')"
       >
         <ion-icon name="mail-unread-outline"></ion-icon>
-        <span>Messages Inbox</span>
+        <span>Messages</span>
+        <span class="unread-pill" *ngIf="unreadMessagesCount() > 0">{{ unreadMessagesCount() }}</span>
       </button>
     </nav>
 
@@ -79,7 +89,7 @@
       <section *ngIf="activeTab() === 'profile'" class="tab-panel">
         <div class="panel-header">
           <h2>Profile & Contact Details</h2>
-          <button class="btn-primary" (click)="saveProfile()">
+          <button class="btn-success" (click)="saveProfile()">
             <ion-icon name="save-outline"></ion-icon>
             <span>Save Profile</span>
           </button>
@@ -267,7 +277,7 @@
       <section *ngIf="activeTab() === 'about'" class="tab-panel">
         <div class="panel-header">
           <h2>About Me & Services</h2>
-          <button class="btn-primary" (click)="saveAbout()">
+          <button class="btn-success" (click)="saveAbout()">
             <ion-icon name="save-outline"></ion-icon>
             <span>Save About Section</span>
           </button>
@@ -410,7 +420,7 @@
       <section *ngIf="activeTab() === 'projects'" class="tab-panel">
         <div class="panel-header">
           <h2>Projects Portfolio</h2>
-          <button class="btn-primary" (click)="saveProjects()">
+          <button class="btn-success" (click)="saveProjects()">
             <ion-icon name="save-outline"></ion-icon>
             <span>Save Projects</span>
           </button>
@@ -530,7 +540,7 @@
       <section *ngIf="activeTab() === 'resume'" class="tab-panel">
         <div class="panel-header">
           <h2>Resume, Education & Skills</h2>
-          <button class="btn-primary" (click)="saveResume()">
+          <button class="btn-success" (click)="saveResume()">
             <ion-icon name="save-outline"></ion-icon>
             <span>Save Resume Section</span>
           </button>
@@ -747,29 +757,306 @@
       <!-- 5. MESSAGES INBOX TAB -->
       <section *ngIf="activeTab() === 'messages'" class="tab-panel">
         <div class="panel-header">
-          <h2>Contact Form Messages Inbox</h2>
-          <button class="btn-secondary" (click)="fetchContactMessages()">
-            <ion-icon name="refresh-outline"></ion-icon>
-            <span>Refresh Messages</span>
-          </button>
+          <div>
+            <h2>Contact Form Messages Inbox</h2>
+            <p class="tab-subtitle-text">View, analyze, and export messages submitted by visitors</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-secondary" (click)="fetchContactMessages()">
+              <ion-icon name="refresh-outline"></ion-icon>
+              <span>Refresh</span>
+            </button>
+            <button class="btn-secondary" (click)="markAllAsRead()" [disabled]="unreadMessagesCount() === 0">
+              <ion-icon name="checkmark-done-outline"></ion-icon>
+              <span>Mark All Read</span>
+            </button>
+            <button class="btn-danger" (click)="deleteSelectedMessages()" *ngIf="selectedMessageIds().length > 0">
+              <ion-icon name="trash-outline"></ion-icon>
+              <span>Delete Selected ({{ selectedMessageIds().length }})</span>
+            </button>
+            <button class="btn-success" (click)="exportMessagesCSV()" [disabled]="filteredMessages().length === 0">
+              <ion-icon name="download-outline"></ion-icon>
+              <span>Export CSV</span>
+            </button>
+            <button class="btn-primary" (click)="exportMessagesJSON()" [disabled]="filteredMessages().length === 0">
+              <ion-icon name="document-text-outline"></ion-icon>
+              <span>Export JSON</span>
+            </button>
+          </div>
         </div>
 
+        <!-- Analytics Summary Cards -->
+        <div class="msg-analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-icon total-icon">
+              <ion-icon name="mail-unread-outline"></ion-icon>
+            </div>
+            <div class="analytics-info">
+              <span class="analytics-label">Total Messages</span>
+              <h3 class="analytics-value">{{ totalMessagesCount() }}</h3>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon today-icon">
+              <ion-icon name="today-outline"></ion-icon>
+            </div>
+            <div class="analytics-info">
+              <span class="analytics-label">Today</span>
+              <h3 class="analytics-value">{{ todayMessagesCount() }}</h3>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon week-icon">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <div class="analytics-info">
+              <span class="analytics-label">Last 7 Days</span>
+              <h3 class="analytics-value">{{ thisWeekMessagesCount() }}</h3>
+            </div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon month-icon">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <div class="analytics-info">
+              <span class="analytics-label">Last 1 Month</span>
+              <h3 class="analytics-value">{{ lastMonthMessagesCount() }}</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Toolbar: Search, Filters & Page Size -->
+        <div class="table-toolbar" *ngIf="contactMessages().length > 0">
+          <div class="search-box">
+            <ion-icon name="search-outline"></ion-icon>
+            <input
+              type="text"
+              class="dash-input search-input"
+              placeholder="Search by name, email, or message..."
+              [ngModel]="messageSearchQuery()"
+              (ngModelChange)="messageSearchQuery.set($event); currentPage.set(1)"
+            />
+          </div>
+
+          <div class="time-filter-pills">
+            <button
+              class="filter-pill"
+              [class.active]="messageTimeFilter() === 'all'"
+              (click)="messageTimeFilter.set('all'); currentPage.set(1)"
+            >
+              All
+            </button>
+            <button
+              class="filter-pill"
+              [class.active]="messageTimeFilter() === 'today'"
+              (click)="messageTimeFilter.set('today'); currentPage.set(1)"
+            >
+              Today
+            </button>
+            <button
+              class="filter-pill"
+              [class.active]="messageTimeFilter() === 'week'"
+              (click)="messageTimeFilter.set('week'); currentPage.set(1)"
+            >
+              This Week
+            </button>
+            <button
+              class="filter-pill"
+              [class.active]="messageTimeFilter() === 'month'"
+              (click)="messageTimeFilter.set('month'); currentPage.set(1)"
+            >
+              This Month
+            </button>
+          </div>
+
+          <div class="page-size-selector">
+            <label>Show:</label>
+            <select class="dash-input size-select" [ngModel]="pageSize()" (change)="onPageSizeChange($event)">
+              <option [value]="5">5 per page</option>
+              <option [value]="10">10 per page</option>
+              <option [value]="20">20 per page</option>
+              <option [value]="50">50 per page</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Empty States -->
         <div *ngIf="contactMessages().length === 0" class="empty-state">
           <ion-icon name="mail-open-outline"></ion-icon>
           <p>No user contact messages received yet.</p>
         </div>
 
-        <div class="items-list" *ngIf="contactMessages().length > 0">
-          <div class="item-card message-card" *ngFor="let msg of contactMessages()">
-            <div class="item-header">
-              <div class="flex-align-gap">
-                <ion-icon name="person-circle-outline" style="font-size: 1.5rem; color: var(--orange-yellow-crayola, #ffdb70);"></ion-icon>
-                <strong>{{ msg.fullname }}</strong>
-                <a [href]="'mailto:' + msg.email" class="user-email-link">&lt;{{ msg.email }}&gt;</a>
-              </div>
-              <span class="msg-date" *ngIf="msg.createdAt">{{ msg.createdAt | date:'medium' }}</span>
+        <div *ngIf="contactMessages().length > 0 && filteredMessages().length === 0" class="empty-state">
+          <p class="empty-search-msg">
+            <ion-icon name="search-outline"></ion-icon>
+            No messages match your search criteria.
+          </p>
+        </div>
+
+        <!-- Table View -->
+        <div class="table-responsive" *ngIf="paginatedMessages().length > 0">
+          <table class="messages-table">
+            <thead>
+              <tr>
+                <th style="width: 40px; text-align: center;">
+                  <input type="checkbox" class="row-checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll($event)" title="Select / Deselect All" />
+                </th>
+                <th style="width: 50px; text-align: center;">#</th>
+                <th style="width: 90px; text-align: center;">Status</th>
+                <th style="min-width: 160px;">Sender</th>
+                <th style="min-width: 190px;">Email</th>
+                <th style="min-width: 240px;">Message Preview</th>
+                <th style="width: 150px;">Date & Time</th>
+                <th style="width: 120px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let msg of paginatedMessages(); let i = index" [class.unread-row]="!isRead(msg.id)">
+                <td style="text-align: center;">
+                  <input type="checkbox" class="row-checkbox" [checked]="isSelected(msg.id)" (change)="toggleSelectMessage(msg.id, $event)" />
+                </td>
+                <td class="index-cell" style="text-align: center;">{{ (currentPage() - 1) * pageSize() + i + 1 }}</td>
+                <td style="text-align: center;">
+                  <span
+                    class="status-badge"
+                    [class.status-read]="isRead(msg.id)"
+                    [class.status-unread]="!isRead(msg.id)"
+                    (click)="toggleMessageRead(msg.id, $event)"
+                    [title]="isRead(msg.id) ? 'Click to mark unread' : 'Click to mark read'"
+                  >
+                    {{ isRead(msg.id) ? 'Read' : 'New' }}
+                  </span>
+                </td>
+                <td class="sender-cell">
+                  <div class="sender-info">
+                    <div class="avatar-badge">{{ (msg.fullname || 'U').charAt(0) }}</div>
+                    <span class="sender-name">{{ msg.fullname }}</span>
+                  </div>
+                </td>
+                <td class="email-cell">
+                  <a [href]="'mailto:' + msg.email" class="user-email-link">{{ msg.email }}</a>
+                </td>
+                <td class="message-preview-cell" (click)="openMessageModal(msg)" title="Click to view full message">
+                  <span class="preview-text">{{ msg.message }}</span>
+                </td>
+                <td class="date-cell">
+                  <span class="date-badge" *ngIf="msg.createdAt">{{ msg.createdAt | date:'shortDate' }} {{ msg.createdAt | date:'shortTime' }}</span>
+                  <span class="date-badge" *ngIf="!msg.createdAt">N/A</span>
+                </td>
+                <td class="action-cell">
+                  <div class="action-btn-group">
+                    <button type="button" class="btn-read-toggle" (click)="toggleMessageRead(msg.id, $event)" [title]="isRead(msg.id) ? 'Mark as Unread' : 'Mark as Read'">
+                      <ion-icon [name]="isRead(msg.id) ? 'mail-unread-outline' : 'checkmark-done-outline'"></ion-icon>
+                    </button>
+                    <button type="button" class="btn-view-msg" (click)="openMessageModal(msg)" title="View Details">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </button>
+                    <button type="button" class="btn-delete-msg" (click)="deleteContactMessage(msg.id, $event)" title="Delete Message">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-container" *ngIf="filteredMessages().length > 0">
+          <div class="pagination-info">
+            Showing {{ paginationStartIndex }} to {{ paginationEndIndex }} of {{ filteredMessages().length }} messages
+          </div>
+
+          <div class="pagination-controls">
+            <button
+              type="button"
+              class="page-btn"
+              [disabled]="currentPage() === 1"
+              (click)="setPage(1)"
+              title="First Page"
+            >
+              <ion-icon name="play-back-outline"></ion-icon>
+            </button>
+            <button
+              type="button"
+              class="page-btn"
+              [disabled]="currentPage() === 1"
+              (click)="prevPage()"
+              title="Previous Page"
+            >
+              <ion-icon name="chevron-back-outline"></ion-icon>
+            </button>
+
+            <button
+              type="button"
+              *ngFor="let p of pageNumbers()"
+              class="page-btn number-btn"
+              [class.active]="p === currentPage()"
+              (click)="setPage(p)"
+            >
+              {{ p }}
+            </button>
+
+            <button
+              type="button"
+              class="page-btn"
+              [disabled]="currentPage() === totalPages()"
+              (click)="nextPage()"
+              title="Next Page"
+            >
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </button>
+            <button
+              type="button"
+              class="page-btn"
+              [disabled]="currentPage() === totalPages()"
+              (click)="setPage(totalPages())"
+              title="Last Page"
+            >
+              <ion-icon name="play-forward-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Message Detail Modal -->
+        <div class="modal-backdrop" *ngIf="selectedMessage()" (click)="closeMessageModal()">
+          <div class="message-modal-card" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3><ion-icon name="mail-open-outline"></ion-icon> Message Details</h3>
+              <button type="button" class="modal-close-btn" (click)="closeMessageModal()">&times;</button>
             </div>
-            <p class="message-content">{{ msg.message }}</p>
+            <div class="modal-body" *ngIf="selectedMessage() as msg">
+              <div class="detail-row">
+                <span class="detail-label">From:</span>
+                <span class="detail-val bold">{{ msg.fullname }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <a [href]="'mailto:' + msg.email" class="user-email-link">{{ msg.email }}</a>
+              </div>
+              <div class="detail-row" *ngIf="msg.createdAt">
+                <span class="detail-label">Sent At:</span>
+                <span class="detail-val">{{ msg.createdAt | date:'fullDate' }} at {{ msg.createdAt | date:'mediumTime' }}</span>
+              </div>
+              <div class="detail-message-box">
+                <label>Full Message:</label>
+                <p class="full-msg-content">{{ msg.message }}</p>
+              </div>
+            </div>
+            <div class="modal-footer" *ngIf="selectedMessage() as msg">
+              <a [href]="'mailto:' + msg.email" class="btn-success">
+                <ion-icon name="paper-plane-outline"></ion-icon>
+                <span>Reply via Email</span>
+              </a>
+              <button type="button" class="btn-danger" (click)="deleteContactMessage(msg.id)">
+                <ion-icon name="trash-outline"></ion-icon>
+                <span>Delete</span>
+              </button>
+              <button type="button" class="btn-secondary" (click)="closeMessageModal()">Close</button>
+            </div>
           </div>
         </div>
       </section>

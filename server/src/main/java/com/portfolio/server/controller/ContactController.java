@@ -30,4 +30,14 @@ public class ContactController {
     public ResponseEntity<List<ContactMessageDto>> getAllMessages() {
         return ResponseEntity.ok(contactMessageService.getAllMessages());
     }
+
+    @DeleteMapping("/messages/{id}")
+    public ResponseEntity<ApiResponse> deleteMessage(@PathVariable Long id) {
+        boolean deleted = contactMessageService.deleteMessage(id);
+        if (deleted) {
+            return ResponseEntity.ok(new ApiResponse(true, "Message deleted successfully."));
+        } else {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "Message not found."));
+        }
+    }
 }

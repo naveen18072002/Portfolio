@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -37,6 +37,166 @@ export class DashboardComponent implements OnInit {
   activeTab = signal<DashboardTab>('profile');
   toastMessage = signal<string>('');
   contactMessages = signal<ContactMessageItem[]>([]);
+  messageSearchQuery = signal<string>('');
+  messageTimeFilter = signal<'all' | 'today' | 'week' | 'month'>('all');
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(5);
+  selectedMessage = signal<ContactMessageItem | null>(null);
+
+  selectedMessageIds = signal<number[]>([]);
+  readMessageIds = signal<number[]>([]);
+
+  unreadMessagesCount = computed(() => {
+    const readSet = new Set(this.readMessageIds());
+    return this.contactMessages().filter((m) => m.id && !readSet.has(m.id)).length;
+  });
+
+  isAllSelected = computed(() => {
+    const list = this.filteredMessages();
+    if (list.length === 0) return false;
+    const selected = new Set(this.selectedMessageIds());
+    return list.every((m) => m.id && selected.has(m.id));
+  });
+
+  totalMessagesCount = computed(() => this.contactMessages().length);
+
+  todayMessagesCount = computed(() => {
+    const todayStr = new Date().toDateString();
+    return this.contactMessages().filter(
+      (m) => m.createdAt && new Date(m.createdAt).toDateString() === todayStr
+    ).length;
+  });
+
+  thisWeekMessagesCount = computed(() => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return this.contactMessages().filter(
+      (m) => m.createdAt && new Date(m.createdAt) >= sevenDaysAgo
+    ).length;
+  });
+
+  lastMonthMessagesCount = computed(() => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return this.contactMessages().filter(
+      (m) => m.createdAt && new Date(m.createdAt) >= thirtyDaysAgo
+    ).length;
+  });
+
+  filteredMessages = computed(() => {
+    const query = this.messageSearchQuery().toLowerCase().trim();
+    const filter = this.messageTimeFilter();
+    let msgs = this.contactMessages();
+
+    if (filter === 'today') {
+      const todayStr = new Date().toDateString();
+      msgs = msgs.filter((m) => m.createdAt && new Date(m.createdAt).toDateString() === todayStr);
+    } else if (filter === 'week') {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      msgs = msgs.filter((m) => m.createdAt && new Date(m.createdAt) >= sevenDaysAgo);
+    } else if (filter === 'month') {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      msgs = msgs.filter((m) => m.createdAt && new Date(m.createdAt) >= thirtyDaysAgo);
+    }
+
+    if (!query) return msgs;
+    return msgs.filter(
+      (m) =>
+        (m.fullname && m.fullname.toLowerCase().includes(query)) ||
+        (m.email && m.email.toLowerCase().includes(query)) ||
+        (m.message && m.message.toLowerCase().includes(query))
+    );
+  });
+
+  paginatedMessages = computed(() => {
+    const list = this.filteredMessages();
+    const page = this.currentPage();
+    const size = this.pageSize();
+    const start = (page - 1) * size;
+    return list.slice(start, start + size);
+  });
+
+  totalPages = computed(() => {
+    const total = this.filteredMessages().length;
+    return Math.max(1, Math.ceil(total / this.pageSize()));
+  });
+
+  pageNumbers = computed(() => {
+    const pages: number[] = [];
+    const total = this.totalPages();
+    for (let i = 1; i <= total; i++) {
+      pages.push(i);
+    }
+    return pages;
+  });
+
+  get paginationStartIndex(): number {
+    if (this.filteredMessages().length === 0) return 0;
+    return (this.currentPage() - 1) * this.pageSize() + 1;
+  }
+
+  get paginationEndIndex(): number {
+    return Math.min(this.currentPage() * this.pageSize(), this.filteredMessages().length);
+  }
+
+  setPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update((p) => p + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 1) {
+      this.currentPage.update((p) => p - 1);
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.pageSize.set(Number(select.value));
+    this.currentPage.set(1);
+  }
+
+  openMessageModal(msg: ContactMessageItem): void {
+    this.selectedMessage.set(msg);
+  }
+
+  closeMessageModal(): void {
+    this.selectedMessage.set(null);
+  }
+
+  deleteContactMessage(id?: number, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (!id) {
+      this.showToast('Unable to delete message: missing message ID.');
+      return;
+    }
+    if (confirm('Are you sure you want to delete this contact message?')) {
+      this.contactService.deleteMessage(id).subscribe({
+        next: () => {
+          this.showToast('Contact message deleted successfully!');
+          if (this.selectedMessage()?.id === id) {
+            this.selectedMessage.set(null);
+          }
+          this.fetchContactMessages();
+        },
+        error: (err) => {
+          console.error('Failed to delete message:', err);
+          this.showToast('Failed to delete message.');
+        }
+      });
+    }
+  }
   // Form Models initialized from service
   profileForm!: ProfileData;
   aboutForm!: AboutData;
@@ -90,6 +250,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadCurrentData();
     this.fetchContactMessages();
+    this.loadReadMessageIds();
   }
 
   loadCurrentData(): void {
@@ -116,6 +277,7 @@ export class DashboardComponent implements OnInit {
       next: (list) => {
         if (list && Array.isArray(list)) {
           this.contactMessages.set(list);
+          this.currentPage.set(1);
         }
       },
       error: (err) => {
@@ -440,6 +602,202 @@ export class DashboardComponent implements OnInit {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  exportMessagesCSV(): void {
+    const list = this.filteredMessages();
+    if (list.length === 0) {
+      this.showToast('No messages available to export.');
+      return;
+    }
+    const headers = ['ID', 'Full Name', 'Email', 'Message', 'Date & Time'];
+    const rows = list.map((m, idx) => [
+      m.id || idx + 1,
+      `"${(m.fullname || '').replace(/"/g, '""')}"`,
+      `"${(m.email || '').replace(/"/g, '""')}"`,
+      `"${(m.message || '').replace(/"/g, '""')}"`,
+      `"${m.createdAt ? new Date(m.createdAt).toLocaleString() : ''}"`
+    ]);
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `contact_messages_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    this.showToast(`Exported ${list.length} messages to CSV!`);
+  }
+
+  exportMessagesJSON(): void {
+    const list = this.filteredMessages();
+    if (list.length === 0) {
+      this.showToast('No messages available to export.');
+      return;
+    }
+    const jsonString = JSON.stringify(list, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `contact_messages_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    this.showToast(`Exported ${list.length} messages to JSON!`);
+  }
+
+  loadReadMessageIds(): void {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = localStorage.getItem('admin_read_message_ids');
+      if (stored) {
+        this.readMessageIds.set(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.warn('Could not load read message IDs', e);
+    }
+  }
+
+  isRead(id?: number): boolean {
+    if (!id) return false;
+    return this.readMessageIds().includes(id);
+  }
+
+  toggleMessageRead(id?: number, event?: Event): void {
+    if (event) event.stopPropagation();
+    if (!id) return;
+    const current = this.readMessageIds();
+    let updated: number[];
+    if (current.includes(id)) {
+      updated = current.filter((item) => item !== id);
+    } else {
+      updated = [...current, id];
+    }
+    this.readMessageIds.set(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('admin_read_message_ids', JSON.stringify(updated));
+    }
+  }
+
+  markAllAsRead(): void {
+    const allIds = this.contactMessages()
+      .map((m) => m.id)
+      .filter((id): id is number => id !== undefined);
+    this.readMessageIds.set(allIds);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('admin_read_message_ids', JSON.stringify(allIds));
+    }
+    this.showToast('All messages marked as read!');
+  }
+
+  isSelected(id?: number): boolean {
+    if (!id) return false;
+    return this.selectedMessageIds().includes(id);
+  }
+
+  toggleSelectMessage(id?: number, event?: Event): void {
+    if (event) event.stopPropagation();
+    if (!id) return;
+    const current = this.selectedMessageIds();
+    if (current.includes(id)) {
+      this.selectedMessageIds.set(current.filter((item) => item !== id));
+    } else {
+      this.selectedMessageIds.set([...current, id]);
+    }
+  }
+
+  toggleSelectAll(event: Event): void {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      const allIds = this.filteredMessages()
+        .map((m) => m.id)
+        .filter((id): id is number => id !== undefined);
+      this.selectedMessageIds.set(allIds);
+    } else {
+      this.selectedMessageIds.set([]);
+    }
+  }
+
+  deleteSelectedMessages(): void {
+    const ids = this.selectedMessageIds();
+    if (ids.length === 0) return;
+    if (confirm(`Are you sure you want to delete ${ids.length} selected message(s)?`)) {
+      let count = 0;
+      ids.forEach((id) => {
+        this.contactService.deleteMessage(id).subscribe({
+          next: () => {
+            count++;
+            if (count === ids.length) {
+              this.showToast(`Successfully deleted ${count} message(s)!`);
+              this.selectedMessageIds.set([]);
+              this.fetchContactMessages();
+            }
+          },
+          error: (err) => console.error(`Error deleting message ${id}:`, err)
+        });
+      });
+    }
+  }
+
+  backupFullPortfolioJSON(): void {
+    const data = {
+      version: '1.0',
+      exportedAt: new Date().toISOString(),
+      profile: this.profileForm,
+      about: this.aboutForm,
+      projects: this.projectsForm,
+      resume: this.resumeForm
+    };
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `portfolio_backup_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    this.showToast('Complete portfolio backup JSON exported!');
+  }
+
+  triggerRestoreJSON(fileInput: HTMLInputElement): void {
+    fileInput.click();
+  }
+
+  restorePortfolioJSON(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const parsed = JSON.parse(content);
+        if (parsed.profile) {
+          this.profileForm = parsed.profile;
+          this.portfolioService.updateProfile(this.profileForm);
+        }
+        if (parsed.about) {
+          this.aboutForm = parsed.about;
+          this.portfolioService.updateAbout(this.aboutForm);
+        }
+        if (parsed.projects) {
+          this.projectsForm = parsed.projects;
+          this.portfolioService.updateProjects(this.projectsForm);
+        }
+        if (parsed.resume) {
+          this.resumeForm = parsed.resume;
+          this.portfolioService.updateResume(this.resumeForm);
+        }
+        this.showToast('Portfolio data restored successfully from backup!');
+      } catch (err) {
+        console.error('Failed to restore JSON:', err);
+        this.showToast('Failed to parse JSON file. Please ensure it is a valid backup.');
+      }
+    };
+    reader.readAsText(file);
   }
 
   logout(): void {

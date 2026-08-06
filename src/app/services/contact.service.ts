@@ -34,4 +34,8 @@ export class ContactService {
   getMessages(): Observable<ContactMessageItem[]> {
     return this.http.get<ContactMessageItem[]>(this.messagesEndpoint);
   }
+
+  deleteMessage(id: number): Observable<any> {
+    return this.http.delete(`${this.messagesEndpoint}/${id}`);
+  }
 }
