@@ -1045,9 +1045,33 @@
                 <label>Full Message:</label>
                 <p class="full-msg-content">{{ msg.message }}</p>
               </div>
+
+              <!-- Quick Reply Templates Section -->
+              <div class="quick-reply-templates">
+                <label class="templates-label"><ion-icon name="copy-outline"></ion-icon> Copy Email Reply Templates:</label>
+                <div class="template-btns-grid">
+                  <button type="button" class="btn-template" (click)="copyReplyTemplate('general', msg)" title="Copy General Inquiry Reply">
+                    <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                    <span>General Reply</span>
+                  </button>
+                  <button type="button" class="btn-template" (click)="copyReplyTemplate('project', msg)" title="Copy Project Scope Reply">
+                    <ion-icon name="briefcase-outline"></ion-icon>
+                    <span>Project Scope</span>
+                  </button>
+                  <button type="button" class="btn-template" (click)="copyReplyTemplate('recruiter', msg)" title="Copy Recruiter / Opportunity Reply">
+                    <ion-icon name="person-circle-outline"></ion-icon>
+                    <span>Recruiter Reply</span>
+                  </button>
+                  <button type="button" class="btn-template" (click)="copyReplyTemplate('call', msg)" title="Copy Schedule Call Reply">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>Schedule Call</span>
+                  </button>
+                </div>
+              </div>
             </div>
+
             <div class="modal-footer" *ngIf="selectedMessage() as msg">
-              <a [href]="'mailto:' + msg.email" class="btn-success">
+              <a [href]="getMailtoLink(msg)" class="btn-success">
                 <ion-icon name="paper-plane-outline"></ion-icon>
                 <span>Reply via Email</span>
               </a>

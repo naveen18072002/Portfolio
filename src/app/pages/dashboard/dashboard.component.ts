@@ -800,6 +800,44 @@ export class DashboardComponent implements OnInit {
     reader.readAsText(file);
   }
 
+  copyReplyTemplate(type: 'general' | 'project' | 'recruiter' | 'call', msg: ContactMessageItem): void {
+    const senderName = msg.fullname || 'there';
+    const myName = this.profileForm?.name || 'Naveen Kumar';
+    const myTitle = this.profileForm?.title || 'Full Stack Software Engineer';
+    const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://portfolio.com';
+    let body = '';
+
+    if (type === 'general') {
+      body = `Hi ${senderName},\n\nThank you for reaching out through my portfolio website! I appreciate your message.\n\n[Type your custom response here]\n\nPlease let me know if you need any additional details or clarification.\n\nBest regards,\n\n${myName}\n${myTitle}\nPortfolio: ${siteUrl}`;
+    } else if (type === 'project') {
+      body = `Hi ${senderName},\n\nThank you for getting in touch regarding your project! I'd love to learn more about what you're building and discuss how I can help bring it to life.\n\nTo help me understand your requirements better:\n1. What is your ideal launch timeline or milestone dates?\n2. Do you currently have wireframes/designs, or are we crafting the UI/UX together?\n3. What key features or deliverables are highest priority?\n\nLet's set up a quick 15-minute call to discuss your goals in detail. What days/times work best for you this week?\n\nBest regards,\n\n${myName}\n${myTitle}\nPortfolio: ${siteUrl}`;
+    } else if (type === 'recruiter') {
+      body = `Hi ${senderName},\n\nThank you for reaching out regarding the opportunity! The role aligns very well with my background in software engineering, Angular, Java / Spring Boot, and full-stack development.\n\nI'd be glad to discuss how my experience fits your team's requirements. You can review my work and recent projects directly on my portfolio: ${siteUrl}\n\nWhen would be a good time for a brief 10–15 minute introductory call this week?\n\nBest regards,\n\n${myName}\n${myTitle}\nPortfolio: ${siteUrl}`;
+    } else if (type === 'call') {
+      body = `Hi ${senderName},\n\nThanks for your message! I'd be glad to connect and discuss this further with you.\n\nPlease let me know 2-3 time slots that work well for your schedule this week, or feel free to send over a calendar invite directly.\n\nLooking forward to speaking with you soon!\n\nBest regards,\n\n${myName}\n${myTitle}\nPortfolio: ${siteUrl}`;
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(body).then(() => {
+        const label = type === 'general' ? 'General' : type === 'project' ? 'Project' : type === 'recruiter' ? 'Recruiter' : 'Schedule Call';
+        this.showToast(`Copied "${label}" email reply template to clipboard!`);
+      });
+    }
+  }
+
+  getMailtoLink(msg: ContactMessageItem, type: 'general' | 'project' | 'recruiter' | 'call' = 'general'): string {
+    const email = msg.email || '';
+    const senderName = msg.fullname || 'there';
+    const myName = this.profileForm?.name || 'Naveen Kumar';
+    const myTitle = this.profileForm?.title || 'Full Stack Software Engineer';
+    const siteUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const subject = encodeURIComponent(`Re: Thank you for reaching out, ${msg.fullname || ''}!`);
+
+    let bodyText = `Hi ${senderName},\n\nThank you for reaching out through my portfolio website! I appreciate your message.\n\n[Insert your response here]\n\nBest regards,\n${myName}\n${myTitle}\nPortfolio: ${siteUrl}`;
+    const body = encodeURIComponent(bodyText);
+    return `mailto:${email}?subject=${subject}&body=${body}`;
+  }
+
   logout(): void {
     this.authService.logout();
   }
