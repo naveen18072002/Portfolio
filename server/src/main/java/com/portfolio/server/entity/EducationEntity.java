@@ -16,7 +16,8 @@ public class EducationEntity {
     @Column(name = "INSTITUTION")
     private String institution;
 
-    @Column(name = "DETAIL")
+    @Lob
+    @Column(name = "DETAIL", columnDefinition = "LONGTEXT")
     private String detail;
 
     @Column(name = "PERIOD")

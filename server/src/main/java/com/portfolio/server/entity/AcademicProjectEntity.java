@@ -1,5 +1,6 @@
 package com.portfolio.server.entity;
 
+import com.portfolio.server.util.StringListConverter;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +23,15 @@ public class AcademicProjectEntity {
     private String icon;
 
     @Lob
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", columnDefinition = "LONGTEXT")
     private String description;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "RESUME_PROJECT_TAGS", joinColumns = @JoinColumn(name = "PROJECT_ID"))
-    @Column(name = "TAG")
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "TAGS", columnDefinition = "LONGTEXT")
     private List<String> tags = new ArrayList<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "RESUME_PROJECT_FEATURES", joinColumns = @JoinColumn(name = "PROJECT_ID"))
-    @Column(name = "FEATURE")
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "FEATURES", columnDefinition = "LONGTEXT")
     private List<String> features = new ArrayList<>();
 
     public AcademicProjectEntity() {}

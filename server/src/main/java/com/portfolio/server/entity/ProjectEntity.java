@@ -20,14 +20,14 @@ public class ProjectEntity {
     private String icon;
 
     @Lob
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", columnDefinition = "LONGTEXT")
     private String description;
 
     @Column(name = "TAGS", length = 1000)
     private String tags;
 
     @Lob
-    @Column(name = "IMAGE")
+    @Column(name = "IMAGE", columnDefinition = "LONGTEXT")
     private String image;
 
     @Column(name = "DEMO_LINK", length = 1000)

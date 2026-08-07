@@ -19,7 +19,8 @@ public class StatSummaryEntity {
     @Column(name = "LABEL", length = 200)
     private String label;
 
-    @Column(name = "STAT_TEXT", length = 500)
+    @Lob
+    @Column(name = "STAT_TEXT", columnDefinition = "LONGTEXT")
     private String text;
 
     @Column(name = "DISPLAY_ORDER")

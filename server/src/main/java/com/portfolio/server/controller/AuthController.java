@@ -57,6 +57,6 @@ public class AuthController {
 
     @GetMapping("/check")
     public ResponseEntity<?> checkAuthServer() {
-        return ResponseEntity.ok(new ApiResponse(true, "Portfolio Auth Server is running with JWT security & Oracle DB connectivity."));
+        return ResponseEntity.ok(new ApiResponse(true, "Portfolio Auth Server is running with JWT security & MySQL DB connectivity."));
     }
 }

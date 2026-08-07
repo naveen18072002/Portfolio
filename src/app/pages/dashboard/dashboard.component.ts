@@ -300,18 +300,90 @@ export class DashboardComponent implements OnInit {
     }, 3500);
   }
 
+  private compressAndReadImage(file: File, maxDimension: number, callback: (result: string) => void): void {
+    const isImage = (file.type && file.type.startsWith('image/')) || /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name);
+    if (!isImage) {
+      this.showToast('Please select a valid image file (PNG, JPG, WEBP, GIF, SVG).');
+      return;
+    }
+
+    const isPng = (file.type === 'image/png') || /\.png$/i.test(file.name);
+
+    // For files under 1MB, skip canvas manipulation to preserve exact original bytes & transparency
+    if (file.size <= 1024 * 1024) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          callback(e.target.result as string);
+        } else {
+          this.showToast('Error reading image file.');
+        }
+      };
+      reader.onerror = () => this.showToast('Error reading image file.');
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // For large files (> 1MB), resize using canvas
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            if (isPng) {
+              ctx.clearRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+              callback(canvas.toDataURL('image/png'));
+            } else {
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
+              callback(canvas.toDataURL('image/jpeg', 0.85));
+            }
+          } else {
+            callback(dataUrl);
+          }
+        } catch (err) {
+          callback(dataUrl);
+        }
+      };
+      img.onerror = () => callback(dataUrl);
+      img.src = dataUrl;
+    };
+    reader.onerror = () => this.showToast('Error reading image file.');
+    reader.readAsDataURL(file);
+  }
+
   // --- Profile Actions ---
   onAvatarFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
+      this.compressAndReadImage(file, 600, (base64Result) => {
         if (this.profileForm) {
-          this.profileForm.avatarUrl = reader.result as string;
+          this.profileForm.avatarUrl = base64Result;
         }
-      };
-      reader.readAsDataURL(file);
+        input.value = '';
+      });
     }
   }
 
@@ -447,11 +519,10 @@ export class DashboardComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.newProject.image = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+      this.compressAndReadImage(file, 800, (base64Result) => {
+        this.newProject.image = base64Result;
+        input.value = '';
+      });
     }
   }
 
@@ -459,13 +530,12 @@ export class DashboardComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
+      this.compressAndReadImage(file, 800, (base64Result) => {
         if (this.projectsForm?.projects[index]) {
-          this.projectsForm.projects[index].image = reader.result as string;
+          this.projectsForm.projects[index].image = base64Result;
         }
-      };
-      reader.readAsDataURL(file);
+        input.value = '';
+      });
     }
   }
 

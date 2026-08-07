@@ -107,14 +107,17 @@
           </div>
 
           <div class="form-group full-width">
-            <label>Profile Image (Upload File)</label>
+            <label>Profile Image (URL or Upload File)</label>
             <div class="avatar-upload-container">
               <input type="file" #avatarFileInput (change)="onAvatarFileSelected($event)" accept="image/*" style="display: none;" />
               
-              <button type="button" class="btn-secondary" (click)="avatarFileInput.click()">
-                <ion-icon name="cloud-upload-outline"></ion-icon>
-                <span>Upload Image File</span>
-              </button>
+              <div class="avatar-input-row" style="display: flex; gap: 12px; width: 100%; align-items: center; flex-wrap: wrap;">
+                <input type="text" class="dash-input" style="flex: 1; min-width: 240px;" [(ngModel)]="profileForm.avatarUrl" placeholder="Paste image URL (https://...) or upload file" />
+                <button type="button" class="btn-secondary" (click)="avatarFileInput.click()" style="white-space: nowrap;">
+                  <ion-icon name="cloud-upload-outline"></ion-icon>
+                  <span>Upload File</span>
+                </button>
+              </div>
 
               <div *ngIf="profileForm.avatarUrl" class="avatar-upload-preview">
                 <img [src]="profileForm.avatarUrl" alt="Selected Avatar Preview" />

@@ -20,7 +20,7 @@ public class ExperienceInternshipEntity {
     private String period;
 
     @Lob
-    @Column(name = "DESCRIPTION_TEXT")
+    @Column(name = "DESCRIPTION_TEXT", columnDefinition = "LONGTEXT")
     private String text;
 
     @Column(name = "TYPE", nullable = false)
