@@ -1,5 +1,8 @@
 /node_modules
 /dist
 /.angular
+/environments/environment.ts
+/environments/environment.prod.ts
+server/src/main/resources/application.properties
 npm-debug.log
 *.log
