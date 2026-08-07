@@ -15,7 +15,21 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css">
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+    <div style="position: fixed; inset: 0; z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(18, 18, 18, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font-family: 'Poppins', sans-serif;">
+      <div style="position: relative; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; inset: 0; border: 3px solid rgba(255, 219, 112, 0.15); border-top-color: #ffdb70; border-right-color: #ffb700; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#ffdb70" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+        </svg>
+      </div>
+      <div style="margin-top: 20px; font-size: 0.9rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #ffdb70;">Loading Portfolio...</div>
+      <style>
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      </style>
+    </div>
+  </app-root>
 
   <!-- ionicons -->
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>

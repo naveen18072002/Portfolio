@@ -1,5 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface ContactItem {
@@ -186,13 +188,85 @@ export class PortfolioDataService {
   readonly about = signal<AboutData>(EMPTY_ABOUT);
   readonly projects = signal<ProjectsData>(EMPTY_PROJECTS);
   readonly resume = signal<ResumeData>(EMPTY_RESUME);
+  readonly isLoading = signal<boolean>(true);
 
   constructor() {
     this.clearLegacyLocalStorage();
-    this.fetchProfileFromServer();
-    this.fetchAboutFromServer();
-    this.fetchProjectsFromServer();
-    this.fetchResumeFromServer();
+    this.refreshAllData();
+  }
+
+  refreshAllData(): void {
+    if (typeof window === 'undefined') {
+      this.isLoading.set(false);
+      return;
+    }
+    this.isLoading.set(true);
+    const startTime = Date.now();
+
+    forkJoin({
+      profile: this.http.get<ProfileData>(this.profileApiUrl).pipe(catchError((err) => {
+        console.warn('Profile fetch failed:', err);
+        return of(null);
+      })),
+      about: this.http.get<AboutData>(this.aboutApiUrl).pipe(catchError((err) => {
+        console.warn('About fetch failed:', err);
+        return of(null);
+      })),
+      projects: this.http.get<ProjectItem[]>(this.projectsApiUrl).pipe(catchError((err) => {
+        console.warn('Projects fetch failed:', err);
+        return of([]);
+      })),
+      resume: this.http.get<ResumeData>(this.resumeApiUrl).pipe(catchError((err) => {
+        console.warn('Resume fetch failed:', err);
+        return of(null);
+      }))
+    }).subscribe({
+      next: (res) => {
+        if (res.profile && res.profile.name) {
+          this.profile.set(res.profile);
+        }
+        if (res.about) {
+          this.about.set({
+            bioParagraphs: res.about.bioParagraphs || [],
+            stats: res.about.stats || [],
+            services: res.about.services || [],
+            techStack: res.about.techStack || []
+          });
+        }
+        if (res.projects && Array.isArray(res.projects) && res.projects.length > 0) {
+          const current = this.projects();
+          this.projects.set({
+            ...current,
+            projects: res.projects
+          });
+        }
+        if (res.resume) {
+          const current = this.resume();
+          const skillsList = (res.resume.skills || []).map((s) => ({
+            ...s,
+            value: s.value != null ? Number(s.value) : 75,
+            icon: s.icon && s.icon.trim() ? s.icon : getSkillIconByName(s.name)
+          }));
+          const formatted: ResumeData = {
+            education: res.resume.education || [],
+            experiences: res.resume.experiences || [],
+            internships: res.resume.internships || [],
+            academicProjects: res.resume.academicProjects || current.academicProjects || [],
+            skills: skillsList
+          };
+          this.resume.set(formatted);
+        }
+
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, 600 - elapsed);
+        setTimeout(() => {
+          this.isLoading.set(false);
+        }, delay);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      }
+    });
   }
 
   private clearLegacyLocalStorage(): void {
