@@ -23,15 +23,15 @@ public class AcademicProjectEntity {
     private String icon;
 
     @Lob
-    @Column(name = "DESCRIPTION", columnDefinition = "LONGTEXT")
+    @Column(name = "DESCRIPTION", columnDefinition = "TEXT")
     private String description;
 
     @Convert(converter = StringListConverter.class)
-    @Column(name = "TAGS", columnDefinition = "LONGTEXT")
+    @Column(name = "TAGS", columnDefinition = "TEXT")
     private List<String> tags = new ArrayList<>();
 
     @Convert(converter = StringListConverter.class)
-    @Column(name = "FEATURES", columnDefinition = "LONGTEXT")
+    @Column(name = "FEATURES", columnDefinition = "TEXT")
     private List<String> features = new ArrayList<>();
 
     public AcademicProjectEntity() {}

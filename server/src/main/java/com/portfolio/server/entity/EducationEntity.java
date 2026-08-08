@@ -17,7 +17,7 @@ public class EducationEntity {
     private String institution;
 
     @Lob
-    @Column(name = "DETAIL", columnDefinition = "LONGTEXT")
+    @Column(name = "DETAIL", columnDefinition = "TEXT")
     private String detail;
 
     @Column(name = "PERIOD")

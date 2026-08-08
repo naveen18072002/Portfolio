@@ -20,7 +20,7 @@ public class StatSummaryEntity {
     private String label;
 
     @Lob
-    @Column(name = "STAT_TEXT", columnDefinition = "LONGTEXT")
+    @Column(name = "STAT_TEXT", columnDefinition = "TEXT")
     private String text;
 
     @Column(name = "DISPLAY_ORDER")

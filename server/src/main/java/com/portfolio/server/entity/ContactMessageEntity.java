@@ -18,7 +18,7 @@ public class ContactMessageEntity {
     private String email;
 
     @Lob
-    @Column(name = "MESSAGE", nullable = false, columnDefinition = "LONGTEXT")
+    @Column(name = "MESSAGE", nullable = false, columnDefinition = "TEXT")
     private String message;
 
     @Column(name = "CREATED_AT")

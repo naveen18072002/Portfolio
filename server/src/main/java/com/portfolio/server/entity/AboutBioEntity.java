@@ -11,7 +11,7 @@ public class AboutBioEntity {
     private Long id;
 
     @Lob
-    @Column(name = "PARAGRAPH_TEXT", nullable = false, columnDefinition = "LONGTEXT")
+    @Column(name = "PARAGRAPH_TEXT", nullable = false, columnDefinition = "TEXT")
     private String paragraphText;
 
     @Column(name = "DISPLAY_ORDER")

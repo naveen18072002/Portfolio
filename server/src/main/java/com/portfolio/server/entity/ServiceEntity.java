@@ -17,7 +17,7 @@ public class ServiceEntity {
     private String icon;
 
     @Lob
-    @Column(name = "SERVICE_TEXT", columnDefinition = "LONGTEXT")
+    @Column(name = "SERVICE_TEXT", columnDefinition = "TEXT")
     private String text;
 
     @Column(name = "TAGS", length = 1000)
