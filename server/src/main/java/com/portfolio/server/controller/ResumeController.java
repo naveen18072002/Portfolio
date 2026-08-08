@@ -16,7 +16,9 @@ public class ResumeController {
 
     @GetMapping
     public ResponseEntity<ResumeDto> getResume() {
-        return ResponseEntity.ok(resumeService.getResume());
+        return ResponseEntity.ok()
+                .header("Cache-Control", "public, max-age=300, s-maxage=600")
+                .body(resumeService.getResume());
     }
 
     @PostMapping

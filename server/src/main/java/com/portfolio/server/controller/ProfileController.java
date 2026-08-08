@@ -16,7 +16,9 @@ public class ProfileController {
 
     @GetMapping()
     public ResponseEntity<ProfileDto> getProfile() {
-        return ResponseEntity.ok(profileService.getProfile());
+        return ResponseEntity.ok()
+                .header("Cache-Control", "public, max-age=300, s-maxage=600")
+                .body(profileService.getProfile());
     }
 
     @PostMapping()

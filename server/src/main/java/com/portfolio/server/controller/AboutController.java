@@ -16,7 +16,9 @@ public class AboutController {
 
     @GetMapping
     public ResponseEntity<AboutDto> getAbout() {
-        return ResponseEntity.ok(aboutService.getAbout());
+        return ResponseEntity.ok()
+                .header("Cache-Control", "public, max-age=300, s-maxage=600")
+                .body(aboutService.getAbout());
     }
 
     @PostMapping

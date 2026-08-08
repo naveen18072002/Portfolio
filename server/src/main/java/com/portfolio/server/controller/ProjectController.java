@@ -18,7 +18,9 @@ public class ProjectController {
 
     @GetMapping()
     public ResponseEntity<List<ProjectDto>> getAllProjects() {
-        return ResponseEntity.ok(projectService.getAllProjects());
+        return ResponseEntity.ok()
+                .header("Cache-Control", "public, max-age=300, s-maxage=600")
+                .body(projectService.getAllProjects());
     }
 
     @PostMapping()
