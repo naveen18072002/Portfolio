@@ -8,6 +8,8 @@ import com.portfolio.server.entity.ProfileEntity;
 import com.portfolio.server.entity.SocialEntity;
 import com.portfolio.server.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class ProfileService {
     private ProfileRepository profileRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "profile")
     public ProfileDto getProfile() {
         List<ProfileEntity> profiles = profileRepository.findAll();
         if (profiles.isEmpty()) {
@@ -30,6 +33,7 @@ public class ProfileService {
     }
 
     @Transactional
+    @CacheEvict(value = "profile", allEntries = true)
     public ProfileDto saveProfile(ProfileDto dto) {
         List<ProfileEntity> profiles = profileRepository.findAll();
         ProfileEntity entity;

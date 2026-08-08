@@ -4,6 +4,8 @@ import com.portfolio.server.dto.ProjectDto;
 import com.portfolio.server.entity.ProjectEntity;
 import com.portfolio.server.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "projects")
     public List<ProjectDto> getAllProjects() {
         return projectRepository.findAll()
                 .stream()
@@ -27,6 +30,7 @@ public class ProjectService {
     }
 
     @Transactional
+    @CacheEvict(value = "projects", allEntries = true)
     public ProjectDto saveProject(ProjectDto dto) {
         ProjectEntity entity = convertToEntity(dto);
         entity = projectRepository.save(entity);
@@ -34,6 +38,7 @@ public class ProjectService {
     }
 
     @Transactional
+    @CacheEvict(value = "projects", allEntries = true)
     public List<ProjectDto> saveAllProjects(List<ProjectDto> dtoList) {
         projectRepository.deleteAll();
         List<ProjectEntity> entities = new ArrayList<>();
@@ -47,6 +52,7 @@ public class ProjectService {
     }
 
     @Transactional
+    @CacheEvict(value = "projects", allEntries = true)
     public void deleteProject(Long id) {
         projectRepository.deleteById(id);
     }

@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface ContactItem {
@@ -146,11 +146,11 @@ export interface ResumeData {
   skills: SkillItem[];
 }
 
-const STORAGE_KEYS = {
-  PROFILE: 'portfolio_profile',
-  ABOUT: 'portfolio_about',
-  PROJECTS: 'portfolio_projects',
-  RESUME: 'portfolio_resume'
+const CACHE_KEYS = {
+  PROFILE: 'cached_portfolio_profile',
+  ABOUT: 'cached_portfolio_about',
+  PROJECTS: 'cached_portfolio_projects',
+  RESUME: 'cached_portfolio_resume'
 };
 
 const EMPTY_ABOUT: AboutData = {
@@ -191,8 +191,48 @@ export class PortfolioDataService {
   readonly isLoading = signal<boolean>(true);
 
   constructor() {
-    this.clearLegacyLocalStorage();
+    const hasCache = this.loadDataFromCache();
+    if (hasCache) {
+      this.isLoading.set(false);
+    }
     this.refreshAllData();
+  }
+
+  private loadDataFromCache(): boolean {
+    if (typeof window === 'undefined') return false;
+    try {
+      let loaded = false;
+      const p = localStorage.getItem(CACHE_KEYS.PROFILE);
+      if (p) {
+        this.profile.set(JSON.parse(p));
+        loaded = true;
+      }
+      const a = localStorage.getItem(CACHE_KEYS.ABOUT);
+      if (a) {
+        this.about.set(JSON.parse(a));
+        loaded = true;
+      }
+      const pr = localStorage.getItem(CACHE_KEYS.PROJECTS);
+      if (pr) {
+        this.projects.set(JSON.parse(pr));
+        loaded = true;
+      }
+      const r = localStorage.getItem(CACHE_KEYS.RESUME);
+      if (r) {
+        this.resume.set(JSON.parse(r));
+        loaded = true;
+      }
+      return loaded;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  private saveToCache(key: string, value: any): void {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {}
   }
 
   refreshAllData(): void {
@@ -200,45 +240,66 @@ export class PortfolioDataService {
       this.isLoading.set(false);
       return;
     }
-    this.isLoading.set(true);
+    
+    // Only set loading if no cached profile exists
+    if (!this.profile().name) {
+      this.isLoading.set(true);
+    }
     const startTime = Date.now();
 
     forkJoin({
-      profile: this.http.get<ProfileData>(this.profileApiUrl).pipe(catchError((err) => {
-        console.warn('Profile fetch failed:', err);
-        return of(null);
-      })),
-      about: this.http.get<AboutData>(this.aboutApiUrl).pipe(catchError((err) => {
-        console.warn('About fetch failed:', err);
-        return of(null);
-      })),
-      projects: this.http.get<ProjectItem[]>(this.projectsApiUrl).pipe(catchError((err) => {
-        console.warn('Projects fetch failed:', err);
-        return of([]);
-      })),
-      resume: this.http.get<ResumeData>(this.resumeApiUrl).pipe(catchError((err) => {
-        console.warn('Resume fetch failed:', err);
-        return of(null);
-      }))
+      profile: this.http.get<ProfileData>(this.profileApiUrl).pipe(
+        timeout(12000),
+        catchError((err) => {
+          console.warn('Profile fetch failed or timed out:', err);
+          return of(null);
+        })
+      ),
+      about: this.http.get<AboutData>(this.aboutApiUrl).pipe(
+        timeout(12000),
+        catchError((err) => {
+          console.warn('About fetch failed or timed out:', err);
+          return of(null);
+        })
+      ),
+      projects: this.http.get<ProjectItem[]>(this.projectsApiUrl).pipe(
+        timeout(12000),
+        catchError((err) => {
+          console.warn('Projects fetch failed or timed out:', err);
+          return of([]);
+        })
+      ),
+      resume: this.http.get<ResumeData>(this.resumeApiUrl).pipe(
+        timeout(12000),
+        catchError((err) => {
+          console.warn('Resume fetch failed or timed out:', err);
+          return of(null);
+        })
+      )
     }).subscribe({
       next: (res) => {
         if (res.profile && res.profile.name) {
           this.profile.set(res.profile);
+          this.saveToCache(CACHE_KEYS.PROFILE, res.profile);
         }
         if (res.about) {
-          this.about.set({
+          const aboutVal = {
             bioParagraphs: res.about.bioParagraphs || [],
             stats: res.about.stats || [],
             services: res.about.services || [],
             techStack: res.about.techStack || []
-          });
+          };
+          this.about.set(aboutVal);
+          this.saveToCache(CACHE_KEYS.ABOUT, aboutVal);
         }
         if (res.projects && Array.isArray(res.projects) && res.projects.length > 0) {
           const current = this.projects();
-          this.projects.set({
+          const projectsVal = {
             ...current,
             projects: res.projects
-          });
+          };
+          this.projects.set(projectsVal);
+          this.saveToCache(CACHE_KEYS.PROJECTS, projectsVal);
         }
         if (res.resume) {
           const current = this.resume();
@@ -255,10 +316,11 @@ export class PortfolioDataService {
             skills: skillsList
           };
           this.resume.set(formatted);
+          this.saveToCache(CACHE_KEYS.RESUME, formatted);
         }
 
         const elapsed = Date.now() - startTime;
-        const delay = Math.max(0, 600 - elapsed);
+        const delay = Math.max(0, 300 - elapsed);
         setTimeout(() => {
           this.isLoading.set(false);
         }, delay);
