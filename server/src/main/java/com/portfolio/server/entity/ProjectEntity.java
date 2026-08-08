@@ -19,14 +19,12 @@ public class ProjectEntity {
     @Column(name = "ICON")
     private String icon;
 
-    @Lob
     @Column(name = "DESCRIPTION", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "TAGS", length = 1000)
     private String tags;
 
-    @Lob
     @Column(name = "IMAGE", columnDefinition = "TEXT")
     private String image;
 

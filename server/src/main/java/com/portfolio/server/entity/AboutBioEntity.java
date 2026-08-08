@@ -10,7 +10,6 @@ public class AboutBioEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Lob
     @Column(name = "PARAGRAPH_TEXT", nullable = false, columnDefinition = "TEXT")
     private String paragraphText;
 

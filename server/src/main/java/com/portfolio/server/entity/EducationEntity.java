@@ -16,7 +16,6 @@ public class EducationEntity {
     @Column(name = "INSTITUTION")
     private String institution;
 
-    @Lob
     @Column(name = "DETAIL", columnDefinition = "TEXT")
     private String detail;
 

@@ -16,7 +16,6 @@ public class ServiceEntity {
     @Column(name = "ICON", length = 100)
     private String icon;
 
-    @Lob
     @Column(name = "SERVICE_TEXT", columnDefinition = "TEXT")
     private String text;
 

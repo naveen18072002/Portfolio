@@ -18,7 +18,6 @@ public class ProfileEntity {
     @Column(name = "TITLE")
     private String title;
 
-    @Lob
     @Column(name = "AVATAR_URL", columnDefinition = "TEXT")
     private String avatarUrl;
 

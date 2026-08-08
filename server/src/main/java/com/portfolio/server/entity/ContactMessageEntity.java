@@ -17,7 +17,6 @@ public class ContactMessageEntity {
     @Column(name = "EMAIL", nullable = false)
     private String email;
 
-    @Lob
     @Column(name = "MESSAGE", nullable = false, columnDefinition = "TEXT")
     private String message;
 

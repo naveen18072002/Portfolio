@@ -22,7 +22,6 @@ public class AcademicProjectEntity {
     @Column(name = "ICON")
     private String icon;
 
-    @Lob
     @Column(name = "DESCRIPTION", columnDefinition = "TEXT")
     private String description;
 

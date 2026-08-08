@@ -19,7 +19,6 @@ public class ExperienceInternshipEntity {
     @Column(name = "PERIOD")
     private String period;
 
-    @Lob
     @Column(name = "DESCRIPTION_TEXT", columnDefinition = "TEXT")
     private String text;
 
