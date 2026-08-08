@@ -5,13 +5,16 @@ const VALID_PAGES: PageId[] = ['about', 'resume', 'projects', 'contact'];
 
 @Injectable({ providedIn: 'root' })
 export class PageStateService {
-  /** Currently visible section, mirrors the original data-page tab switcher. */
+  /** Currently visible section, reads hash on refresh or defaults to 'about'. */
   readonly activePage = signal<PageId>(this.getInitialPage());
 
   constructor() {
     if (typeof window !== 'undefined') {
       const syncWithUrlHash = () => {
-        this.syncState();
+        const hashPage = this.getPageFromHash();
+        if (hashPage && this.activePage() !== hashPage) {
+          this.activePage.set(hashPage);
+        }
       };
 
       window.addEventListener('hashchange', syncWithUrlHash);
@@ -27,18 +30,19 @@ export class PageStateService {
 
   private getInitialPage(): PageId {
     if (typeof window === 'undefined') return 'about';
-
     const hashPage = this.getPageFromHash();
     if (hashPage) {
       return hashPage;
     }
-
     if (window.location.hash !== '#about') {
       window.history.replaceState(null, '', '#about');
     }
     return 'about';
   }
 
+  /**
+   * Syncs active page from URL hash on page refresh / load.
+   */
   syncState(): void {
     if (typeof window === 'undefined') return;
     const pageFromHash = this.getPageFromHash() || 'about';
