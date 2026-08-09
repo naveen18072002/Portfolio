@@ -52,7 +52,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/health", "/auth/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/contact/submit").permitAll()
-                .requestMatchers(HttpMethod.GET, "/profile/**", "/projects/**", "/resume/**", "/skills/**", "/about/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/portfolio", "/profile/**", "/projects/**", "/resume/**", "/skills/**", "/about/**").permitAll()
                 .requestMatchers("/profile/**", "/projects/**", "/resume/**", "/skills/**", "/contact/**", "/about/**").authenticated()
                 .anyRequest().authenticated()
             );

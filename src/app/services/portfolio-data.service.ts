@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -179,6 +179,7 @@ const EMPTY_RESUME: ResumeData = {
 })
 export class PortfolioDataService {
   private http = inject(HttpClient);
+  private portfolioApiUrl = `${environment.apiUrl}/api/portfolio`;
   private profileApiUrl = `${environment.apiUrl}/profile`;
   private aboutApiUrl = `${environment.apiUrl}/about`;
   private projectsApiUrl = `${environment.apiUrl}/projects`;
@@ -245,39 +246,20 @@ export class PortfolioDataService {
     if (!this.profile().name) {
       this.isLoading.set(true);
     }
-    const startTime = Date.now();
 
-    forkJoin({
-      profile: this.http.get<ProfileData>(this.profileApiUrl).pipe(
-        timeout(12000),
-        catchError((err) => {
-          console.warn('Profile fetch failed or timed out:', err);
-          return of(null);
-        })
-      ),
-      about: this.http.get<AboutData>(this.aboutApiUrl).pipe(
-        timeout(12000),
-        catchError((err) => {
-          console.warn('About fetch failed or timed out:', err);
-          return of(null);
-        })
-      ),
-      projects: this.http.get<ProjectItem[]>(this.projectsApiUrl).pipe(
-        timeout(12000),
-        catchError((err) => {
-          console.warn('Projects fetch failed or timed out:', err);
-          return of([]);
-        })
-      ),
-      resume: this.http.get<ResumeData>(this.resumeApiUrl).pipe(
-        timeout(12000),
-        catchError((err) => {
-          console.warn('Resume fetch failed or timed out:', err);
-          return of(null);
-        })
-      )
-    }).subscribe({
+    this.http.get<{profile: ProfileData, about: AboutData, projects: ProjectItem[], resume: ResumeData}>(this.portfolioApiUrl).pipe(
+      timeout(15000),
+      catchError((err) => {
+        console.warn('Combined portfolio fetch failed or timed out:', err);
+        return of(null);
+      })
+    ).subscribe({
       next: (res) => {
+        if (!res) {
+          this.isLoading.set(false);
+          return;
+        }
+
         if (res.profile && res.profile.name) {
           this.profile.set(res.profile);
           this.saveToCache(CACHE_KEYS.PROFILE, res.profile);
@@ -319,11 +301,7 @@ export class PortfolioDataService {
           this.saveToCache(CACHE_KEYS.RESUME, formatted);
         }
 
-        const elapsed = Date.now() - startTime;
-        const delay = Math.max(0, 300 - elapsed);
-        setTimeout(() => {
-          this.isLoading.set(false);
-        }, delay);
+        this.isLoading.set(false);
       },
       error: () => {
         this.isLoading.set(false);
