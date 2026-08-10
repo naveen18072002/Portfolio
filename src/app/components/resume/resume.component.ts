@@ -24,6 +24,11 @@ export class ResumeComponent implements AfterViewChecked, OnDestroy {
   private hasAnimatedOnScreen = false;
 
   readonly resumeData = computed(() => this.portfolioService.resume());
+  readonly profile = computed(() => this.portfolioService.profile());
+
+  get resumeLink() {
+    return this.profile().resumeLink;
+  }
 
   get education() {
     return this.resumeData().education;
