@@ -4,8 +4,6 @@ import com.portfolio.server.dto.*;
 import com.portfolio.server.entity.*;
 import com.portfolio.server.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +26,6 @@ public class ResumeService {
     private TechnicalProficiencyRepository technicalProficiencyRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "resume")
     public ResumeDto getResume() {
         List<EducationEntity> eduEntities = educationRepository.findAll();
         List<ExperienceInternshipEntity> expEntities = experienceInternshipRepository.findByType("EXPERIENCE");
@@ -72,7 +69,6 @@ public class ResumeService {
     }
 
     @Transactional
-    @CacheEvict(value = "resume", allEntries = true)
     public ResumeDto saveResume(ResumeDto dto) {
         if (dto == null) {
             return getResume();

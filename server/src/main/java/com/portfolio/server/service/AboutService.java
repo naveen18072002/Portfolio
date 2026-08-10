@@ -4,8 +4,6 @@ import com.portfolio.server.dto.*;
 import com.portfolio.server.entity.*;
 import com.portfolio.server.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +28,6 @@ public class AboutService {
     private TechStackRepository techStackRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "about")
     public AboutDto getAbout() {
         List<AboutBioEntity> bios = aboutBioRepository.findAllByOrderByDisplayOrderAsc();
         List<StatSummaryEntity> stats = statSummaryRepository.findAllByOrderByDisplayOrderAsc();
@@ -63,7 +60,6 @@ public class AboutService {
     }
 
     @Transactional
-    @CacheEvict(value = "about", allEntries = true)
     public AboutDto saveAbout(AboutDto dto) {
         aboutBioRepository.deleteAll();
         statSummaryRepository.deleteAll();

@@ -31,7 +31,6 @@ public class PortfolioController {
 
     /**
      * Combined endpoint that returns all portfolio data in a single response.
-     * Each service method is individually @Cacheable, so repeated calls are fast.
      * This eliminates 4 separate HTTP round trips from the frontend.
      */
     @GetMapping("/portfolio")
