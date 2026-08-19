@@ -30,7 +30,7 @@ public class ProjectEntity {
     private String tags;
 
     @Lob
-    @Column(name = "IMAGE", columnDefinition = "LONGTEXT")
+    @Column(name = "IMAGE", columnDefinition = "TEXT")
     private String image;
 
     @Column(name = "DEMO_LINK", length = 1000)

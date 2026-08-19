@@ -21,7 +21,7 @@ public class ProfileEntity {
     private String title;
 
     @Lob
-    @Column(name = "AVATAR_URL", columnDefinition = "LONGTEXT")
+    @Column(name = "AVATAR_URL", columnDefinition = "TEXT")
     private String avatarUrl;
 
     @Column(name = "RESUME_LINK", length = 1000)
