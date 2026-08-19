@@ -249,7 +249,7 @@ export class PortfolioDataService {
     }
 
     this.http.get<{profile: ProfileData, about: AboutData, projects: ProjectItem[], resume: ResumeData}>(this.portfolioApiUrl).pipe(
-      timeout(15000),
+      timeout(90000),
       catchError((err) => {
         console.warn('Combined portfolio fetch failed or timed out:', err);
         return of(null);
