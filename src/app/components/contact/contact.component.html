@@ -59,7 +59,7 @@
 
   <footer class="site-footer">
     <div class="container">
-      <p class="footer-text">&copy; {{ currentYear }}. All Rights Reserved. Designed by <a routerLink="/login" class="admin-copyright-link" title="Admin Login">Naveenkumar R</a> </p>
+      <p class="footer-text">&copy;{{ currentYear }}. All Rights Reserved. Designed by <a routerLink="/login" class="admin-copyright-link" title="Admin Login">{{ profile().name || 'Portfolio' }}</a> </p>
     </div>
   </footer>
 

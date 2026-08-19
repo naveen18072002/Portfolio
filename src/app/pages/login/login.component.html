@@ -24,7 +24,7 @@
 
         <form (ngSubmit)="onSubmit()" class="login-form">
           <div class="form-group">
-            <label for="username">Username</label>
+            <label for="username">Username or Email</label>
             <div class="input-icon-wrapper">
               <ion-icon name="person-outline" class="field-icon"></ion-icon>
               <input
@@ -32,7 +32,7 @@
                 name="username"
                 type="text"
                 class="form-input"
-                placeholder="Enter username"
+                placeholder="Enter username or email"
                 [(ngModel)]="username"
                 required
                 autocomplete="username"
@@ -120,7 +120,7 @@
                 name="resetEmail"
                 type="email"
                 class="form-input"
-                placeholder="e.g. naveenofficial6677@gmail.com"
+                placeholder="e.g. naveenkumarrnk6677@gmail.com"
                 [(ngModel)]="resetEmail"
                 required
               />

@@ -25,8 +25,10 @@ export class ProjectsComponent implements OnInit {
 
   readonly activeFilter = signal('All Projects');
 
-  get filters() {
-    return this.projectsData().filters || ['All Projects', 'Web Development', 'Full Stack', 'Other'];
+  get filters(): string[] {
+    const list = this.projects || [];
+    const dynamicCats = Array.from(new Set(list.map((p) => p.category?.trim()).filter(Boolean) as string[]));
+    return ['All Projects', ...dynamicCats];
   }
 
   get projects() {

@@ -1,6 +1,8 @@
 package com.portfolio.server.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "PORTFOLIO_PROJECT")
@@ -19,13 +21,16 @@ public class ProjectEntity {
     @Column(name = "ICON")
     private String icon;
 
-    @Column(name = "DESCRIPTION", columnDefinition = "TEXT")
+    @Lob
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(name = "DESCRIPTION")
     private String description;
 
     @Column(name = "TAGS", length = 1000)
     private String tags;
 
-    @Column(name = "IMAGE", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "IMAGE", columnDefinition = "LONGTEXT")
     private String image;
 
     @Column(name = "DEMO_LINK", length = 1000)

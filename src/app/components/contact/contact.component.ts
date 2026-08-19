@@ -36,9 +36,9 @@ export class ContactComponent {
   readonly activeTopic = signal('General Inquiry');
 
   readonly templates: Record<string, string> = {
-    'General Inquiry': 'Hi Naveen, I wanted to reach out to you regarding...',
-    'Project Collaboration': 'Hi Naveen, I am working on a project and would love to collaborate with you on...',
-    'Hire Me': 'Hi Naveen, we are impressed by your portfolio and would like to discuss a job/freelance opportunity for...'
+    'General Inquiry': 'Hello, I wanted to reach out to you regarding...',
+    'Project Collaboration': 'Hello, I am working on a project and would love to collaborate on...',
+    'Hire Me': 'Hello, I am interested in discussing an opportunity for...'
   };
 
   readonly currentYear = new Date().getFullYear();

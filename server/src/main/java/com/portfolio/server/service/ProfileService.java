@@ -43,6 +43,7 @@ public class ProfileService {
         entity.setTitle(dto.getTitle());
         entity.setAvatarUrl(dto.getAvatarUrl());
         entity.setResumeLink(dto.getResumeLink());
+        entity.setAvailableForWork(dto.getAvailableForWork());
 
         // Update contacts
         entity.getContacts().clear();
@@ -85,6 +86,7 @@ public class ProfileService {
         dto.setTitle(entity.getTitle());
         dto.setAvatarUrl(entity.getAvatarUrl());
         dto.setResumeLink(entity.getResumeLink());
+        dto.setAvailableForWork(entity.getAvailableForWork());
 
         List<ContactItemDto> contactsList = new ArrayList<>();
         if (entity.getContacts() != null) {

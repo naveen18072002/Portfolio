@@ -123,6 +123,7 @@ export interface ProfileData {
   contacts: ContactItem[];
   socials: SocialItem[];
   resumeLink: string;
+  availableForWork?: boolean;
 }
 
 export interface AboutData {
@@ -161,7 +162,7 @@ const EMPTY_ABOUT: AboutData = {
 };
 
 const EMPTY_PROJECTS: ProjectsData = {
-  filters: ['All Projects', 'Web Development', 'Full Stack', 'Other'],
+  filters: ['All Projects'],
   projects: [],
   highlights: []
 };
@@ -185,7 +186,7 @@ export class PortfolioDataService {
   private projectsApiUrl = `${environment.apiUrl}/projects`;
   private resumeApiUrl = `${environment.apiUrl}/resume`;
 
-  readonly profile = signal<ProfileData>({ name: '', title: '', avatarUrl: '', contacts: [], socials: [], resumeLink: '' });
+  readonly profile = signal<ProfileData>({ name: '', title: '', avatarUrl: '', contacts: [], socials: [], resumeLink: '', availableForWork: true });
   readonly about = signal<AboutData>(EMPTY_ABOUT);
   readonly projects = signal<ProjectsData>(EMPTY_PROJECTS);
   readonly resume = signal<ResumeData>(EMPTY_RESUME);

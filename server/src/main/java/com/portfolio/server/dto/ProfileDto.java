@@ -7,6 +7,7 @@ public class ProfileDto {
     private String title;
     private String avatarUrl;
     private String resumeLink;
+    private Boolean availableForWork = true;
     private List<ContactItemDto> contacts;
     private List<SocialItemDto> socials;
 
@@ -51,6 +52,14 @@ public class ProfileDto {
 
     public void setResumeLink(String resumeLink) {
         this.resumeLink = resumeLink;
+    }
+
+    public Boolean getAvailableForWork() {
+        return availableForWork == null || availableForWork;
+    }
+
+    public void setAvailableForWork(Boolean availableForWork) {
+        this.availableForWork = availableForWork;
     }
 
     public List<ContactItemDto> getContacts() {

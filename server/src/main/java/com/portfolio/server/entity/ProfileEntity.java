@@ -1,6 +1,8 @@
 package com.portfolio.server.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +20,15 @@ public class ProfileEntity {
     @Column(name = "TITLE")
     private String title;
 
-    @Column(name = "AVATAR_URL", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "AVATAR_URL", columnDefinition = "LONGTEXT")
     private String avatarUrl;
 
     @Column(name = "RESUME_LINK", length = 1000)
     private String resumeLink;
+
+    @Column(name = "AVAILABLE_FOR_WORK")
+    private Boolean availableForWork = true;
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ContactEntity> contacts = new ArrayList<>();
@@ -77,6 +83,14 @@ public class ProfileEntity {
 
     public void setResumeLink(String resumeLink) {
         this.resumeLink = resumeLink;
+    }
+
+    public Boolean getAvailableForWork() {
+        return availableForWork == null || availableForWork;
+    }
+
+    public void setAvailableForWork(Boolean availableForWork) {
+        this.availableForWork = availableForWork;
     }
 
     public List<ContactEntity> getContacts() {

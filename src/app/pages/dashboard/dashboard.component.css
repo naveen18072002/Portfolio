@@ -1,9 +1,11 @@
 .dashboard-page {
   min-height: 100vh;
+  width: 100%;
   background: var(--bg-gradient-jet, linear-gradient(to bottom right, #121212, #1a1a1c));
   color: var(--white-2, #fafafa);
   font-family: inherit;
-  padding-bottom: 50px;
+  padding-bottom: 40px;
+  box-sizing: border-box;
 }
 
 /* Header */
@@ -11,7 +13,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 32px;
+  padding: 16px 36px;
+  width: 100%;
+  box-sizing: border-box;
   background: var(--eerie-black-2, #1e1e1f);
   border-bottom: 1px solid var(--jet, #383838);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -238,12 +242,15 @@
 
 /* Layout */
 .dash-container {
-  max-width: 1280px;
-  margin: 32px auto;
-  padding: 0 24px;
+  width: 100%;
+  max-width: 100%;
+  margin: 24px 0;
+  padding: 0 36px;
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 28px;
+  min-height: calc(100vh - 120px);
   animation: slideUpFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 

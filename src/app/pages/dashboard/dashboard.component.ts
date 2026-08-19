@@ -262,6 +262,9 @@ export class DashboardComponent implements OnInit {
     if (!this.profileForm.socials) {
       this.profileForm.socials = [];
     }
+    if (this.profileForm.availableForWork === undefined) {
+      this.profileForm.availableForWork = true;
+    }
     this.aboutForm = JSON.parse(JSON.stringify(this.portfolioService.about()));
     this.projectsForm = JSON.parse(JSON.stringify(this.portfolioService.projects()));
     this.resumeForm = JSON.parse(JSON.stringify(this.portfolioService.resume()));
