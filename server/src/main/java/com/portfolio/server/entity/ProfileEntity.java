@@ -21,6 +21,7 @@ public class ProfileEntity {
     private String title;
 
     @Lob
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "AVATAR_URL", columnDefinition = "TEXT")
     private String avatarUrl;
 

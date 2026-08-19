@@ -30,6 +30,7 @@ public class ProjectEntity {
     private String tags;
 
     @Lob
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "IMAGE", columnDefinition = "TEXT")
     private String image;
 
