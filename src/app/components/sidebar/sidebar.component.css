@@ -1,3 +1,21 @@
 :host {
   display: contents;
 }
+
+.typewriter-badge {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.typewriter-badge .typing-text {
+  font-size: 15px !important;
+}
+
+.typewriter-badge .role-badge-icon {
+  font-size: 15px !important;
+}
+
+.typewriter-badge .typing-cursor {
+  height: 16px !important;
+}
