@@ -24,7 +24,7 @@
 
         <figure class="project-img">
           <div class="project-img-wrapper">
-            <img [src]="project.image" [alt]="project.title" loading="lazy">
+            <img [src]="project.image" [alt]="project.title" loading="lazy" decoding="async">
             <div class="project-hover-overlay">
               <ion-icon name="expand-outline"></ion-icon>
               <span>View Project Details</span>
@@ -103,7 +103,7 @@
         <!-- Media Column -->
         <div class="lightbox-media-col">
           <div class="lightbox-image-box">
-            <img [src]="project.image" [alt]="project.title" class="lightbox-img" />
+            <img [src]="project.image" [alt]="project.title" class="lightbox-img" loading="lazy" decoding="async" />
             <div class="lightbox-type-badge">
               <ion-icon [name]="project.icon"></ion-icon>
             </div>

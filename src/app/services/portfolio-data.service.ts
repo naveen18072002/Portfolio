@@ -147,13 +147,6 @@ export interface ResumeData {
   skills: SkillItem[];
 }
 
-const CACHE_KEYS = {
-  PROFILE: 'cached_portfolio_profile',
-  ABOUT: 'cached_portfolio_about',
-  PROJECTS: 'cached_portfolio_projects',
-  RESUME: 'cached_portfolio_resume'
-};
-
 const EMPTY_ABOUT: AboutData = {
   bioParagraphs: [],
   stats: [],
@@ -193,48 +186,24 @@ export class PortfolioDataService {
   readonly isLoading = signal<boolean>(true);
 
   constructor() {
-    const hasCache = this.loadDataFromCache();
-    if (hasCache) {
-      this.isLoading.set(false);
-    }
+    this.clearAllCachedStorage();
     this.refreshAllData();
   }
 
-  private loadDataFromCache(): boolean {
-    if (typeof window === 'undefined') return false;
-    try {
-      let loaded = false;
-      const p = localStorage.getItem(CACHE_KEYS.PROFILE);
-      if (p) {
-        this.profile.set(JSON.parse(p));
-        loaded = true;
-      }
-      const a = localStorage.getItem(CACHE_KEYS.ABOUT);
-      if (a) {
-        this.about.set(JSON.parse(a));
-        loaded = true;
-      }
-      const pr = localStorage.getItem(CACHE_KEYS.PROJECTS);
-      if (pr) {
-        this.projects.set(JSON.parse(pr));
-        loaded = true;
-      }
-      const r = localStorage.getItem(CACHE_KEYS.RESUME);
-      if (r) {
-        this.resume.set(JSON.parse(r));
-        loaded = true;
-      }
-      return loaded;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  private saveToCache(key: string, value: any): void {
+  private clearAllCachedStorage(): void {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {}
+      localStorage.removeItem('cached_portfolio_profile');
+      localStorage.removeItem('cached_portfolio_about');
+      localStorage.removeItem('cached_portfolio_projects');
+      localStorage.removeItem('cached_portfolio_resume');
+      localStorage.removeItem('portfolio_profile');
+      localStorage.removeItem('portfolio_about');
+      localStorage.removeItem('portfolio_projects');
+      localStorage.removeItem('portfolio_resume');
+    } catch (e) {
+      console.warn('Could not clear local storage keys', e);
+    }
   }
 
   refreshAllData(): void {
@@ -243,10 +212,7 @@ export class PortfolioDataService {
       return;
     }
     
-    // Only set loading if no cached profile exists
-    if (!this.profile().name) {
-      this.isLoading.set(true);
-    }
+    this.isLoading.set(true);
 
     this.http.get<{profile: ProfileData, about: AboutData, projects: ProjectItem[], resume: ResumeData}>(this.portfolioApiUrl).pipe(
       timeout(90000),
@@ -263,26 +229,21 @@ export class PortfolioDataService {
 
         if (res.profile && res.profile.name) {
           this.profile.set(res.profile);
-          this.saveToCache(CACHE_KEYS.PROFILE, res.profile);
         }
         if (res.about) {
-          const aboutVal = {
+          this.about.set({
             bioParagraphs: res.about.bioParagraphs || [],
             stats: res.about.stats || [],
             services: res.about.services || [],
             techStack: res.about.techStack || []
-          };
-          this.about.set(aboutVal);
-          this.saveToCache(CACHE_KEYS.ABOUT, aboutVal);
+          });
         }
         if (res.projects && Array.isArray(res.projects) && res.projects.length > 0) {
           const current = this.projects();
-          const projectsVal = {
+          this.projects.set({
             ...current,
             projects: res.projects
-          };
-          this.projects.set(projectsVal);
-          this.saveToCache(CACHE_KEYS.PROJECTS, projectsVal);
+          });
         }
         if (res.resume) {
           const current = this.resume();
@@ -291,15 +252,13 @@ export class PortfolioDataService {
             value: s.value != null ? Number(s.value) : 75,
             icon: s.icon && s.icon.trim() ? s.icon : getSkillIconByName(s.name)
           }));
-          const formatted: ResumeData = {
+          this.resume.set({
             education: res.resume.education || [],
             experiences: res.resume.experiences || [],
             internships: res.resume.internships || [],
             academicProjects: res.resume.academicProjects || current.academicProjects || [],
             skills: skillsList
-          };
-          this.resume.set(formatted);
-          this.saveToCache(CACHE_KEYS.RESUME, formatted);
+          });
         }
 
         this.isLoading.set(false);
@@ -308,18 +267,6 @@ export class PortfolioDataService {
         this.isLoading.set(false);
       }
     });
-  }
-
-  private clearLegacyLocalStorage(): void {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.removeItem('portfolio_profile');
-      localStorage.removeItem('portfolio_about');
-      localStorage.removeItem('portfolio_projects');
-      localStorage.removeItem('portfolio_resume');
-    } catch (e) {
-      console.warn('Could not clear local storage keys', e);
-    }
   }
 
   fetchProfileFromServer(): void {
@@ -398,6 +345,30 @@ export class PortfolioDataService {
         console.warn('Could not fetch resume from backend server:', err);
       }
     });
+  }
+
+  refreshPageData(page?: string): void {
+    if (!page) {
+      this.refreshAllData();
+      return;
+    }
+    switch (page) {
+      case 'about':
+        this.fetchAboutFromServer();
+        this.fetchProfileFromServer();
+        break;
+      case 'resume':
+        this.fetchResumeFromServer();
+        break;
+      case 'projects':
+        this.fetchProjectsFromServer();
+        break;
+      case 'contact':
+        this.fetchProfileFromServer();
+        break;
+      default:
+        this.refreshAllData();
+    }
   }
 
   updateProfile(data: ProfileData): void {

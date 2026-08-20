@@ -52,8 +52,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/health", "/auth/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/contact/submit").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/portfolio", "/profile/**", "/projects/**", "/resume/**", "/skills/**", "/about/**").permitAll()
-                .requestMatchers("/profile/**", "/projects/**", "/resume/**", "/skills/**", "/contact/**", "/about/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/portfolio", "/api/portfolio/**", "/profile/**", "/projects/**", "/resume/**", "/skills/**", "/about/**").permitAll()
+                .requestMatchers("/portfolio/**", "/profile/**", "/projects/**", "/resume/**", "/skills/**", "/contact/**", "/about/**").authenticated()
                 .anyRequest().authenticated()
             );
 
@@ -65,10 +65,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

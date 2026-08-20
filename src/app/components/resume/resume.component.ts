@@ -1,5 +1,6 @@
-import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, signal, ElementRef, ViewChild, AfterViewChecked, OnDestroy, inject, computed } from '@angular/core';
+import { Component, Input, CUSTOM_ELEMENTS_SCHEMA, signal, ElementRef, ViewChild, AfterViewChecked, OnDestroy, inject, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { PortfolioDataService, getSkillIconByName, SkillItem } from '../../services/portfolio-data.service';
 
 @Component({
@@ -11,15 +12,18 @@ import { PortfolioDataService, getSkillIconByName, SkillItem } from '../../servi
 })
 export class ResumeComponent implements AfterViewChecked, OnDestroy {
   private portfolioService = inject(PortfolioDataService);
+  private sanitizer = inject(DomSanitizer);
 
   private _isActive = false;
   private observer: IntersectionObserver | null = null;
   private observerInitialized = false;
 
   @ViewChild('skillSection') skillSection?: ElementRef;
+  @ViewChild('previewContainer') previewContainer?: ElementRef;
 
   readonly animatedValues = signal<number[]>([]);
   readonly isAnimating = signal<boolean>(false);
+  readonly isPreviewOpen = signal<boolean>(false);
   private animationFrameIds: number[] = [];
   private hasAnimatedOnScreen = false;
 
@@ -28,6 +32,61 @@ export class ResumeComponent implements AfterViewChecked, OnDestroy {
 
   get resumeLink() {
     return this.profile().resumeLink;
+  }
+
+  readonly safePreviewUrl = computed<SafeResourceUrl>(() => {
+    const rawUrl = this.resumeLink || '';
+    if (!rawUrl) return '';
+
+    let embedUrl = rawUrl.trim();
+    // Convert Google Drive view URLs to embeddable /preview links
+    if (embedUrl.includes('drive.google.com/file/d/')) {
+      const match = embedUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        embedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+    } else if (embedUrl.includes('drive.google.com/open?id=')) {
+      const match = embedUrl.match(/id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        embedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+    }
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+  });
+
+  openPreview(): void {
+    this.isPreviewOpen.set(true);
+    setTimeout(() => {
+      this.previewContainer?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 120);
+  }
+
+  closePreview(): void {
+    this.isPreviewOpen.set(false);
+  }
+
+  togglePreview(): void {
+    const nextState = !this.isPreviewOpen();
+    this.isPreviewOpen.set(nextState);
+    if (nextState) {
+      setTimeout(() => {
+        this.previewContainer?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
+  }
+
+  @HostListener('window:keydown.escape')
+  onEscapePress(): void {
+    if (this.isPreviewOpen()) {
+      this.closePreview();
+    }
+  }
+
+  printResume(): void {
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
   }
 
   get education() {

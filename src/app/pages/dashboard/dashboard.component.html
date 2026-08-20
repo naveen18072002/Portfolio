@@ -3,7 +3,7 @@
   <header class="dash-header">
     <div class="dash-brand">
       <div class="dash-avatar" *ngIf="profileForm.avatarUrl">
-        <img [src]="profileForm.avatarUrl" alt="Avatar" />
+        <img [src]="profileForm.avatarUrl" alt="Avatar" loading="lazy" decoding="async" />
       </div>
       <div>
         <h1 class="dash-title">Admin Control Panel</h1>
@@ -133,7 +133,7 @@
               </div>
 
               <div *ngIf="profileForm.avatarUrl" class="avatar-upload-preview">
-                <img [src]="profileForm.avatarUrl" alt="Selected Avatar Preview" />
+                <img [src]="profileForm.avatarUrl" alt="Selected Avatar Preview" loading="lazy" decoding="async" />
                 <button type="button" class="btn-danger-sm" (click)="removeAvatar()" title="Remove Image">
                   <ion-icon name="trash-outline"></ion-icon>
                   <span>Remove Image</span>
@@ -462,7 +462,7 @@
             <div class="form-group full-width">
               <label>Project Cover Image</label>
               <div class="image-upload-wrapper">
-                <img [src]="newProject.image" alt="Project Preview" class="proj-image-preview" />
+                <img [src]="newProject.image" alt="Project Preview" class="proj-image-preview" loading="lazy" decoding="async" />
                 <div class="upload-btn-group">
                   <input #newProjFileInput type="file" accept="image/*" (change)="onNewProjectFileSelected($event)" style="display: none;" />
                   <button type="button" class="btn-secondary" (click)="newProjFileInput.click()">
@@ -510,7 +510,7 @@
           <div class="item-card" *ngFor="let project of projectsForm.projects; let i = index">
             <div class="item-header">
               <div class="flex-align-gap">
-                <img [src]="project.image" alt="Project image" class="proj-thumb" *ngIf="project.image" />
+                <img [src]="project.image" alt="Project image" class="proj-thumb" *ngIf="project.image" loading="lazy" decoding="async" />
                 <strong>{{ project.title || 'Untitled Project #' + (i + 1) }}</strong>
                 <span class="badge" *ngIf="project.category">{{ project.category }}</span>
               </div>
@@ -531,7 +531,7 @@
               <div class="form-group full-width">
                 <label>Project Cover Image</label>
                 <div class="image-upload-wrapper">
-                  <img [src]="project.image" alt="Project image" class="proj-image-preview" />
+                  <img [src]="project.image" alt="Project image" class="proj-image-preview" loading="lazy" decoding="async" />
                   <div class="upload-btn-group">
                     <input #projFileInput type="file" accept="image/*" (change)="onExistingProjectFileSelected($event, i)" style="display: none;" />
                     <button type="button" class="btn-secondary" (click)="projFileInput.click()">

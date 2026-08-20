@@ -1,7 +1,8 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, computed, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import {
   PortfolioDataService,
   ProfileData,
@@ -24,6 +25,7 @@ import { AuthService } from '../../services/auth.service';
 import { ContactService, ContactMessageItem } from '../../services/contact.service';
 
 export type DashboardTab = 'profile' | 'about' | 'projects' | 'resume' | 'messages';
+export const VALID_DASHBOARD_TABS: DashboardTab[] = ['profile', 'about', 'projects', 'resume', 'messages'];
 
 @Component({
   selector: 'app-dashboard',
@@ -33,7 +35,7 @@ export type DashboardTab = 'profile' | 'about' | 'projects' | 'resume' | 'messag
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   activeTab = signal<DashboardTab>('profile');
   toastMessage = signal<string>('');
   contactMessages = signal<ContactMessageItem[]>([]);
@@ -240,17 +242,51 @@ export class DashboardComponent implements OnInit {
   newAcademicProjectTagsInput = '';
   newAcademicProjectFeaturesInput = '';
 
+  private routeSub?: Subscription;
+
   constructor(
     private portfolioService: PortfolioDataService,
     private authService: AuthService,
     private contactService: ContactService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.initActiveTab();
     this.loadCurrentData();
     this.fetchContactMessages();
     this.loadReadMessageIds();
+  }
+
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
+  }
+
+  private initActiveTab(): void {
+    const urlTab = this.route.snapshot.queryParamMap.get('tab') as DashboardTab | null;
+    const initialTab: DashboardTab = urlTab && VALID_DASHBOARD_TABS.includes(urlTab) ? urlTab : 'profile';
+
+    this.activeTab.set(initialTab);
+
+    if (urlTab !== initialTab) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { tab: initialTab },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    }
+
+    this.routeSub = this.route.queryParams.subscribe((params) => {
+      const tab = params['tab'] as DashboardTab;
+      if (tab && VALID_DASHBOARD_TABS.includes(tab) && this.activeTab() !== tab) {
+        this.activeTab.set(tab);
+        if (tab === 'messages') {
+          this.fetchContactMessages();
+        }
+      }
+    });
   }
 
   loadCurrentData(): void {
@@ -290,7 +326,13 @@ export class DashboardComponent implements OnInit {
   }
 
   setTab(tab: DashboardTab): void {
+    if (!VALID_DASHBOARD_TABS.includes(tab)) return;
     this.activeTab.set(tab);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab },
+      queryParamsHandling: 'merge'
+    });
     if (tab === 'messages') {
       this.fetchContactMessages();
     }

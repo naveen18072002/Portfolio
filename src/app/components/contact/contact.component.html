@@ -7,51 +7,121 @@
     </p>
   </header>
 
+  <!-- Live Status & Response Time Indicator -->
+  <div class="status-banner">
+    <div class="status-badge-left">
+      <span class="status-pulse-dot"></span>
+      <span>Available for Full-time & Freelance Projects</span>
+    </div>
+    <div class="status-badge-right">
+      <ion-icon name="flash-outline"></ion-icon>
+      <span>Fast Response • Usually within 24 hours</span>
+    </div>
+  </div>
+
+  <!-- Interactive Map with Location Tag -->
   <section class="mapbox">
     <figure>
       <iframe
         [src]="mapEmbedUrl"
         width="600"
-        height="450"
+        height="380"
         style="border:0;"
         allowfullscreen
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade">
       </iframe>
     </figure>
+    <div class="map-location-tag">
+      <ion-icon name="location-sharp"></ion-icon>
+      <span>Cuddalore, Tamil Nadu, India • Open to Worldwide Remote</span>
+    </div>
   </section>
 
+  <!-- Enhanced Contact Form -->
   <section class="contact-form">
 
-    <h3 class="h3 form-title">Contact Form</h3>
+    <h3 class="h3 form-title">Send a Message</h3>
 
-    <ul class="portfolio-filter-list">
-      <li *ngFor="let topic of contactTopics">
+    <!-- Interactive Topic / Purpose Selector -->
+    <div class="topic-selector-container">
+      <span class="topic-label">What would you like to discuss?</span>
+      <div class="topic-pills">
         <button
+          *ngFor="let topic of contactTopics"
           type="button"
-          class="portfolio-filter-btn"
-          [class.active]="activeTopic() === topic"
+          class="topic-pill"
+          [class.active]="activeTopic() === topic.id"
           (click)="setTopic(topic)">
-          {{ topic }}
+          <ion-icon [name]="topic.icon"></ion-icon>
+          <span>{{ topic.label }}</span>
         </button>
-      </li>
-    </ul>
+      </div>
+    </div>
 
     <form class="form" [formGroup]="form" (ngSubmit)="onSubmit()">
 
-      <div class="input-wrapper">
-        <input type="text" class="form-input" placeholder="Full name" formControlName="fullname">
-        <input type="email" class="form-input" placeholder="Email address" formControlName="email">
+      <!-- Anti-Spam Honeypot Field (hidden from human visitors) -->
+      <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true" tabindex="-1">
+        <input type="text" name="website_hp" formControlName="website_hp" autocomplete="off" tabindex="-1" placeholder="Do not fill this">
       </div>
 
-      <textarea class="form-input" placeholder="Your Message" formControlName="message"></textarea>
+      <div class="input-wrapper">
+        <div class="form-input-group">
+          <ion-icon name="person-outline" class="input-icon-left"></ion-icon>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Your Full Name *"
+            formControlName="fullname"
+            [class.invalid-border]="isFieldInvalid('fullname')"
+          >
+          <ion-icon name="checkmark-circle" class="input-feedback-icon valid" *ngIf="isFieldValid('fullname')"></ion-icon>
+          <ion-icon name="alert-circle" class="input-feedback-icon invalid" *ngIf="isFieldInvalid('fullname')"></ion-icon>
+        </div>
 
-      <button class="form-btn" type="submit" [disabled]="submitting()">
-        <ion-icon name="paper-plane"></ion-icon>
-        <span>{{ submitting() ? 'Sending…' : 'Send Message' }}</span>
+        <div class="form-input-group">
+          <ion-icon name="mail-outline" class="input-icon-left"></ion-icon>
+          <input
+            type="email"
+            class="form-input"
+            placeholder="Your Email Address *"
+            formControlName="email"
+            [class.invalid-border]="isFieldInvalid('email')"
+          >
+          <ion-icon name="checkmark-circle" class="input-feedback-icon valid" *ngIf="isFieldValid('email')"></ion-icon>
+          <ion-icon name="alert-circle" class="input-feedback-icon invalid" *ngIf="isFieldInvalid('email')"></ion-icon>
+        </div>
+      </div>
+
+      <div class="form-input-group" style="margin-bottom: 25px;">
+        <ion-icon name="chatbubble-ellipses-outline" class="input-icon-left" style="top: 18px;"></ion-icon>
+        <textarea
+          class="form-input"
+          style="padding-left: 44px; min-height: 120px;"
+          placeholder="Your Message *"
+          formControlName="message"
+          [class.invalid-border]="isFieldInvalid('message')"
+        ></textarea>
+      </div>
+
+      <!-- Textarea Footer: Live Character Counter -->
+      <div class="textarea-footer">
+        <span>Please write your message clearly</span>
+        <span class="char-counter" [class.limit-near]="messageLength > 400">{{ messageLength }} characters</span>
+      </div>
+
+      <!-- Action Button & Inline Messages -->
+      <button class="form-btn" type="submit" [disabled]="submitting() || form.invalid">
+        <span class="btn-spinner" *ngIf="submitting()"></span>
+        <ion-icon name="paper-plane" *ngIf="!submitting()"></ion-icon>
+        <span>{{ submitting() ? 'Sending Message…' : 'Send Message' }}</span>
       </button>
 
-      <div class="form-msg error" *ngIf="errorMessage()">{{ errorMessage() }}</div>
+      <div class="form-msg error" *ngIf="errorMessage()">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
 
     </form>
 
@@ -59,8 +129,9 @@
 
   <footer class="site-footer">
     <div class="container">
-      <p class="footer-text">&copy;{{ currentYear }}. All Rights Reserved. Designed by <a routerLink="/login" class="admin-copyright-link" title="Admin Login">{{ profile().name || 'Portfolio' }}</a> </p>
+      <p class="footer-text">&copy;{{ currentYear }}. All Rights Reserved. Designed by <a routerLink="/login" class="admin-copyright-link" title="Admin Login">{{ profile().name || '' }}</a> </p>
     </div>
   </footer>
 
 </article>
+

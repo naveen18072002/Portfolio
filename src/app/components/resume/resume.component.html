@@ -5,6 +5,7 @@
     <p class="article-subtitle">Here's a quick overview of my background, projects, and skills.</p>
   </header>
 
+  <!-- STRUCTURED RESUME SECTIONS -->
   <section class="timeline" *ngIf="education && education.length">
     <div class="title-wrapper">
       <div class="icon-box">
@@ -14,14 +15,12 @@
     </div>
 
     <ol class="timeline-list">
-
       <li class="timeline-item" *ngFor="let edu of education">
         <span class="timeline-period">{{ edu.period }}</span>
         <h4 class="h4 timeline-item-title">{{ edu.degree }}</h4>
         <p class="timeline-institution">{{ edu.institution }}</p>
         <p class="timeline-text">{{ edu.detail }}</p>
       </li>
-
     </ol>
   </section>
 
@@ -34,7 +33,6 @@
     </div>
 
     <ol class="timeline-list">
-
       <li class="timeline-item" *ngFor="let project of projects">
         <span class="timeline-period">{{ project.badge }}</span>
         <h4 class="h4 timeline-item-title">
@@ -54,7 +52,6 @@
           </li>
         </ul>
       </li>
-
     </ol>
   </section>
 
@@ -67,7 +64,6 @@
     </div>
 
     <ol class="timeline-list">
-
       <li class="timeline-item" *ngFor="let experience of experiences">
         <span class="timeline-period">{{ experience.period }}</span>
         <h4 class="h4 timeline-item-title">
@@ -80,7 +76,6 @@
         </h5>
         <p class="timeline-text">{{ experience.text }}</p>
       </li>
-
     </ol>
   </section>
 
@@ -93,7 +88,6 @@
     </div>
 
     <ol class="timeline-list">
-
       <li class="timeline-item" *ngFor="let internship of internships">
         <span class="timeline-period">{{ internship.period }}</span>
         <h4 class="h4 timeline-item-title">
@@ -106,7 +100,6 @@
         </h5>
         <p class="timeline-text">{{ internship.text }}</p>
       </li>
-
     </ol>
   </section>
 
@@ -132,8 +125,77 @@
     </ul>
   </section>
 
-  <a *ngIf="resumeLink" [href]="resumeLink" target="_blank" rel="noopener" class="sidebar-resume-btn">
-    <ion-icon name="eye-outline"></ion-icon>
-    <span>View Resume</span>
-  </a>
+  <!-- Resume Action Banner: Text on Left Side, 3 Action Buttons on Right Side -->
+  <div class="resume-cta-banner" *ngIf="resumeLink">
+    <div class="resume-cta-content">
+      <div class="resume-cta-icon-box">
+        <ion-icon name="document-text-outline"></ion-icon>
+      </div>
+      <div class="resume-cta-text">
+        <h4 class="resume-cta-title">Interested in my full background?</h4>
+        <p class="resume-cta-subtitle">Preview or open my verified ATS-friendly resume document.</p>
+      </div>
+    </div>
+
+    <div class="resume-cta-actions">
+      <!-- 1. Quick Preview / Toggle Button -->
+      <button
+        type="button"
+        class="resume-btn resume-btn-primary"
+        (click)="togglePreview()"
+        [title]="isPreviewOpen() ? 'Close document preview' : 'Open interactive document preview'"
+      >
+        <ion-icon [name]="isPreviewOpen() ? 'close-circle-outline' : 'eye-outline'"></ion-icon>
+        <span>{{ isPreviewOpen() ? 'Close Preview' : 'Quick Preview' }}</span>
+      </button>
+
+      <!-- 2. Open in New Tab Button -->
+      <a
+        [href]="resumeLink"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="resume-btn resume-btn-secondary"
+        title="Open Full Document in New Window"
+      >
+        <ion-icon name="open-outline"></ion-icon>
+        <span>Open in New Tab</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- IN-SECTION DOCUMENT PREVIEW (smoothly expands when Quick Preview is clicked) -->
+  <section class="resume-full-cover-viewer" *ngIf="isPreviewOpen()" style="margin-top: 20px;" #previewContainer>
+    <div class="viewer-toolbar">
+      <div class="viewer-doc-info">
+        <div class="viewer-icon-badge">
+          <ion-icon name="document-text-outline"></ion-icon>
+        </div>
+        <div>
+          <h4 class="viewer-doc-title">{{ profile().name }} — Full Resume</h4>
+          <span class="viewer-doc-badge">Verified ATS Document</span>
+        </div>
+      </div>
+
+      <div class="viewer-actions">
+        <a [href]="resumeLink" target="_blank" rel="noopener noreferrer" class="viewer-btn" title="Open in New Tab">
+          <ion-icon name="open-outline"></ion-icon>
+          <span>Open Full</span>
+        </a>
+        <button type="button" class="viewer-btn close-viewer-btn" (click)="closePreview()" title="Close Preview">
+          <ion-icon name="close-outline"></ion-icon>
+          <span>Close Preview</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="viewer-frame-container">
+      <iframe
+        [src]="safePreviewUrl()"
+        class="viewer-iframe"
+        title="Embedded Resume Document"
+        loading="lazy">
+      </iframe>
+    </div>
+  </section>
+
 </article>

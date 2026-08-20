@@ -19,6 +19,11 @@ public class ContactController {
 
     @PostMapping("/submit")
     public ResponseEntity<ApiResponse> submitContactMessage(@RequestBody ContactMessageDto dto) {
+        // Honeypot anti-spam verification: If honeypot is filled, discard request silently
+        if (dto.getHoneypot() != null && !dto.getHoneypot().trim().isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse(true, "Thank you! Your message has been sent and stored successfully."));
+        }
+
         if (dto.getFullname() == null || dto.getEmail() == null || dto.getMessage() == null) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Name, email and message are required."));
         }

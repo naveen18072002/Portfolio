@@ -7,6 +7,7 @@ public class ContactMessageDto {
     private String fullname;
     private String email;
     private String message;
+    private String honeypot;
     private LocalDateTime createdAt;
 
     public ContactMessageDto() {}
@@ -16,6 +17,15 @@ public class ContactMessageDto {
         this.fullname = fullname;
         this.email = email;
         this.message = message;
+        this.createdAt = createdAt;
+    }
+
+    public ContactMessageDto(Long id, String fullname, String email, String message, String honeypot, LocalDateTime createdAt) {
+        this.id = id;
+        this.fullname = fullname;
+        this.email = email;
+        this.message = message;
+        this.honeypot = honeypot;
         this.createdAt = createdAt;
     }
 
@@ -57,5 +67,13 @@ public class ContactMessageDto {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getHoneypot() {
+        return honeypot;
+    }
+
+    public void setHoneypot(String honeypot) {
+        this.honeypot = honeypot;
     }
 }

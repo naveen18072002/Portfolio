@@ -7,6 +7,7 @@ export interface ContactPayload {
   fullname: string;
   email: string;
   message: string;
+  honeypot?: string;
 }
 
 export interface ContactMessageItem {
@@ -27,7 +28,8 @@ export class ContactService {
     return this.http.post(this.endpoint, {
       fullname: payload.fullname,
       email: payload.email,
-      message: payload.message
+      message: payload.message,
+      honeypot: payload.honeypot || ''
     });
   }
 

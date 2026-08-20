@@ -4,14 +4,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ContactService } from '../../services/contact.service';
-import { PortfolioDataService } from '../../services/portfolio-data.service';
+import { PortfolioDataService, ContactItem } from '../../services/portfolio-data.service';
 
-interface ContactDetail {
+interface ContactTopic {
+  id: string;
+  label: string;
   icon: string;
-  title: string;
-  subtitle?: string;
-  text: string;
-  link?: string;
+  template: string;
 }
 
 @Component({
@@ -19,7 +18,8 @@ interface ContactDetail {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  templateUrl: './contact.component.html'
+  templateUrl: './contact.component.html',
+  styleUrl: './contact.component.css'
 })
 export class ContactComponent {
   @Input() isActive = false;
@@ -32,14 +32,36 @@ export class ContactComponent {
 
   readonly profile = computed(() => this.portfolioService.profile());
 
-  readonly contactTopics = ['General Inquiry', 'Project Collaboration', 'Hire Me'];
-  readonly activeTopic = signal('General Inquiry');
+  readonly copiedCardIndex = signal<number | null>(null);
 
-  readonly templates: Record<string, string> = {
-    'General Inquiry': 'Hello, I wanted to reach out to you regarding...',
-    'Project Collaboration': 'Hello, I am working on a project and would love to collaborate on...',
-    'Hire Me': 'Hello, I am interested in discussing an opportunity for...'
-  };
+  readonly contactTopics: ContactTopic[] = [
+    {
+      id: 'General Inquiry',
+      label: 'General Inquiry',
+      icon: 'chatbubble-ellipses-outline',
+      template: 'Hello, I wanted to reach out to you regarding...'
+    },
+    {
+      id: 'Project Collaboration',
+      label: 'Project Collaboration',
+      icon: 'git-branch-outline',
+      template: 'Hello, I have an exciting project idea and would love to collaborate on...'
+    },
+    {
+      id: 'Hire Me',
+      label: 'Hire / Opportunity',
+      icon: 'briefcase-outline',
+      template: 'Hello, We reviewed your portfolio and would like to discuss an opportunity for...'
+    },
+    {
+      id: 'Freelance Inquiry',
+      label: 'Freelance / Contract',
+      icon: 'code-slash-outline',
+      template: 'Hello, I am looking for a full stack engineer for a contract / freelance requirement...'
+    }
+  ];
+
+  readonly activeTopic = signal<string>('General Inquiry');
 
   readonly currentYear = new Date().getFullYear();
 
@@ -51,21 +73,60 @@ export class ContactComponent {
   readonly errorMessage = signal('');
 
   readonly form = this.fb.group({
-    fullname: ['', [Validators.required]],
+    fullname: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    message: [this.templates['General Inquiry'], [Validators.required]]
+    message: ['Hello, I wanted to reach out to you regarding...', [Validators.required, Validators.minLength(10)]],
+    website_hp: [''] // Anti-spam honeypot (bots fill this, humans won't)
   });
 
-  setTopic(topic: string): void {
+  get contacts(): ContactItem[] {
+    return this.profile().contacts || [];
+  }
+
+  get emailContact(): ContactItem | undefined {
+    return this.contacts.find((c) => c.title.toLowerCase().includes('email') || c.type === 'link');
+  }
+
+  get locationContact(): ContactItem | undefined {
+    return this.contacts.find((c) => c.title.toLowerCase().includes('location') || c.type === 'address');
+  }
+
+  get messageLength(): number {
+    return (this.form.get('message')?.value || '').length;
+  }
+
+  isFieldInvalid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  isFieldValid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!(control && control.valid && (control.dirty || control.touched));
+  }
+
+  copyToClipboard(text: string, index: number, event?: Event): void {
+    if (event) event.stopPropagation();
+    if (!text || typeof navigator === 'undefined' || !navigator.clipboard) return;
+
+    navigator.clipboard.writeText(text).then(() => {
+      this.copiedCardIndex.set(index);
+      setTimeout(() => this.copiedCardIndex.set(null), 2500);
+    });
+  }
+
+  setTopic(topic: ContactTopic): void {
     const oldTopic = this.activeTopic();
-    this.activeTopic.set(topic);
+    this.activeTopic.set(topic.id);
 
     const messageControl = this.form.get('message');
     if (messageControl) {
       const currentValue = messageControl.value || '';
-      const oldTemplate = this.templates[oldTopic] || '';
+      const oldMatched = this.contactTopics.find((t) => t.id === oldTopic);
+      const oldTemplate = oldMatched ? oldMatched.template : '';
+
       if (!currentValue.trim() || currentValue === oldTemplate) {
-        messageControl.setValue(this.templates[topic]);
+        messageControl.setValue(topic.template);
       }
     }
   }
@@ -75,16 +136,23 @@ export class ContactComponent {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage.set('Please fill in every field with a valid email address.');
+      this.errorMessage.set('Please fill out all fields with valid information.');
+      return;
+    }
+
+    const { fullname, email, message, website_hp } = this.form.getRawValue();
+
+    // Anti-Spam Check: If the honeypot field is filled, silently simulate success without hitting the API
+    if (website_hp && website_hp.trim().length > 0) {
+      this.form.reset();
+      this.router.navigate(['/thank-you']);
       return;
     }
 
     this.submitting.set(true);
 
-    const { fullname, email, message } = this.form.getRawValue();
-
     this.contactService
-      .submit({ fullname: fullname!, email: email!, message: message! })
+      .submit({ fullname: fullname!, email: email!, message: message!, honeypot: website_hp || '' })
       .subscribe({
         next: () => {
           this.submitting.set(false);

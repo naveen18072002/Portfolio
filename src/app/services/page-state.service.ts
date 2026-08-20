@@ -1,10 +1,13 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { PortfolioDataService } from './portfolio-data.service';
 
 export type PageId = 'about' | 'resume' | 'projects' | 'contact';
 const VALID_PAGES: PageId[] = ['about', 'resume', 'projects', 'contact'];
 
 @Injectable({ providedIn: 'root' })
 export class PageStateService {
+  private portfolioService = inject(PortfolioDataService);
+
   /** Currently visible section, reads hash on refresh or defaults to 'about'. */
   readonly activePage = signal<PageId>(this.getInitialPage());
 
@@ -14,6 +17,7 @@ export class PageStateService {
         const hashPage = this.getPageFromHash();
         if (hashPage && this.activePage() !== hashPage) {
           this.activePage.set(hashPage);
+          this.portfolioService.refreshPageData(hashPage);
         }
       };
 
@@ -48,6 +52,7 @@ export class PageStateService {
     const pageFromHash = this.getPageFromHash() || 'about';
     if (this.activePage() !== pageFromHash) {
       this.activePage.set(pageFromHash);
+      this.portfolioService.refreshPageData(pageFromHash);
     }
     if (!window.location.hash || window.location.hash === '#') {
       window.history.replaceState(null, '', '#about');
@@ -57,6 +62,7 @@ export class PageStateService {
   setPage(page: PageId): void {
     if (!VALID_PAGES.includes(page)) return;
     this.activePage.set(page);
+    this.portfolioService.refreshPageData(page);
     if (typeof window !== 'undefined') {
       if (window.location.hash !== '#' + page) {
         window.history.pushState(null, '', '#' + page);

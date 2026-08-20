@@ -3,23 +3,16 @@
   <div class="sidebar-info">
 
     <figure class="avatar-box" *ngIf="profile().avatarUrl">
-      <img [src]="profile().avatarUrl" [alt]="profile().name" width="100">
-      <span class="avatar-status-dot" *ngIf="profile().name && profile().availableForWork !== false" title="Available for Work"></span>
+      <img [src]="profile().avatarUrl" [alt]="profile().name" width="100" loading="lazy" decoding="async">
+      <!-- <span class="avatar-status-dot" *ngIf="profile().name && profile().availableForWork !== false" title="Available for Work"></span> -->
     </figure>
 
     <div class="info-content">
       <h1 class="name" [title]="profile().name">{{ profile().name }}</h1>
-      <div
-        class="typewriter-badge"
-        [ngClass]="currentRoleTheme()"
-        [class.completed]="isWordComplete()"
-        *ngIf="dynamicRoles().length > 0"
-        (mouseenter)="pauseTypewriter()"
-        (mouseleave)="resumeTypewriter()"
-        (click)="skipToNextRole($event)"
-        title="Click to cycle next role"
-      >
-        
+      <div class="typewriter-badge" [ngClass]="currentRoleTheme()" [class.completed]="isWordComplete()"
+        *ngIf="dynamicRoles().length > 0" (mouseenter)="pauseTypewriter()" (mouseleave)="resumeTypewriter()"
+        (click)="skipToNextRole($event)" title="Click to cycle next role">
+
         <ion-icon [name]="currentRoleIcon()" class="role-badge-icon"></ion-icon>
         <span class="typing-text">{{ typedTitle() }}</span>
         <span class="typing-cursor"></span>
@@ -61,16 +54,10 @@
 
     <ul class="social-list">
       <li class="social-item" *ngFor="let social of socials">
-        <a
-          [href]="social.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="social-link"
+        <a [href]="social.url" target="_blank" rel="noopener noreferrer" class="social-link"
           [attr.aria-label]="social.name">
 
-          <ion-icon
-            [name]="social.icon"
-            [ngClass]="social.name.toLowerCase()">
+          <ion-icon [name]="social.icon" [ngClass]="social.name.toLowerCase()">
           </ion-icon>
 
         </a>
