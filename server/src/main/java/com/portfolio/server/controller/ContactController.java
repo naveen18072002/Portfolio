@@ -36,6 +36,22 @@ public class ContactController {
         return ResponseEntity.ok(contactMessageService.getAllMessages());
     }
 
+    @PutMapping("/messages/{id}/read")
+    public ResponseEntity<ApiResponse> toggleMessageRead(@PathVariable Long id, @RequestParam(required = false) Boolean isRead) {
+        boolean updated = contactMessageService.toggleReadStatus(id, isRead);
+        if (updated) {
+            return ResponseEntity.ok(new ApiResponse(true, "Message status updated."));
+        } else {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "Message not found."));
+        }
+    }
+
+    @PutMapping("/messages/mark-all-read")
+    public ResponseEntity<ApiResponse> markAllMessagesAsRead() {
+        contactMessageService.markAllAsRead();
+        return ResponseEntity.ok(new ApiResponse(true, "All messages marked as read."));
+    }
+
     @DeleteMapping("/messages/{id}")
     public ResponseEntity<ApiResponse> deleteMessage(@PathVariable Long id) {
         boolean deleted = contactMessageService.deleteMessage(id);

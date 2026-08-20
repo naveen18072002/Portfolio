@@ -49,8 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   readMessageIds = signal<number[]>([]);
 
   unreadMessagesCount = computed(() => {
-    const readSet = new Set(this.readMessageIds());
-    return this.contactMessages().filter((m) => m.id && !readSet.has(m.id)).length;
+    return this.contactMessages().filter((m) => !m.isRead).length;
   });
 
   isAllSelected = computed(() => {
@@ -169,6 +168,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   openMessageModal(msg: ContactMessageItem): void {
     this.selectedMessage.set(msg);
+    if (msg.id && !msg.isRead) {
+      this.toggleMessageRead(msg.id);
+    }
   }
 
   closeMessageModal(): void {
@@ -764,47 +766,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadReadMessageIds(): void {
-    if (typeof window === 'undefined') return;
-    try {
-      const stored = localStorage.getItem('admin_read_message_ids');
-      if (stored) {
-        this.readMessageIds.set(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.warn('Could not load read message IDs', e);
-    }
+    // Read status is now persisted directly in the database
   }
 
   isRead(id?: number): boolean {
     if (!id) return false;
-    return this.readMessageIds().includes(id);
+    const msg = this.contactMessages().find((m) => m.id === id);
+    return !!(msg && msg.isRead);
   }
 
   toggleMessageRead(id?: number, event?: Event): void {
     if (event) event.stopPropagation();
     if (!id) return;
-    const current = this.readMessageIds();
-    let updated: number[];
-    if (current.includes(id)) {
-      updated = current.filter((item) => item !== id);
-    } else {
-      updated = [...current, id];
-    }
-    this.readMessageIds.set(updated);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('admin_read_message_ids', JSON.stringify(updated));
-    }
+    const msg = this.contactMessages().find((m) => m.id === id);
+    const newStatus = msg ? !msg.isRead : true;
+
+    // Optimistic UI update
+    this.contactMessages.update((list) =>
+      list.map((m) => (m.id === id ? { ...m, isRead: newStatus } : m))
+    );
+
+    this.contactService.toggleRead(id, newStatus).subscribe({
+      error: (err) => {
+        console.error('Failed to update message read status:', err);
+      }
+    });
   }
 
   markAllAsRead(): void {
-    const allIds = this.contactMessages()
-      .map((m) => m.id)
-      .filter((id): id is number => id !== undefined);
-    this.readMessageIds.set(allIds);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('admin_read_message_ids', JSON.stringify(allIds));
-    }
-    this.showToast('All messages marked as read!');
+    // Optimistic UI update
+    this.contactMessages.update((list) => list.map((m) => ({ ...m, isRead: true })));
+
+    this.contactService.markAllAsRead().subscribe({
+      next: () => {
+        this.showToast('All messages marked as read in database!');
+      },
+      error: (err) => {
+        console.error('Failed to mark all as read:', err);
+      }
+    });
   }
 
   isSelected(id?: number): boolean {

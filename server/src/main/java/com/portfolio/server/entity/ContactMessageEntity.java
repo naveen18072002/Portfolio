@@ -23,6 +23,9 @@ public class ContactMessageEntity {
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
+    @Column(name = "IS_READ")
+    private Boolean isRead = false;
+
     public ContactMessageEntity() {}
 
     public ContactMessageEntity(String fullname, String email, String message) {
@@ -30,6 +33,7 @@ public class ContactMessageEntity {
         this.email = email;
         this.message = message;
         this.createdAt = LocalDateTime.now();
+        this.isRead = false;
     }
 
     public Long getId() {
@@ -70,5 +74,13 @@ public class ContactMessageEntity {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Boolean getIsRead() {
+        return isRead != null && isRead;
+    }
+
+    public void setIsRead(Boolean isRead) {
+        this.isRead = isRead;
     }
 }

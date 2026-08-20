@@ -1,25 +1,27 @@
 <div class="login-page">
-  <div class="login-bg-glow"></div>
-  
+  <!-- Background ambient glow effects -->
+  <div class="login-bg-glow glow-top"></div>
+  <div class="login-bg-glow glow-bottom"></div>
+
   <div class="login-container">
     <!-- Top Header Badge -->
     <div class="login-header">
       <div class="admin-badge">
         <ion-icon name="shield-checkmark-outline"></ion-icon>
-        <span>Admin Access</span>
+        <span>Admin Portal</span>
       </div>
     </div>
 
     <!-- Login / Forgot Password Card -->
     <div class="login-card">
-      <!-- Standard Login View -->
+      <!-- 1. Standard Login View -->
       <ng-container *ngIf="!isForgotPassword()">
         <div class="card-top">
           <div class="avatar-ring">
             <ion-icon name="lock-closed-outline"></ion-icon>
           </div>
           <h1 class="login-title">Admin Login</h1>
-          <p class="login-subtitle">Enter credentials to access the portfolio dashboard</p>
+          <p class="login-subtitle">Sign in with your admin credentials to manage your portfolio</p>
         </div>
 
         <form (ngSubmit)="onSubmit()" class="login-form">
@@ -32,8 +34,10 @@
                 name="username"
                 type="text"
                 class="form-input"
-                placeholder="Enter username or email"
+                placeholder="e.g. admin or your@email.com"
                 [(ngModel)]="username"
+                (keydown)="checkCapsLock($event)"
+                (keyup)="checkCapsLock($event)"
                 required
                 autocomplete="username"
               />
@@ -43,51 +47,72 @@
           <div class="form-group">
             <div class="label-row">
               <label for="password">Password</label>
+              <button type="button" class="forgot-link" (click)="openForgotPassword()">
+                Forgot password?
+              </button>
             </div>
             <div class="input-icon-wrapper">
               <ion-icon name="key-outline" class="field-icon"></ion-icon>
               <input
-              id="password"
-              name="password"
-              [type]="showPassword() ? 'text' : 'password'"
-              class="form-input"
-              placeholder="Enter password"
-              [(ngModel)]="password"
-              required
-              autocomplete="current-password"
+                id="password"
+                name="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                class="form-input"
+                placeholder="••••••••"
+                [(ngModel)]="password"
+                (keydown)="checkCapsLock($event)"
+                (keyup)="checkCapsLock($event)"
+                required
+                autocomplete="current-password"
               />
               <button
-              type="button"
-              class="toggle-pwd-btn"
-              (click)="togglePassword()"
-              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+                type="button"
+                class="toggle-pwd-btn"
+                (click)="togglePassword()"
+                [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
               >
-              <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-            </button>
-          </div>
-          <button type="button" class="forgot-link" (click)="openForgotPassword()">
-            Forgot password?
-          </button>
+                <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
+            </div>
           </div>
 
+          <!-- Caps Lock Warning -->
+          <div class="caps-lock-warning" *ngIf="isCapsLockOn()">
+            <ion-icon name="warning-outline"></ion-icon>
+            <span>Caps Lock is ON</span>
+          </div>
+
+          <!-- Remember Me Checkbox -->
+          <div class="remember-row">
+            <label class="remember-label">
+              <input
+                type="checkbox"
+                class="custom-checkbox"
+                [checked]="rememberMe()"
+                (change)="rememberMe.set(!rememberMe())"
+              />
+              <span>Remember username</span>
+            </label>
+          </div>
+
+          <!-- Error Alert Banner -->
           <div class="error-banner" *ngIf="errorMessage()">
             <ion-icon name="alert-circle-outline"></ion-icon>
             <span>{{ errorMessage() }}</span>
           </div>
 
           <button type="submit" class="submit-btn" [disabled]="isSubmitting()">
-            <span *ngIf="!isSubmitting()">
-              Login
-              <ion-icon name="arrow-forward-outline"></ion-icon>
-            </span>
-            <span *ngIf="isSubmitting()">
-              Authenticating...
-            </span>
+            <span class="btn-spinner" *ngIf="isSubmitting()"></span>
+            <span *ngIf="isSubmitting()">Authenticating...</span>
+            <ng-container *ngIf="!isSubmitting()">
+              <span>Sign In to Dashboard</span>
+              <ion-icon name="arrow-forward-outline" class="btn-arrow-icon"></ion-icon>
+            </ng-container>
           </button>
         </form>
       </ng-container>
 
-      <!-- Forgot Password View -->
+      <!-- 2. Forgot Password Wizard -->
       <ng-container *ngIf="isForgotPassword()">
         <div class="card-top">
           <div class="avatar-ring warning-ring">
@@ -95,6 +120,24 @@
           </div>
           <h1 class="login-title">Reset Password</h1>
           <p class="login-subtitle">Recover access to your Admin dashboard</p>
+
+          <!-- Step Progress Dots -->
+          <div class="step-progress-bar">
+            <div class="step-node" [class.active]="forgotStep() === 'email'" [class.done]="forgotStep() === 'otp' || forgotStep() === 'reset'">
+              <span class="step-num">1</span>
+              <span class="step-label">Email</span>
+            </div>
+            <div class="step-connector" [class.active]="forgotStep() === 'otp' || forgotStep() === 'reset'"></div>
+            <div class="step-node" [class.active]="forgotStep() === 'otp'" [class.done]="forgotStep() === 'reset'">
+              <span class="step-num">2</span>
+              <span class="step-label">OTP</span>
+            </div>
+            <div class="step-connector" [class.active]="forgotStep() === 'reset'"></div>
+            <div class="step-node" [class.active]="forgotStep() === 'reset'">
+              <span class="step-num">3</span>
+              <span class="step-label">New Password</span>
+            </div>
+          </div>
         </div>
 
         <!-- Success Banner -->
@@ -120,7 +163,7 @@
                 name="resetEmail"
                 type="email"
                 class="form-input"
-                placeholder="e.g. naveenkumarrnk6677@gmail.com"
+                placeholder="e.g. admin@example.com"
                 [(ngModel)]="resetEmail"
                 required
               />
@@ -128,18 +171,19 @@
           </div>
 
           <button type="submit" class="submit-btn" [disabled]="isSendingOtp()">
-            <span *ngIf="!isSendingOtp()">
-              Send Verification OTP
-              <ion-icon name="paper-plane-outline"></ion-icon>
-            </span>
+            <span class="btn-spinner" *ngIf="isSendingOtp()"></span>
             <span *ngIf="isSendingOtp()">Sending OTP...</span>
+            <ng-container *ngIf="!isSendingOtp()">
+              <span>Send Verification OTP</span>
+              <ion-icon name="paper-plane-outline" class="btn-arrow-icon"></ion-icon>
+            </ng-container>
           </button>
         </form>
 
         <!-- Step 2: OTP Verification Form -->
         <form *ngIf="forgotStep() === 'otp'" (ngSubmit)="verifyOtp()" class="login-form">
           <div class="form-group">
-            <label for="otpInput">Enter 6-Digit OTP</label>
+            <label for="otpInput">Enter 6-Digit OTP Code</label>
             <div class="input-icon-wrapper">
               <ion-icon name="qr-code-outline" class="field-icon"></ion-icon>
               <input
@@ -148,65 +192,99 @@
                 type="text"
                 maxlength="6"
                 class="form-input otp-field"
-                placeholder="6-Digit OTP (e.g. 123456)"
+                placeholder="• • • • • •"
                 [(ngModel)]="otpInput"
                 required
+                autocomplete="one-time-code"
               />
             </div>
           </div>
 
-          <button type="submit" class="submit-btn" [disabled]="isVerifyingOtp()">
-            <span *ngIf="!isVerifyingOtp()">
-              Verify OTP
-              <ion-icon name="checkmark-done-outline"></ion-icon>
-            </span>
+          <button type="submit" class="submit-btn" [disabled]="isVerifyingOtp() || otpInput.length !== 6">
+            <span class="btn-spinner" *ngIf="isVerifyingOtp()"></span>
             <span *ngIf="isVerifyingOtp()">Verifying...</span>
+            <ng-container *ngIf="!isVerifyingOtp()">
+              <span>Verify OTP Code</span>
+              <ion-icon name="checkmark-done-outline" class="btn-arrow-icon"></ion-icon>
+            </ng-container>
           </button>
 
-          <button type="button" class="btn-text-only" (click)="sendOtp()">
-            Resend OTP Code
-          </button>
+          <div class="resend-box">
+            <button
+              type="button"
+              class="btn-text-only"
+              (click)="sendOtp()"
+              [disabled]="resendCountdown() > 0 || isSendingOtp()"
+            >
+              <span *ngIf="resendCountdown() === 0">Didn't receive code? Resend OTP</span>
+              <span *ngIf="resendCountdown() > 0">Resend OTP in {{ resendCountdown() }}s</span>
+            </button>
+          </div>
         </form>
 
         <!-- Step 3: Enter New Password & Confirm Password Form -->
         <form *ngIf="forgotStep() === 'reset'" (ngSubmit)="resetPassword()" class="login-form">
           <div class="form-group">
-            <label for="newPassword">New Password</label>
+            <label for="newPassword">New Password (min 6 characters)</label>
             <div class="input-icon-wrapper">
               <ion-icon name="lock-open-outline" class="field-icon"></ion-icon>
               <input
                 id="newPassword"
                 name="newPassword"
-                type="password"
+                [type]="showNewPassword() ? 'text' : 'password'"
                 class="form-input"
                 placeholder="Enter new password"
                 [(ngModel)]="newPassword"
                 required
               />
+              <button
+                type="button"
+                class="toggle-pwd-btn"
+                (click)="toggleNewPassword()"
+              >
+                <ion-icon [name]="showNewPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="confirmPassword">Confirm New Password</label>
+            <div class="label-row">
+              <label for="confirmPassword">Confirm New Password</label>
+              <span class="match-badge match" *ngIf="isPasswordMatch() === true">
+                <ion-icon name="checkmark-circle"></ion-icon> Passwords Match
+              </span>
+              <span class="match-badge mismatch" *ngIf="isPasswordMatch() === false">
+                <ion-icon name="close-circle"></ion-icon> Do Not Match
+              </span>
+            </div>
             <div class="input-icon-wrapper">
               <ion-icon name="shield-checkmark-outline" class="field-icon"></ion-icon>
               <input
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password"
+                [type]="showConfirmPassword() ? 'text' : 'password'"
                 class="form-input"
                 placeholder="Re-enter new password"
                 [(ngModel)]="confirmPassword"
                 required
               />
+              <button
+                type="button"
+                class="toggle-pwd-btn"
+                (click)="toggleConfirmPassword()"
+              >
+                <ion-icon [name]="showConfirmPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
             </div>
           </div>
 
-          <button type="submit" class="submit-btn">
-            <span>
-              Save Password & Login
-              <ion-icon name="arrow-forward-outline"></ion-icon>
-            </span>
+          <button type="submit" class="submit-btn" [disabled]="isResettingPassword() || isPasswordMatch() === false">
+            <span class="btn-spinner" *ngIf="isResettingPassword()"></span>
+            <span *ngIf="isResettingPassword()">Updating Password...</span>
+            <ng-container *ngIf="!isResettingPassword()">
+              <span>Save New Password & Continue</span>
+              <ion-icon name="arrow-forward-outline" class="btn-arrow-icon"></ion-icon>
+            </ng-container>
           </button>
         </form>
 
@@ -219,7 +297,7 @@
       </ng-container>
     </div>
 
-    <!-- Back to Portfolio Link at the BOTTOM of the Login Card -->
+    <!-- Back to Portfolio Link at the BOTTOM -->
     <div class="bottom-nav">
       <a routerLink="/" class="back-link-bottom">
         <ion-icon name="arrow-back-outline"></ion-icon>
@@ -228,3 +306,4 @@
     </div>
   </div>
 </div>
+

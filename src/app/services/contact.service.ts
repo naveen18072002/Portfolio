@@ -16,6 +16,7 @@ export interface ContactMessageItem {
   email: string;
   message: string;
   createdAt?: string;
+  isRead?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,6 +36,15 @@ export class ContactService {
 
   getMessages(): Observable<ContactMessageItem[]> {
     return this.http.get<ContactMessageItem[]>(this.messagesEndpoint);
+  }
+
+  toggleRead(id: number, isRead?: boolean): Observable<any> {
+    const params = isRead !== undefined ? `?isRead=${isRead}` : '';
+    return this.http.put(`${this.messagesEndpoint}/${id}/read${params}`, {});
+  }
+
+  markAllAsRead(): Observable<any> {
+    return this.http.put(`${this.messagesEndpoint}/mark-all-read`, {});
   }
 
   deleteMessage(id: number): Observable<any> {

@@ -66,7 +66,9 @@ public class AuthService {
         PasswordResetOtp otp = new PasswordResetOtp(email, otpCode, expiry);
         otpRepository.save(otp);
 
-        emailService.sendOtpEmail(email, otpCode);
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            emailService.sendOtpEmail(email, otpCode);
+        });
 
         return new ApiResponse(true, "Verification OTP code has been sent to " + email);
     }

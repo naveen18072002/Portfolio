@@ -1,7 +1,101 @@
 <div class="thank-you-page">
-  <div class="thank-you-box">
-    <h1>Thank You! 🎉</h1>
-    <p>Your message has been received. I'll get back to you as soon as possible.</p>
-    <a routerLink="/" class="back-btn">Back to Portfolio</a>
+  <!-- Background subtle ambient glow effects -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <div class="thank-you-card">
+    <!-- Animated Glowing Success Icon -->
+    <div class="success-icon-wrapper">
+      <div class="icon-ring ring-1"></div>
+      <div class="icon-ring ring-2"></div>
+      <div class="success-icon-circle">
+        <ion-icon name="checkmark-sharp"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Title & Subtitle -->
+    <div class="thank-you-header">
+      <span class="badge-success">Message Delivered</span>
+      <h1 class="thank-you-title">Thank You!</h1>
+      <p class="thank-you-subtitle">
+        Your message has been sent successfully to <strong>{{ profile().name || 'Naveenkumar R' }}</strong>.
+      </p>
+    </div>
+
+    <!-- Next Steps Timeline Cards -->
+    <div class="next-steps-grid">
+      <div class="step-card">
+        <div class="step-icon">
+          <ion-icon name="mail-unread-outline"></ion-icon>
+        </div>
+        <div class="step-text">
+          <h4>Received & Saved</h4>
+          <p>Your message has been saved in the inbox for priority review.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-icon">
+          <ion-icon name="flash-outline"></ion-icon>
+        </div>
+        <div class="step-text">
+          <h4>Quick Turnaround</h4>
+          <p>I usually respond within 24 hours to all genuine inquiries.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-icon">
+          <ion-icon name="sparkles-outline"></ion-icon>
+        </div>
+        <div class="step-text">
+          <h4>Stay Connected</h4>
+          <p>Feel free to explore my latest works or connect on LinkedIn / GitHub.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Connections -->
+    <div class="social-connect-box" *ngIf="socials().length > 0">
+      <span class="connect-label">Connect with me on:</span>
+      <div class="social-links-row">
+        <a
+          *ngFor="let social of socials()"
+          [href]="social.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="social-pill-link"
+          [attr.aria-label]="social.name"
+        >
+          <ion-icon [name]="social.icon"></ion-icon>
+          <span>{{ social.name }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Auto-Redirect Countdown Bar -->
+    <div class="redirect-countdown-bar">
+      <div class="countdown-text">
+        <ion-icon name="time-outline"></ion-icon>
+        <span>Redirecting to portfolio in <strong>{{ countdown() }}</strong> seconds</span>
+      </div>
+      <button type="button" class="btn-pause" (click)="togglePause()">
+        <ion-icon [name]="isPaused() ? 'play-outline' : 'pause-outline'"></ion-icon>
+        <span>{{ isPaused() ? 'Resume' : 'Pause' }}</span>
+      </button>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons-group">
+      <a routerLink="/" class="btn-action-primary">
+        <ion-icon name="home-outline"></ion-icon>
+        <span>Back to Home</span>
+      </a>
+      <a routerLink="/" fragment="projects" class="btn-action-secondary">
+        <ion-icon name="briefcase-outline"></ion-icon>
+        <span>Explore Projects</span>
+      </a>
+    </div>
   </div>
 </div>
+

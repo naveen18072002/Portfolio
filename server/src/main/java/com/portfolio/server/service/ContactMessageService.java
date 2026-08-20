@@ -20,7 +20,7 @@ public class ContactMessageService {
     @Autowired
     private EmailService emailService;
 
-    @Value("${spring.mail.username:naveenofficial6677@gmail.com}")
+    @Value("${spring.mail.username:naveenkumarrnk6677@gmail.com}")
     private String adminEmail;
 
     @Transactional
@@ -32,19 +32,22 @@ public class ContactMessageService {
         );
         entity = contactMessageRepository.save(entity);
 
-        // Send email notification to Admin
-        try {
-            emailService.sendContactNotificationEmail(adminEmail, dto.getFullname(), dto.getEmail(), dto.getMessage());
-        } catch (Exception e) {
-            System.err.println("Contact saved to DB, but email notification failed: " + e.getMessage());
-        }
+        // Send email notification to Admin asynchronously in background (non-blocking)
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                emailService.sendContactNotificationEmail(adminEmail, dto.getFullname(), dto.getEmail(), dto.getMessage());
+            } catch (Exception e) {
+                System.err.println("Contact saved to DB, but async email notification failed: " + e.getMessage());
+            }
+        });
 
         return new ContactMessageDto(
                 entity.getId(),
                 entity.getFullname(),
                 entity.getEmail(),
                 entity.getMessage(),
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                entity.getIsRead()
         );
     }
 
@@ -58,10 +61,25 @@ public class ContactMessageService {
                     e.getFullname(),
                     e.getEmail(),
                     e.getMessage(),
-                    e.getCreatedAt()
+                    e.getCreatedAt(),
+                    e.getIsRead()
             ));
         }
         return dtoList;
+    }
+
+    @Transactional
+    public boolean toggleReadStatus(Long id, Boolean isRead) {
+        return contactMessageRepository.findById(id).map(entity -> {
+            entity.setIsRead(isRead != null ? isRead : !entity.getIsRead());
+            contactMessageRepository.save(entity);
+            return true;
+        }).orElse(false);
+    }
+
+    @Transactional
+    public void markAllAsRead() {
+        contactMessageRepository.markAllAsRead();
     }
 
     @Transactional

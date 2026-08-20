@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -12,13 +12,15 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   // Login form state
   username = '';
   password = '';
   showPassword = signal(false);
+  rememberMe = signal(false);
   errorMessage = signal('');
   isSubmitting = signal(false);
+  isCapsLockOn = signal(false);
 
   // Forgot Password state
   isForgotPassword = signal(false);
@@ -27,10 +29,21 @@ export class LoginComponent {
   otpInput = '';
   newPassword = '';
   confirmPassword = '';
+  showNewPassword = signal(false);
+  showConfirmPassword = signal(false);
   forgotError = signal('');
   forgotSuccess = signal('');
   isSendingOtp = signal(false);
   isVerifyingOtp = signal(false);
+  isResettingPassword = signal(false);
+  resendCountdown = signal(0);
+
+  private resendTimerInterval?: any;
+
+  readonly isPasswordMatch = computed(() => {
+    if (!this.newPassword || !this.confirmPassword) return null;
+    return this.newPassword === this.confirmPassword;
+  });
 
   constructor(
     private authService: AuthService,
@@ -41,14 +54,44 @@ export class LoginComponent {
     }
   }
 
+  ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('portfolio_remembered_username');
+      if (savedUser) {
+        this.username = savedUser;
+        this.rememberMe.set(true);
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.resendTimerInterval) {
+      clearInterval(this.resendTimerInterval);
+    }
+  }
+
+  checkCapsLock(event: KeyboardEvent): void {
+    if (event.getModifierState) {
+      this.isCapsLockOn.set(event.getModifierState('CapsLock'));
+    }
+  }
+
   togglePassword(): void {
     this.showPassword.update((v) => !v);
+  }
+
+  toggleNewPassword(): void {
+    this.showNewPassword.update((v) => !v);
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword.update((v) => !v);
   }
 
   openForgotPassword(): void {
     this.isForgotPassword.set(true);
     this.forgotStep.set('email');
-    this.resetEmail = '';
+    this.resetEmail = this.username && this.username.includes('@') ? this.username : '';
     this.otpInput = '';
     this.newPassword = '';
     this.confirmPassword = '';
@@ -61,11 +104,35 @@ export class LoginComponent {
     this.errorMessage.set('');
   }
 
+  startResendTimer(): void {
+    this.resendCountdown.set(30);
+    if (this.resendTimerInterval) {
+      clearInterval(this.resendTimerInterval);
+    }
+    this.resendTimerInterval = setInterval(() => {
+      const current = this.resendCountdown();
+      if (current <= 1) {
+        clearInterval(this.resendTimerInterval);
+        this.resendCountdown.set(0);
+      } else {
+        this.resendCountdown.set(current - 1);
+      }
+    }, 1000);
+  }
+
   onSubmit(): void {
     this.errorMessage.set('');
     if (!this.username.trim() || !this.password.trim()) {
       this.errorMessage.set('Please enter both username and password.');
       return;
+    }
+
+    if (typeof window !== 'undefined') {
+      if (this.rememberMe()) {
+        localStorage.setItem('portfolio_remembered_username', this.username.trim());
+      } else {
+        localStorage.removeItem('portfolio_remembered_username');
+      }
     }
 
     this.isSubmitting.set(true);
@@ -81,12 +148,14 @@ export class LoginComponent {
       },
       error: () => {
         this.isSubmitting.set(false);
-        this.errorMessage.set('Could not log in. Please check backend status or credentials.');
+        this.errorMessage.set('Could not log in. Please check your credentials.');
       }
     });
   }
 
   sendOtp(): void {
+    if (this.resendCountdown() > 0 && this.isSendingOtp()) return;
+
     this.forgotError.set('');
     this.forgotSuccess.set('');
 
@@ -103,6 +172,7 @@ export class LoginComponent {
         if (res.success) {
           this.forgotStep.set('otp');
           this.forgotSuccess.set(res.message);
+          this.startResendTimer();
         } else {
           this.forgotError.set(res.message);
         }
@@ -118,26 +188,26 @@ export class LoginComponent {
     this.forgotError.set('');
     this.forgotSuccess.set('');
 
-    if (!this.otpInput.trim()) {
-      this.forgotError.set('Please enter the 6-digit OTP code.');
+    if (!this.otpInput.trim() || this.otpInput.trim().length !== 6) {
+      this.forgotError.set('Please enter the complete 6-digit OTP code.');
       return;
     }
 
     this.isVerifyingOtp.set(true);
 
-    this.authService.verifyOtp(this.resetEmail, this.otpInput).subscribe({
+    this.authService.verifyOtp(this.resetEmail, this.otpInput.trim()).subscribe({
       next: (res) => {
         this.isVerifyingOtp.set(false);
         if (res.success) {
           this.forgotStep.set('reset');
-          this.forgotSuccess.set(res.message);
+          this.forgotSuccess.set('OTP verified successfully. Enter your new password below.');
         } else {
           this.forgotError.set(res.message);
         }
       },
       error: () => {
         this.isVerifyingOtp.set(false);
-        this.forgotError.set('OTP verification failed. Please try again.');
+        this.forgotError.set('OTP verification failed. Please check the code.');
       }
     });
   }
@@ -145,8 +215,8 @@ export class LoginComponent {
   resetPassword(): void {
     this.forgotError.set('');
 
-    if (!this.newPassword.trim() || this.newPassword.length < 4) {
-      this.forgotError.set('Password must be at least 4 characters long.');
+    if (!this.newPassword.trim() || this.newPassword.length < 6) {
+      this.forgotError.set('Password must be at least 6 characters long.');
       return;
     }
 
@@ -155,8 +225,11 @@ export class LoginComponent {
       return;
     }
 
-    this.authService.resetPassword(this.resetEmail, this.otpInput, this.newPassword, this.confirmPassword).subscribe({
+    this.isResettingPassword.set(true);
+
+    this.authService.resetPassword(this.resetEmail, this.otpInput.trim(), this.newPassword, this.confirmPassword).subscribe({
       next: (res) => {
+        this.isResettingPassword.set(false);
         if (res.success) {
           this.isForgotPassword.set(false);
           this.errorMessage.set('Password reset successfully! Please log in with your new password.');
@@ -165,8 +238,10 @@ export class LoginComponent {
         }
       },
       error: () => {
+        this.isResettingPassword.set(false);
         this.forgotError.set('Could not reset password. Please try again.');
       }
     });
   }
 }
+
