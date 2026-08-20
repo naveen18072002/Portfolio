@@ -1,6 +1,7 @@
 package com.portfolio.server.dto;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.Instant;
 
 public class ContactMessageDto {
     private Long id;
@@ -8,12 +9,15 @@ public class ContactMessageDto {
     private String email;
     private String message;
     private String honeypot;
-    private LocalDateTime createdAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
+    private Instant createdAt;
+
     private Boolean isRead = false;
 
     public ContactMessageDto() {}
 
-    public ContactMessageDto(Long id, String fullname, String email, String message, LocalDateTime createdAt) {
+    public ContactMessageDto(Long id, String fullname, String email, String message, Instant createdAt) {
         this.id = id;
         this.fullname = fullname;
         this.email = email;
@@ -22,7 +26,7 @@ public class ContactMessageDto {
         this.isRead = false;
     }
 
-    public ContactMessageDto(Long id, String fullname, String email, String message, LocalDateTime createdAt, Boolean isRead) {
+    public ContactMessageDto(Long id, String fullname, String email, String message, Instant createdAt, Boolean isRead) {
         this.id = id;
         this.fullname = fullname;
         this.email = email;
@@ -31,7 +35,7 @@ public class ContactMessageDto {
         this.isRead = isRead != null && isRead;
     }
 
-    public ContactMessageDto(Long id, String fullname, String email, String message, String honeypot, LocalDateTime createdAt, Boolean isRead) {
+    public ContactMessageDto(Long id, String fullname, String email, String message, String honeypot, Instant createdAt, Boolean isRead) {
         this.id = id;
         this.fullname = fullname;
         this.email = email;
@@ -73,11 +77,11 @@ public class ContactMessageDto {
         this.message = message;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 

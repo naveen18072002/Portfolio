@@ -965,7 +965,7 @@
                   <span class="preview-text">{{ msg.message }}</span>
                 </td>
                 <td class="date-cell">
-                  <span class="date-badge" *ngIf="msg.createdAt">{{ msg.createdAt | date:'shortDate' }} {{ msg.createdAt | date:'shortTime' }}</span>
+                  <span class="date-badge" *ngIf="msg.createdAt">{{ formatMessageDate(msg.createdAt) }}</span>
                   <span class="date-badge" *ngIf="!msg.createdAt">N/A</span>
                 </td>
                 <td class="action-cell">
@@ -1061,7 +1061,7 @@
               </div>
               <div class="detail-row" *ngIf="msg.createdAt">
                 <span class="detail-label">Sent At:</span>
-                <span class="detail-val">{{ msg.createdAt | date:'fullDate' }} at {{ msg.createdAt | date:'mediumTime' }}</span>
+                <span class="detail-val">{{ formatMessageDateFull(msg.createdAt) }}</span>
               </div>
               <div class="detail-message-box">
                 <label>Full Message:</label>

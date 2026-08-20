@@ -1,7 +1,7 @@
 package com.portfolio.server.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "CONTACT_MESSAGES")
@@ -21,7 +21,7 @@ public class ContactMessageEntity {
     private String message;
 
     @Column(name = "CREATED_AT")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name = "IS_READ")
     private Boolean isRead = false;
@@ -32,7 +32,7 @@ public class ContactMessageEntity {
         this.fullname = fullname;
         this.email = email;
         this.message = message;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
         this.isRead = false;
     }
 
@@ -68,11 +68,11 @@ public class ContactMessageEntity {
         this.message = message;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 

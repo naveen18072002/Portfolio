@@ -59,29 +59,66 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return list.every((m) => m.id && selected.has(m.id));
   });
 
+  private parseMessageDate(dateStr?: string): Date | null {
+    if (!dateStr) return null;
+    const normalized = dateStr.endsWith('Z') || dateStr.includes('+') ? dateStr : `${dateStr}Z`;
+    const d = new Date(normalized);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  formatMessageDate(dateStr?: string): string {
+    const d = this.parseMessageDate(dateStr);
+    if (!d) return 'N/A';
+    return d.toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  formatMessageDateFull(dateStr?: string): string {
+    const d = this.parseMessageDate(dateStr);
+    if (!d) return 'N/A';
+    return d.toLocaleString(undefined, {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  }
+
   totalMessagesCount = computed(() => this.contactMessages().length);
 
   todayMessagesCount = computed(() => {
     const todayStr = new Date().toDateString();
-    return this.contactMessages().filter(
-      (m) => m.createdAt && new Date(m.createdAt).toDateString() === todayStr
-    ).length;
+    return this.contactMessages().filter((m) => {
+      const d = this.parseMessageDate(m.createdAt);
+      return d && d.toDateString() === todayStr;
+    }).length;
   });
 
   thisWeekMessagesCount = computed(() => {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    return this.contactMessages().filter(
-      (m) => m.createdAt && new Date(m.createdAt) >= sevenDaysAgo
-    ).length;
+    return this.contactMessages().filter((m) => {
+      const d = this.parseMessageDate(m.createdAt);
+      return d && d >= sevenDaysAgo;
+    }).length;
   });
 
   lastMonthMessagesCount = computed(() => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    return this.contactMessages().filter(
-      (m) => m.createdAt && new Date(m.createdAt) >= thirtyDaysAgo
-    ).length;
+    return this.contactMessages().filter((m) => {
+      const d = this.parseMessageDate(m.createdAt);
+      return d && d >= thirtyDaysAgo;
+    }).length;
   });
 
   filteredMessages = computed(() => {
@@ -91,15 +128,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     if (filter === 'today') {
       const todayStr = new Date().toDateString();
-      msgs = msgs.filter((m) => m.createdAt && new Date(m.createdAt).toDateString() === todayStr);
+      msgs = msgs.filter((m) => {
+        const d = this.parseMessageDate(m.createdAt);
+        return d && d.toDateString() === todayStr;
+      });
     } else if (filter === 'week') {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      msgs = msgs.filter((m) => m.createdAt && new Date(m.createdAt) >= sevenDaysAgo);
+      msgs = msgs.filter((m) => {
+        const d = this.parseMessageDate(m.createdAt);
+        return d && d >= sevenDaysAgo;
+      });
     } else if (filter === 'month') {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      msgs = msgs.filter((m) => m.createdAt && new Date(m.createdAt) >= thirtyDaysAgo);
+      msgs = msgs.filter((m) => {
+        const d = this.parseMessageDate(m.createdAt);
+        return d && d >= thirtyDaysAgo;
+      });
     }
 
     if (!query) return msgs;
