@@ -1,12 +1,12 @@
 {
   "name": "portfolio-angular",
   "version": "1.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development"
-  },
+   "scripts": {
+      "ng": "ng",
+      "start": "ng serve",
+      "build": "cross-env NG_DISABLE_VERSION_CHECK=1 ng build",
+      "watch": "ng build --watch --configuration development"
+    },
   "private": true,
   "dependencies": {
     "@angular/common": "^22.0.0",
