@@ -17,6 +17,9 @@ public class ContactMessageEntity {
     @Column(name = "EMAIL", nullable = false)
     private String email;
 
+    @Column(name = "MOBILE")
+    private String mobile;
+
     @Column(name = "MESSAGE", nullable = false, columnDefinition = "TEXT")
     private String message;
 
@@ -28,9 +31,10 @@ public class ContactMessageEntity {
 
     public ContactMessageEntity() {}
 
-    public ContactMessageEntity(String fullname, String email, String message) {
+    public ContactMessageEntity(String fullname, String email, String mobile, String message) {
         this.fullname = fullname;
         this.email = email;
+        this.mobile = mobile;
         this.message = message;
         this.createdAt = Instant.now();
         this.isRead = false;
@@ -58,6 +62,14 @@ public class ContactMessageEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public String getMessage() {

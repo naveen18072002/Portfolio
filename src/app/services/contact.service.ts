@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 export interface ContactPayload {
   fullname: string;
   email: string;
+  mobile?: string;
   message: string;
   honeypot?: string;
 }
@@ -14,6 +15,7 @@ export interface ContactMessageItem {
   id?: number;
   fullname: string;
   email: string;
+  mobile?: string;
   message: string;
   createdAt?: string;
   isRead?: boolean;
@@ -29,6 +31,7 @@ export class ContactService {
     return this.http.post(this.endpoint, {
       fullname: payload.fullname,
       email: payload.email,
+      mobile: payload.mobile || '',
       message: payload.message,
       honeypot: payload.honeypot || ''
     });
@@ -49,5 +52,9 @@ export class ContactService {
 
   deleteMessage(id: number): Observable<any> {
     return this.http.delete(`${this.messagesEndpoint}/${id}`);
+  }
+
+  replyToMessage(id: number, replyBody: string): Observable<any> {
+    return this.http.post(`${this.messagesEndpoint}/${id}/reply`, { message: replyBody });
   }
 }

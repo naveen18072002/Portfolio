@@ -3,6 +3,8 @@ package com.portfolio.server.service;
 import com.portfolio.server.dto.ContactMessageDto;
 import com.portfolio.server.entity.ContactMessageEntity;
 import com.portfolio.server.repository.ContactMessageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Service
 public class ContactMessageService {
+
+    private static final Logger log = LoggerFactory.getLogger(ContactMessageService.class);
 
     @Autowired
     private ContactMessageRepository contactMessageRepository;
@@ -28,26 +32,29 @@ public class ContactMessageService {
         ContactMessageEntity entity = new ContactMessageEntity(
                 dto.getFullname(),
                 dto.getEmail(),
+                dto.getMobile(),
                 dto.getMessage()
         );
-        entity = contactMessageRepository.save(entity);
+        ContactMessageEntity saved = contactMessageRepository.save(entity);
 
         // Send email notification to Admin asynchronously in background (non-blocking)
         java.util.concurrent.CompletableFuture.runAsync(() -> {
             try {
-                emailService.sendContactNotificationEmail(adminEmail, dto.getFullname(), dto.getEmail(), dto.getMessage());
+                emailService.sendContactNotificationEmail(adminEmail, dto.getFullname(), dto.getEmail(), dto.getMobile(), dto.getMessage());
             } catch (Exception e) {
-                System.err.println("Contact saved to DB, but async email notification failed: " + e.getMessage());
+                log.error("Contact saved to DB (id={}), but async email notification to {} failed",
+                        saved.getId(), adminEmail, e);
             }
         });
 
         return new ContactMessageDto(
-                entity.getId(),
-                entity.getFullname(),
-                entity.getEmail(),
-                entity.getMessage(),
-                entity.getCreatedAt(),
-                entity.getIsRead()
+                saved.getId(),
+                saved.getFullname(),
+                saved.getEmail(),
+                saved.getMobile(),
+                saved.getMessage(),
+                saved.getCreatedAt(),
+                saved.getIsRead()
         );
     }
 
@@ -60,6 +67,7 @@ public class ContactMessageService {
                     e.getId(),
                     e.getFullname(),
                     e.getEmail(),
+                    e.getMobile(),
                     e.getMessage(),
                     e.getCreatedAt(),
                     e.getIsRead()
@@ -80,6 +88,14 @@ public class ContactMessageService {
     @Transactional
     public void markAllAsRead() {
         contactMessageRepository.markAllAsRead();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean replyToMessage(Long id, String replyBody) {
+        return contactMessageRepository.findById(id).map(entity -> {
+            emailService.sendReplyEmail(entity.getEmail(), entity.getFullname(), replyBody, entity.getMessage());
+            return true;
+        }).orElse(false);
     }
 
     @Transactional

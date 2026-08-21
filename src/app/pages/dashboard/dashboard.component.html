@@ -792,7 +792,7 @@
               <ion-icon name="checkmark-done-outline"></ion-icon>
               <span>Mark All Read</span>
             </button>
-            <button class="btn-danger" (click)="deleteSelectedMessages()" *ngIf="selectedMessageIds().length > 0">
+            <button class="btn-danger" (click)="requestDeleteSelectedMessages()" *ngIf="selectedMessageIds().length > 0">
               <ion-icon name="trash-outline"></ion-icon>
               <span>Delete Selected ({{ selectedMessageIds().length }})</span>
             </button>
@@ -930,6 +930,7 @@
                 <th style="width: 90px; text-align: center;">Status</th>
                 <th style="min-width: 160px;">Sender</th>
                 <th style="min-width: 190px;">Email</th>
+                <th style="min-width: 140px;">Mobile</th>
                 <th style="min-width: 240px;">Message Preview</th>
                 <th style="width: 150px;">Date & Time</th>
                 <th style="width: 120px; text-align: center;">Actions</th>
@@ -961,6 +962,10 @@
                 <td class="email-cell">
                   <a [href]="'mailto:' + msg.email" class="user-email-link">{{ msg.email }}</a>
                 </td>
+                <td class="email-cell">
+                  <a *ngIf="msg.mobile" [href]="'tel:' + msg.mobile" class="user-email-link">{{ msg.mobile }}</a>
+                  <span *ngIf="!msg.mobile" class="preview-text" style="opacity: 0.5;">—</span>
+                </td>
                 <td class="message-preview-cell" (click)="openMessageModal(msg)" title="Click to view full message">
                   <span class="preview-text">{{ msg.message }}</span>
                 </td>
@@ -976,7 +981,7 @@
                     <button type="button" class="btn-view-msg" (click)="openMessageModal(msg)" title="View Details">
                       <ion-icon name="eye-outline"></ion-icon>
                     </button>
-                    <button type="button" class="btn-delete-msg" (click)="deleteContactMessage(msg.id, $event)" title="Delete Message">
+                    <button type="button" class="btn-delete-msg" (click)="requestDeleteMessage(msg.id, $event)" title="Delete Message">
                       <ion-icon name="trash-outline"></ion-icon>
                     </button>
                   </div>
@@ -1059,6 +1064,10 @@
                 <span class="detail-label">Email:</span>
                 <a [href]="'mailto:' + msg.email" class="user-email-link">{{ msg.email }}</a>
               </div>
+              <div class="detail-row" *ngIf="msg.mobile">
+                <span class="detail-label">Mobile:</span>
+                <a [href]="'tel:' + msg.mobile" class="user-email-link">{{ msg.mobile }}</a>
+              </div>
               <div class="detail-row" *ngIf="msg.createdAt">
                 <span class="detail-label">Sent At:</span>
                 <span class="detail-val">{{ formatMessageDateFull(msg.createdAt) }}</span>
@@ -1090,14 +1099,32 @@
                   </button>
                 </div>
               </div>
+
+              <!-- Reply Compose Section -->
+              <div class="reply-compose">
+                <label class="templates-label">
+                  <ion-icon name="create-outline"></ion-icon> Write Reply to {{ msg.email }}:
+                </label>
+                <textarea
+                  class="dash-input reply-textarea"
+                  rows="6"
+                  [(ngModel)]="replyDraft"
+                  [disabled]="isSendingReply"
+                  placeholder="Type your reply here and click Send Reply...">
+                </textarea>
+              </div>
             </div>
 
             <div class="modal-footer" *ngIf="selectedMessage() as msg">
-              <a [href]="getMailtoLink(msg)" class="btn-success">
+              <button type="button" class="btn-success" (click)="sendReply()" [disabled]="isSendingReply || !replyDraft.trim()">
                 <ion-icon name="paper-plane-outline"></ion-icon>
-                <span>Reply via Email</span>
+                <span>{{ isSendingReply ? 'Sending...' : 'Send Reply' }}</span>
+              </button>
+              <a [href]="getMailtoLink(msg)" class="btn-secondary" title="Open in your device's mail app instead">
+                <ion-icon name="mail-outline"></ion-icon>
+                <span>Open in Mail App</span>
               </a>
-              <button type="button" class="btn-danger" (click)="deleteContactMessage(msg.id)">
+              <button type="button" class="btn-danger" (click)="requestDeleteMessage(msg.id)">
                 <ion-icon name="trash-outline"></ion-icon>
                 <span>Delete</span>
               </button>
@@ -1106,6 +1133,30 @@
           </div>
         </div>
       </section>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-backdrop confirm-backdrop" *ngIf="deleteConfirm() as pending" (click)="cancelDelete()">
+    <div class="confirm-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <div class="confirm-icon">
+        <ion-icon name="warning-outline"></ion-icon>
+      </div>
+      <h3>Delete Message{{ pending.ids.length > 1 ? 's' : '' }}?</h3>
+      <p>
+        Are you sure you want to permanently delete
+        {{ pending.ids.length === 1 ? 'this message' : pending.ids.length + ' selected messages' }}?
+        This action cannot be undone.
+      </p>
+      <div class="confirm-actions">
+        <button type="button" class="btn-danger" (click)="confirmDelete()">
+          <ion-icon name="trash-outline"></ion-icon>
+          <span>Yes, Delete</span>
+        </button>
+        <button type="button" class="btn-secondary" (click)="cancelDelete()">
+          <span>No, Cancel</span>
+        </button>
+      </div>
     </div>
   </div>
 

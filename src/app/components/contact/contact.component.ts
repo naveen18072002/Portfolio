@@ -75,6 +75,7 @@ export class ContactComponent {
   readonly form = this.fb.group({
     fullname: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
+    mobile: ['', [Validators.required, Validators.pattern(/^[+]?[\d\s\-()]{7,20}$/)]],
     message: ['Hello, I wanted to reach out to you regarding...', [Validators.required, Validators.minLength(10)]],
     website_hp: [''] // Anti-spam honeypot (bots fill this, humans won't)
   });
@@ -140,7 +141,7 @@ export class ContactComponent {
       return;
     }
 
-    const { fullname, email, message, website_hp } = this.form.getRawValue();
+    const { fullname, email, mobile, message, website_hp } = this.form.getRawValue();
 
     // Anti-Spam Check: If the honeypot field is filled, silently simulate success without hitting the API
     if (website_hp && website_hp.trim().length > 0) {
@@ -152,7 +153,7 @@ export class ContactComponent {
     this.submitting.set(true);
 
     this.contactService
-      .submit({ fullname: fullname!, email: email!, message: message!, honeypot: website_hp || '' })
+      .submit({ fullname: fullname!, email: email!, mobile: mobile || '', message: message!, honeypot: website_hp || '' })
       .subscribe({
         next: () => {
           this.submitting.set(false);

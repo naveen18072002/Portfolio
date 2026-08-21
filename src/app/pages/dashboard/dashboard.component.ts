@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal, computed, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -44,6 +44,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   currentPage = signal<number>(1);
   pageSize = signal<number>(5);
   selectedMessage = signal<ContactMessageItem | null>(null);
+  replyDraft = '';
+  isSendingReply = false;
 
   selectedMessageIds = signal<number[]>([]);
   readMessageIds = signal<number[]>([]);
@@ -214,6 +216,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   openMessageModal(msg: ContactMessageItem): void {
     this.selectedMessage.set(msg);
+    this.replyDraft = '';
     if (msg.id && !msg.isRead) {
       this.toggleMessageRead(msg.id);
     }
@@ -221,9 +224,47 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   closeMessageModal(): void {
     this.selectedMessage.set(null);
+    this.replyDraft = '';
   }
 
-  deleteContactMessage(id?: number, event?: Event): void {
+  @HostListener('document:keydown.escape')
+  onEscapePressed(): void {
+    if (this.selectedMessage()) {
+      this.closeMessageModal();
+    }
+  }
+
+  sendReply(): void {
+    const msg = this.selectedMessage();
+    const replyBody = this.replyDraft.trim();
+
+    if (!msg?.id) {
+      this.showToast('No message selected to reply to.');
+      return;
+    }
+    if (!replyBody) {
+      this.showToast('Reply message cannot be empty.');
+      return;
+    }
+
+    this.isSendingReply = true;
+    this.contactService.replyToMessage(msg.id, replyBody).subscribe({
+      next: () => {
+        this.isSendingReply = false;
+        this.replyDraft = '';
+        this.showToast(`Reply sent successfully to ${msg.email}!`);
+      },
+      error: (err) => {
+        console.error('Failed to send reply:', err);
+        this.isSendingReply = false;
+        this.showToast('Failed to send reply. Please try again.');
+      }
+    });
+  }
+
+  deleteConfirm = signal<{ ids: number[] } | null>(null);
+
+  requestDeleteMessage(id?: number, event?: Event): void {
     if (event) {
       event.stopPropagation();
     }
@@ -231,7 +272,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.showToast('Unable to delete message: missing message ID.');
       return;
     }
-    if (confirm('Are you sure you want to delete this contact message?')) {
+    this.deleteConfirm.set({ ids: [id] });
+  }
+
+  requestDeleteSelectedMessages(): void {
+    const ids = this.selectedMessageIds();
+    if (ids.length === 0) return;
+    this.deleteConfirm.set({ ids });
+  }
+
+  cancelDelete(): void {
+    this.deleteConfirm.set(null);
+  }
+
+  confirmDelete(): void {
+    const pending = this.deleteConfirm();
+    if (!pending || pending.ids.length === 0) return;
+    const ids = pending.ids;
+    this.deleteConfirm.set(null);
+
+    if (ids.length === 1) {
+      const id = ids[0];
       this.contactService.deleteMessage(id).subscribe({
         next: () => {
           this.showToast('Contact message deleted successfully!');
@@ -245,7 +306,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.showToast('Failed to delete message.');
         }
       });
+      return;
     }
+
+    let count = 0;
+    ids.forEach((id) => {
+      this.contactService.deleteMessage(id).subscribe({
+        next: () => {
+          count++;
+          if (count === ids.length) {
+            this.showToast(`Successfully deleted ${count} message(s)!`);
+            this.selectedMessageIds.set([]);
+            this.fetchContactMessages();
+          }
+        },
+        error: (err) => console.error(`Error deleting message ${id}:`, err)
+      });
+    });
   }
   // Form Models initialized from service
   profileForm!: ProfileData;
@@ -312,22 +389,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private initActiveTab(): void {
-    const urlTab = this.route.snapshot.queryParamMap.get('tab') as DashboardTab | null;
+    const urlTab = this.route.snapshot.paramMap.get('tab') as DashboardTab | null;
     const initialTab: DashboardTab = urlTab && VALID_DASHBOARD_TABS.includes(urlTab) ? urlTab : 'profile';
 
     this.activeTab.set(initialTab);
 
     if (urlTab !== initialTab) {
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { tab: initialTab },
-        queryParamsHandling: 'merge',
-        replaceUrl: true
-      });
+      this.router.navigate(['/dashboard', initialTab], { replaceUrl: true });
     }
 
-    this.routeSub = this.route.queryParams.subscribe((params) => {
-      const tab = params['tab'] as DashboardTab;
+    this.routeSub = this.route.paramMap.subscribe((params) => {
+      const tab = params.get('tab') as DashboardTab | null;
       if (tab && VALID_DASHBOARD_TABS.includes(tab) && this.activeTab() !== tab) {
         this.activeTab.set(tab);
         if (tab === 'messages') {
@@ -376,11 +448,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   setTab(tab: DashboardTab): void {
     if (!VALID_DASHBOARD_TABS.includes(tab)) return;
     this.activeTab.set(tab);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { tab },
-      queryParamsHandling: 'merge'
-    });
+    this.router.navigate(['/dashboard', tab]);
     if (tab === 'messages') {
       this.fetchContactMessages();
     }
@@ -881,27 +949,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  deleteSelectedMessages(): void {
-    const ids = this.selectedMessageIds();
-    if (ids.length === 0) return;
-    if (confirm(`Are you sure you want to delete ${ids.length} selected message(s)?`)) {
-      let count = 0;
-      ids.forEach((id) => {
-        this.contactService.deleteMessage(id).subscribe({
-          next: () => {
-            count++;
-            if (count === ids.length) {
-              this.showToast(`Successfully deleted ${count} message(s)!`);
-              this.selectedMessageIds.set([]);
-              this.fetchContactMessages();
-            }
-          },
-          error: (err) => console.error(`Error deleting message ${id}:`, err)
-        });
-      });
-    }
-  }
-
   backupFullPortfolioJSON(): void {
     const data = {
       version: '1.0',
@@ -978,10 +1025,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       body = `Hi ${senderName},\n\nThanks for your message! I'd be glad to connect and discuss this further with you.\n\nPlease let me know 2-3 time slots that work well for your schedule this week, or feel free to send over a calendar invite directly.\n\nLooking forward to speaking with you soon!\n\nBest regards,\n\n${myName}\n${myTitle}\nPortfolio: ${siteUrl}`;
     }
 
+    // Insert the template directly into the Write Reply textarea
+    this.replyDraft = body;
+
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(body).then(() => {
         const label = type === 'general' ? 'General' : type === 'project' ? 'Project' : type === 'recruiter' ? 'Recruiter' : 'Schedule Call';
-        this.showToast(`Copied "${label}" email reply template to clipboard!`);
+        this.showToast(`"${label}" template added to reply box & copied to clipboard!`);
       });
     }
   }

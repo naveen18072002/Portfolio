@@ -2,6 +2,7 @@ package com.portfolio.server.controller;
 
 import com.portfolio.server.dto.ApiResponse;
 import com.portfolio.server.dto.ContactMessageDto;
+import com.portfolio.server.dto.ReplyRequest;
 import com.portfolio.server.service.ContactMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,9 @@ public class ContactController {
         if (dto.getFullname() == null || dto.getEmail() == null || dto.getMessage() == null) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Name, email and message are required."));
         }
+        if (dto.getMobile() == null || dto.getMobile().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "Mobile number is required."));
+        }
         contactMessageService.saveAndNotify(dto);
         return ResponseEntity.ok(new ApiResponse(true, "Thank you! Your message has been sent and stored successfully."));
     }
@@ -50,6 +54,18 @@ public class ContactController {
     public ResponseEntity<ApiResponse> markAllMessagesAsRead() {
         contactMessageService.markAllAsRead();
         return ResponseEntity.ok(new ApiResponse(true, "All messages marked as read."));
+    }
+
+    @PostMapping("/messages/{id}/reply")
+    public ResponseEntity<ApiResponse> replyToMessage(@PathVariable Long id, @RequestBody ReplyRequest request) {
+        if (request.getMessage() == null || request.getMessage().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponse(false, "Reply message cannot be empty."));
+        }
+        boolean sent = contactMessageService.replyToMessage(id, request.getMessage());
+        if (sent) {
+            return ResponseEntity.ok(new ApiResponse(true, "Reply sent successfully."));
+        }
+        return ResponseEntity.badRequest().body(new ApiResponse(false, "Message not found."));
     }
 
     @DeleteMapping("/messages/{id}")

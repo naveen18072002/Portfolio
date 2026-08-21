@@ -47,9 +47,7 @@
           <div class="form-group">
             <div class="label-row">
               <label for="password">Password</label>
-              <button type="button" class="forgot-link" (click)="openForgotPassword()">
-                Forgot password?
-              </button>
+             
             </div>
             <div class="input-icon-wrapper">
               <ion-icon name="key-outline" class="field-icon"></ion-icon>
@@ -74,6 +72,7 @@
                 <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
               </button>
             </div>
+             
           </div>
 
           <!-- Caps Lock Warning -->
@@ -93,6 +92,9 @@
               />
               <span>Remember username</span>
             </label>
+            <button type="button" class="forgot-link" (click)="openForgotPassword()">
+                Forgot password?
+              </button>
           </div>
 
           <!-- Error Alert Banner -->

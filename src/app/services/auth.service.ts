@@ -36,9 +36,37 @@ export class AuthService {
   private checkInitialAuth(): boolean {
     if (typeof window === 'undefined') return false;
     try {
-      return sessionStorage.getItem(this.AUTH_KEY) === 'true' || !!localStorage.getItem(this.TOKEN_KEY);
+      const token = localStorage.getItem(this.TOKEN_KEY);
+      if (!token) return false;
+      if (this.isTokenExpired(token)) {
+        this.clearSession();
+        return false;
+      }
+      return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return true;
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      if (!payload || typeof payload.exp !== 'number') return true;
+      return payload.exp * 1000 <= Date.now();
+    } catch (e) {
+      return true;
+    }
+  }
+
+  private clearSession(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.removeItem(this.AUTH_KEY);
+        localStorage.removeItem(this.TOKEN_KEY);
+      } catch (e) {}
     }
   }
 
@@ -109,15 +137,15 @@ export class AuthService {
   }
 
   logout(): void {
-    if (typeof window !== 'undefined') {
-      try {
-        sessionStorage.removeItem(this.AUTH_KEY);
-        localStorage.removeItem(this.TOKEN_KEY);
-      } catch (e) {}
-    }
+    this.clearSession();
     this.jwtToken.set(null);
     this.isLoggedIn.set(false);
     this.router.navigate(['/login']);
+  }
+
+  handleSessionExpired(): void {
+    if (!this.isLoggedIn()) return;
+    this.logout();
   }
 
   isAuthenticated(): boolean {

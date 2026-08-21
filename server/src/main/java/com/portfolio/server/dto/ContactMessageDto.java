@@ -7,6 +7,7 @@ public class ContactMessageDto {
     private Long id;
     private String fullname;
     private String email;
+    private String mobile;
     private String message;
     private String honeypot;
 
@@ -17,32 +18,22 @@ public class ContactMessageDto {
 
     public ContactMessageDto() {}
 
-    public ContactMessageDto(Long id, String fullname, String email, String message, Instant createdAt) {
+    public ContactMessageDto(Long id, String fullname, String email, String mobile, String message, Instant createdAt, Boolean isRead) {
         this.id = id;
         this.fullname = fullname;
         this.email = email;
+        this.mobile = mobile;
         this.message = message;
         this.createdAt = createdAt;
-        this.isRead = false;
+        this.isRead = isRead != null && isRead;
+    }
+
+    public ContactMessageDto(Long id, String fullname, String email, String message, Instant createdAt) {
+        this(id, fullname, email, null, message, createdAt, false);
     }
 
     public ContactMessageDto(Long id, String fullname, String email, String message, Instant createdAt, Boolean isRead) {
-        this.id = id;
-        this.fullname = fullname;
-        this.email = email;
-        this.message = message;
-        this.createdAt = createdAt;
-        this.isRead = isRead != null && isRead;
-    }
-
-    public ContactMessageDto(Long id, String fullname, String email, String message, String honeypot, Instant createdAt, Boolean isRead) {
-        this.id = id;
-        this.fullname = fullname;
-        this.email = email;
-        this.message = message;
-        this.honeypot = honeypot;
-        this.createdAt = createdAt;
-        this.isRead = isRead != null && isRead;
+        this(id, fullname, email, null, message, createdAt, isRead);
     }
 
     public Long getId() {
@@ -67,6 +58,14 @@ public class ContactMessageDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public String getMessage() {

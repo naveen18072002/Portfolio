@@ -251,7 +251,9 @@
   grid-template-columns: 260px minmax(0, 1fr);
   gap: 28px;
   min-height: calc(100vh - 120px);
-  animation: slideUpFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* No 'both' fill-mode: a retained transform would create a stacking context
+     that traps the fixed-position message modal below the sticky header */
+  animation: slideUpFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideUpFadeIn {
@@ -722,7 +724,7 @@
 /* Toast Notification */
 .toast-popup {
   position: fixed;
-  top: 24px;
+  top: 80px;
   right: 24px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
@@ -894,8 +896,8 @@
   }
 
   .toast-popup {
-    top: 16px;
-    bottom: auto;
+    top: auto;
+    bottom: 16px;
     left: 50%;
     right: auto;
     transform: translateX(-50%);
@@ -911,7 +913,7 @@
   }
 
   @keyframes toastMobileSlideIn {
-    from { transform: translate(-50%, -30px); opacity: 0; }
+    from { transform: translate(-50%, 30px); opacity: 0; }
     to { transform: translate(-50%, 0); opacity: 1; }
   }
 }
@@ -1525,9 +1527,11 @@
   backdrop-filter: blur(6px);
   z-index: 3000;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   animation: fadeIn 0.25s ease;
 }
 
@@ -1540,6 +1544,62 @@
   padding: 28px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
   animation: scaleUp 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* Centers when shorter than viewport, scrolls with backdrop when taller */
+  margin: auto;
+}
+
+/* Delete Confirmation Dialog */
+.confirm-backdrop {
+  z-index: 4000;
+}
+
+.confirm-card {
+  background: var(--eerie-black-2, #1e1e1f);
+  border: 1px solid var(--jet, #383838);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 420px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  animation: scaleUp 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  margin: auto;
+}
+
+.confirm-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.confirm-icon ion-icon {
+  font-size: 32px;
+}
+
+.confirm-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: var(--white-2, #fafafa);
+}
+
+.confirm-card p {
+  margin: 0 0 22px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--light-gray-70, rgba(214, 214, 214, 0.7));
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .modal-header {
@@ -1659,6 +1719,25 @@
   }
 }
 
+/* Reply Compose Section */
+.reply-compose {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.reply-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.reply-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-template {
   display: inline-flex;
   align-items: center;
@@ -1711,6 +1790,26 @@
 
 /* Mobile Devices (<580px) */
 @media (max-width: 580px) {
+  /* Toolbar action buttons: 2 per row on mobile */
+  .header-action-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .header-action-group .btn-secondary,
+  .header-action-group .btn-danger,
+  .header-action-group .btn-success,
+  .header-action-group .btn-primary {
+    flex: 1 1 calc(50% - 5px);
+    min-width: calc(50% - 5px);
+    justify-content: center;
+    padding: 10px 6px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
   .table-toolbar {
     flex-direction: column;
     align-items: stretch;
@@ -1821,6 +1920,133 @@
 
   .search-box {
     max-width: 420px;
+  }
+}
+
+/* ============================================
+   Message Details Modal — Mobile & Tablet
+   ============================================ */
+
+/* Tablet Screens (581px - 1024px) */
+@media (min-width: 581px) and (max-width: 1024px) {
+  .modal-backdrop {
+    padding: 24px;
+  }
+
+  .message-modal-card {
+    max-width: 560px;
+    padding: 24px;
+  }
+
+  .modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .reply-textarea {
+    min-height: 110px;
+  }
+}
+
+/* Mobile Devices (<580px) */
+@media (max-width: 580px) {
+  .modal-backdrop {
+    padding: 12px;
+  }
+
+  .message-modal-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .modal-header {
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .modal-header h3 {
+    font-size: 1.02rem;
+    gap: 8px;
+  }
+
+  /* Bigger tap target for the close button */
+  .modal-close-btn {
+    font-size: 1.6rem;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-body {
+    gap: 10px;
+  }
+
+  .detail-row {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    font-size: 0.88rem;
+  }
+
+  .detail-label {
+    width: auto;
+    min-width: 62px;
+  }
+
+  /* Allow long emails / numbers to wrap instead of overflowing */
+  .user-email-link {
+    word-break: break-all;
+  }
+
+  .full-msg-content {
+    max-height: 180px;
+    padding: 12px;
+    font-size: 0.88rem;
+  }
+
+  .quick-reply-templates,
+  .reply-compose {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .templates-label {
+    font-size: 0.76rem;
+  }
+
+  .btn-template {
+    padding: 10px 12px;
+    font-size: 0.82rem;
+  }
+
+  /* 16px+ input font prevents iOS Safari auto-zoom on focus */
+  .reply-textarea {
+    width: 100%;
+    min-height: 96px;
+    font-size: 1rem;
+    padding: 12px;
+  }
+
+  .modal-footer {
+    gap: 8px;
+  }
+
+  .modal-footer .btn-success,
+  .modal-footer .btn-danger,
+  .modal-footer .btn-secondary {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Small Phones (<400px) */
+@media (max-width: 400px) {
+  .template-btns-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .message-modal-card {
+    padding: 14px;
   }
 }
 
